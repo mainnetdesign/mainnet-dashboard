@@ -1,5 +1,5 @@
 'use client'
-import { DashboardData } from '@/types'
+import { DashboardData, ComparisonKPIs } from '@/types'
 
 function fmt(value: number) {
   return new Intl.NumberFormat('pt-BR', {
@@ -27,50 +27,71 @@ function monthsDiff(start: string, end: string) {
   return months
 }
 
+function DeltaBadge({ current, previous }: { current: number; previous: number }) {
+  if (previous === 0) return null
+  const pct = ((current - previous) / Math.abs(previous)) * 100
+  const up = pct >= 0
+  return (
+    <span className={`inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 rounded-full ${up ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
+      {up ? '↑' : '↓'} {Math.abs(pct).toFixed(0)}%
+    </span>
+  )
+}
+
 interface Props {
   data: DashboardData
 }
 
+function Card({ label, value, sub, largeText, delta }: {
+  label: string
+  value: string
+  sub: string
+  largeText?: boolean
+  delta?: { current: number; previous: number }
+}) {
+  return (
+    <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+      <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">{label}</p>
+      <div className="flex items-baseline gap-2 mb-1">
+        <p className={`font-bold text-gray-900 leading-tight ${largeText ? 'text-2xl' : 'text-3xl'}`}>
+          {value}
+        </p>
+        {delta && <DeltaBadge current={delta.current} previous={delta.previous} />}
+      </div>
+      <p className="text-sm text-gray-500">{sub}</p>
+    </div>
+  )
+}
+
 export default function KPICards({ data }: Props) {
   const months = monthsDiff(data.period.start, data.period.end)
-
-  const cards = [
-    {
-      label: 'TOTAL INVESTIDO',
-      value: fmt(data.totalCost),
-      sub: `${months} meses · ${data.collaborators.length} colaboradores`,
-    },
-    {
-      label: 'OVERHEAD SEM PROJETO',
-      value: fmt(data.overheadCost),
-      sub: `${data.overheadPercent.toFixed(1)}% das horas`,
-    },
-    {
-      label: 'PROJETO MAIS CARO',
-      value: data.mostExpensiveProject.name,
-      sub: fmt(data.mostExpensiveProject.cost),
-      largeText: true,
-    },
-    {
-      label: 'CUSTO/HORA MAIS ALTO',
-      value: fmtRate(data.highestCostPerHour.rate),
-      sub: `${data.highestCostPerHour.name} · ${data.highestCostPerHour.percentOfTotal.toFixed(0)}% do custo total`,
-    },
-  ]
+  const prevRevenue = data.comparison?.totalRevenue ?? 0
+  const currRevenue = data.pl.reduce((s, p) => s + p.revenue, 0)
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      {cards.map((card) => (
-        <div key={card.label} className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-          <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">
-            {card.label}
-          </p>
-          <p className={`font-bold text-gray-900 leading-tight mb-1 ${card.largeText ? 'text-2xl' : 'text-3xl'}`}>
-            {card.value}
-          </p>
-          <p className="text-sm text-gray-500">{card.sub}</p>
-        </div>
-      ))}
+      <Card
+        label="TOTAL INVESTIDO"
+        value={fmt(data.totalCost)}
+        sub={`${months} meses · ${data.collaborators.length} colaboradores`}
+      />
+      <Card
+        label="OVERHEAD SEM PROJETO"
+        value={fmt(data.overheadCost)}
+        sub={`${data.overheadPercent.toFixed(1)}% das horas`}
+      />
+      <Card
+        label="PROJETO MAIS CARO"
+        value={data.mostExpensiveProject.name}
+        sub={fmt(data.mostExpensiveProject.cost)}
+        largeText
+      />
+      <Card
+        label="RECEITA RASTREADA"
+        value={fmt(currRevenue)}
+        sub={prevRevenue > 0 ? `vs ${fmt(prevRevenue)} período anterior` : 'entradas realizadas no Notion'}
+        delta={prevRevenue > 0 ? { current: currRevenue, previous: prevRevenue } : undefined}
+      />
     </div>
   )
 }

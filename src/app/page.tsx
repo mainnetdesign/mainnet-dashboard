@@ -7,6 +7,8 @@ import CostByCollaborator from '@/components/CostByCollaborator'
 import PLTable from '@/components/PLTable'
 import DateRangePicker from '@/components/DateRangePicker'
 import MonthlyChart from '@/components/MonthlyChart'
+import AlertsPanel from '@/components/AlertsPanel'
+import RateHistoryChart from '@/components/RateHistoryChart'
 
 const AUTO_REFRESH_MS = 60 * 60 * 1000 // 1 hora
 
@@ -141,17 +143,8 @@ export default function Dashboard() {
             {/* KPI Cards */}
             <KPICards data={data} />
 
-            {/* Revenue + Cost summary banner */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-                <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                  RECEITA RASTREADA
-                </p>
-                <p className="text-3xl font-bold text-gray-900 leading-tight mb-1">
-                  {fmtBRL(data.pl.reduce((s, p) => s + p.revenue, 0))}
-                </p>
-                <p className="text-sm text-gray-500">entradas realizadas no Notion</p>
-              </div>
+            {/* Financial summary banner */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
               <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
                 <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">
                   CUSTO TOTAL (HORAS)
@@ -191,6 +184,9 @@ export default function Dashboard() {
               </div>
             </div>
 
+            {/* Alerts panel */}
+            <AlertsPanel alerts={data.alerts} />
+
             {/* Attention banner */}
             {data.pl.some((p) => p.hasAttention) && (
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-8 text-sm text-amber-800">
@@ -211,6 +207,9 @@ export default function Dashboard() {
                 <CostByCollaborator data={data} />
               </div>
             </div>
+
+            {/* Collaborator rate history */}
+            {data.monthly.length > 1 && <RateHistoryChart data={data.monthly} />}
 
             {/* P&L Table */}
             <PLTable pl={data.pl} />

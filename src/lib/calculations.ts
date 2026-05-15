@@ -1,4 +1,4 @@
-import { ClockifyEntry, ProjectCostData, CollaboratorSummary, ProjectPL, DashboardData, MonthlyData } from '@/types'
+import { ClockifyEntry, ProjectCostData, CollaboratorSummary, ProjectPL, DashboardData, MonthlyData, ComparisonKPIs, AlertItem } from '@/types'
 import { COLLABORATORS, COLLABORATOR_MAP } from '@/config/collaborators'
 import { NotionTransaction } from '@/types'
 import { extractProjectName } from '@/config/projectMapping'
@@ -273,30 +273,83 @@ export function buildDashboardData(
     monthlyCost.set(entry.month, (monthlyCost.get(entry.month) ?? 0) + hours * rate)
   }
 
-  // Revenue per month from Notion payment dates
+  // Revenue per month from Notion payment dates (realized only)
   const monthlyRevenue = new Map<string, number>()
+  const monthlyPredictedRevenue = new Map<string, number>()
   for (const tx of transactions) {
-    if (!tx.realized || !tx.paymentDate) continue
+    if (!tx.paymentDate) continue
     const month = tx.paymentDate.slice(0, 7) // YYYY-MM
-    monthlyRevenue.set(month, (monthlyRevenue.get(month) ?? 0) + tx.value)
+    if (tx.realized) {
+      monthlyRevenue.set(month, (monthlyRevenue.get(month) ?? 0) + tx.value)
+    }
+    // predicted: sum Valor Previsto for all entries (realized or not)
+    monthlyPredictedRevenue.set(month, (monthlyPredictedRevenue.get(month) ?? 0) + tx.predictedValue)
+  }
+
+  // Collaborator effective rates per month: userId → month → R$/h
+  const collaboratorMonthRates = new Map<string, Map<string, number>>()
+  for (const [userId, monthMap] of userMonthHours.entries()) {
+    const collab = COLLABORATOR_MAP.get(userId)
+    if (!collab) continue
+    const rateMap = new Map<string, number>()
+    for (const [month, hours] of monthMap.entries()) {
+      const rate = collab.hourlyRate !== undefined
+        ? collab.hourlyRate
+        : (collab.monthlySalary ?? 0) / hours
+      rateMap.set(month, rate)
+    }
+    collaboratorMonthRates.set(userId, rateMap)
   }
 
   // Merge and sort
-  const allMonths = new Set([...monthlyCost.keys(), ...monthlyRevenue.keys()])
+  const allMonths = new Set([...monthlyCost.keys(), ...monthlyRevenue.keys(), ...monthlyPredictedRevenue.keys()])
   const monthly: MonthlyData[] = Array.from(allMonths)
     .sort()
     .map((m) => {
       const [year, mon] = m.split('-')
       const cost = monthlyCost.get(m) ?? 0
       const revenue = monthlyRevenue.get(m) ?? 0
+      const predictedRevenue = monthlyPredictedRevenue.get(m) ?? 0
+
+      // Build collaboratorRates for this month
+      const collaboratorRates: Record<string, number> = {}
+      for (const [userId, rateMap] of collaboratorMonthRates.entries()) {
+        const rate = rateMap.get(m)
+        if (rate !== undefined) collaboratorRates[userId] = rate
+      }
+
       return {
         month: m,
         label: `${MONTH_LABELS[mon]}/${year.slice(2)}`,
         cost,
         revenue,
+        predictedRevenue,
         result: revenue - cost,
+        collaboratorRates,
       }
     })
+
+  // Alerts
+  const ALERT_LOSS_THRESHOLD = 5000
+  const ALERT_NO_REVENUE_COST_THRESHOLD = 3000
+  const alerts: AlertItem[] = pl
+    .filter((p) => {
+      if (p.result < -ALERT_LOSS_THRESHOLD) return true
+      if (p.margin !== null && p.margin < LOW_MARGIN_THRESHOLD * 100 && p.result >= 0) return true
+      if (p.revenue === 0 && p.cost >= ALERT_NO_REVENUE_COST_THRESHOLD) return true
+      return false
+    })
+    .map((p) => ({
+      projectName: p.clockifyProjectName,
+      type: p.result < 0 ? 'loss' : p.revenue === 0 ? 'no-revenue' : 'low-margin',
+      cost: p.cost,
+      revenue: p.revenue,
+      result: p.result,
+      hours: p.hours,
+    } as AlertItem))
+
+  // Comparison KPIs (previous period of same length)
+  const comparison = buildComparisonKPIs(transactions, startDate, endDate)
 
   return {
     period: { start: startDate, end: endDate },
@@ -315,5 +368,43 @@ export function buildDashboardData(
     totalCostAllCollaborators,
     pl,
     monthly,
+    comparison,
+    alerts,
+  }
+}
+
+function buildComparisonKPIs(
+  transactions: NotionTransaction[],
+  startDate: string,
+  endDate: string
+): ComparisonKPIs | null {
+  const start = new Date(startDate)
+  const end = new Date(endDate)
+  const days = Math.round((end.getTime() - start.getTime()) / 86400000) + 1
+  if (days <= 0) return null
+
+  const prevEnd = new Date(start)
+  prevEnd.setDate(prevEnd.getDate() - 1)
+  const prevStart = new Date(prevEnd)
+  prevStart.setDate(prevStart.getDate() - (days - 1))
+
+  const prevStartStr = prevStart.toISOString().split('T')[0]
+  const prevEndStr = prevEnd.toISOString().split('T')[0]
+
+  let totalRevenue = 0
+  for (const tx of transactions) {
+    if (!tx.realized || !tx.paymentDate) continue
+    if (tx.paymentDate >= prevStartStr && tx.paymentDate <= prevEndStr) {
+      totalRevenue += tx.value
+    }
+  }
+
+  // We don't have prev-period Clockify data here, so return revenue only
+  // totalCost and netResult use null sentinel so KPICards skips those deltas
+  return {
+    totalCost: 0,      // placeholder — not available without extra Clockify fetch
+    totalRevenue,
+    netResult: 0,
+    overheadPercent: 0,
   }
 }

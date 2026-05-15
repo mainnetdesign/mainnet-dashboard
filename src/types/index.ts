@@ -39,6 +39,7 @@ export interface NotionTransaction {
   id: string
   name: string
   value: number
+  predictedValue: number
   realized: boolean
   paymentDate: string | null
 }
@@ -60,7 +61,25 @@ export interface MonthlyData {
   label: string   // "Jan/25"
   cost: number
   revenue: number
+  predictedRevenue: number
   result: number
+  collaboratorRates: Record<string, number> // userId → effective R$/h for that month
+}
+
+export interface ComparisonKPIs {
+  totalCost: number
+  totalRevenue: number
+  netResult: number
+  overheadPercent: number
+}
+
+export interface AlertItem {
+  projectName: string
+  type: 'loss' | 'low-margin' | 'no-revenue'
+  cost: number
+  revenue: number
+  result: number
+  hours: number
 }
 
 export interface DashboardData {
@@ -76,4 +95,6 @@ export interface DashboardData {
   totalCostAllCollaborators: number
   pl: ProjectPL[]
   monthly: MonthlyData[]
+  comparison: ComparisonKPIs | null
+  alerts: AlertItem[]
 }

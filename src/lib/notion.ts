@@ -10,6 +10,7 @@ interface NotionPage {
   properties: {
     Nome: { title: Array<{ plain_text: string }> }
     Valor: { number: number | null }
+    'Valor Previsto': { formula?: { number?: number | null } } | undefined
     Tipo: { select: { name: string } | null }
     Realizado: { checkbox: boolean }
     'Data Pagamento': { date: { start: string } | null }
@@ -59,6 +60,7 @@ export async function fetchAllTransactions(): Promise<NotionTransaction[]> {
       const p = result.properties
       const name = p.Nome.title[0]?.plain_text ?? ''
       const value = p.Valor.number ?? 0
+      const predictedValue = p['Valor Previsto']?.formula?.number ?? value
       const realized = p.Realizado.checkbox
       const paymentDate = p['Data Pagamento'].date?.start ?? null
 
@@ -66,6 +68,7 @@ export async function fetchAllTransactions(): Promise<NotionTransaction[]> {
         id: result.id,
         name,
         value,
+        predictedValue,
         realized,
         paymentDate,
       })

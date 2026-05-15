@@ -18,6 +18,27 @@ interface Props {
   pl: ProjectPL[]
 }
 
+function exportCSV(rows: ProjectPL[]) {
+  const header = ['Projeto', 'Horas', 'Receita', 'Custo', 'Resultado', 'Margem %', 'Status']
+  const lines = rows.map((p) => [
+    `"${p.clockifyProjectName.replace(/"/g, '""')}"`,
+    Math.round(p.hours),
+    p.revenue.toFixed(2),
+    p.cost.toFixed(2),
+    p.result.toFixed(2),
+    p.margin !== null ? p.margin.toFixed(1) : '',
+    p.status,
+  ].join(','))
+  const csv = [header.join(','), ...lines].join('\n')
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `pl_mainnet_${new Date().toISOString().slice(0, 10)}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 export default function PLTable({ pl }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>('result')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
@@ -71,10 +92,23 @@ export default function PLTable({ pl }: Props) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100">
       <div className="p-6 pb-4">
-        <h2 className="text-base font-bold text-gray-900 mb-1">P&L por projeto — dados reais do Clockify</h2>
-        <p className="text-sm text-gray-500 mb-4">
-          Custo = horas reais × custo/hora · clique em qualquer coluna para ordenar
-        </p>
+        <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
+          <div>
+            <h2 className="text-base font-bold text-gray-900 mb-1">P&L por projeto — dados reais do Clockify</h2>
+            <p className="text-sm text-gray-500">
+              Custo = horas reais × custo/hora · clique em qualquer coluna para ordenar
+            </p>
+          </div>
+          <button
+            onClick={() => exportCSV(sorted)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-gray-200 rounded-lg text-gray-600 hover:border-gray-400 hover:text-gray-900 transition-colors whitespace-nowrap"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Exportar CSV
+          </button>
+        </div>
 
         {/* Filters */}
         <div className="flex flex-wrap gap-2">

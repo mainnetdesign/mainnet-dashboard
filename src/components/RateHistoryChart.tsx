@@ -1,7 +1,6 @@
 'use client'
 import {
-  ComposedChart,
-  Bar,
+  LineChart,
   Line,
   XAxis,
   YAxis,
@@ -11,15 +10,7 @@ import {
   CartesianGrid,
 } from 'recharts'
 import { MonthlyData } from '@/types'
-
-function fmtBRL(v: number) {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(v)
-}
+import { COLLABORATORS } from '@/config/collaborators'
 
 interface Props {
   data: MonthlyData[]
@@ -42,8 +33,8 @@ const CustomTooltip = ({
         <div key={p.name} className="flex items-center gap-2 mb-1">
           <span className="w-2 h-2 rounded-full" style={{ background: p.color }} />
           <span className="text-gray-600">{p.name}:</span>
-          <span className={`font-medium ml-auto ${p.name === 'Resultado' ? (p.value >= 0 ? 'text-green-600' : 'text-red-500') : 'text-gray-900'}`}>
-            {p.value >= 0 ? '' : '-'}{fmtBRL(Math.abs(p.value))}
+          <span className="font-medium ml-auto text-gray-900">
+            R${p.value.toFixed(0)}/h
           </span>
         </div>
       ))}
@@ -51,15 +42,32 @@ const CustomTooltip = ({
   )
 }
 
-export default function MonthlyChart({ data }: Props) {
+export default function RateHistoryChart({ data }: Props) {
+  // Build chart rows: each row = a month, keys = collaborator names
+  const chartData = data.map((m) => {
+    const row: Record<string, string | number> = { label: m.label }
+    for (const collab of COLLABORATORS) {
+      const rate = m.collaboratorRates[collab.id]
+      if (rate !== undefined) row[collab.name] = Math.round(rate)
+    }
+    return row
+  })
+
+  // Only include collaborators that appear in at least one month
+  const activeCollabs = COLLABORATORS.filter((c) =>
+    data.some((m) => m.collaboratorRates[c.id] !== undefined)
+  )
+
+  if (activeCollabs.length === 0) return null
+
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-8">
-      <h2 className="text-base font-bold text-gray-900 mb-1">Evolução mensal</h2>
+      <h2 className="text-base font-bold text-gray-900 mb-1">Histórico de custo/hora</h2>
       <p className="text-sm text-gray-500 mb-6">
-        Receita e custo por mês · linha = resultado líquido
+        Taxa efetiva R$/h por colaborador ao longo dos meses
       </p>
-      <ResponsiveContainer width="100%" height={280}>
-        <ComposedChart data={data} margin={{ top: 4, right: 20, left: 0, bottom: 0 }}>
+      <ResponsiveContainer width="100%" height={260}>
+        <LineChart data={chartData} margin={{ top: 4, right: 20, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
           <XAxis
             dataKey="label"
@@ -68,7 +76,7 @@ export default function MonthlyChart({ data }: Props) {
             tickLine={false}
           />
           <YAxis
-            tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`}
+            tickFormatter={(v) => `R$${v}`}
             tick={{ fontSize: 11, fill: '#9ca3af' }}
             axisLine={false}
             tickLine={false}
@@ -78,28 +86,19 @@ export default function MonthlyChart({ data }: Props) {
             wrapperStyle={{ fontSize: 12, paddingTop: 16 }}
             formatter={(value) => <span style={{ color: '#374151' }}>{value}</span>}
           />
-          <Bar dataKey="revenue" name="Receita" fill="#D1FAE5" radius={[4, 4, 0, 0]} />
-          <Bar dataKey="cost" name="Custo" fill="#FEE2E2" radius={[4, 4, 0, 0]} />
-          <Line
-            type="monotone"
-            dataKey="predictedRevenue"
-            name="Receita Prevista"
-            stroke="#9333EA"
-            strokeWidth={2}
-            strokeDasharray="5 3"
-            dot={false}
-            activeDot={{ r: 4 }}
-          />
-          <Line
-            type="monotone"
-            dataKey="result"
-            name="Resultado"
-            stroke="#2563EB"
-            strokeWidth={2}
-            dot={{ r: 3, fill: '#2563EB' }}
-            activeDot={{ r: 5 }}
-          />
-        </ComposedChart>
+          {activeCollabs.map((c) => (
+            <Line
+              key={c.id}
+              type="monotone"
+              dataKey={c.name}
+              stroke={c.color}
+              strokeWidth={2}
+              dot={{ r: 3, fill: c.color }}
+              activeDot={{ r: 5 }}
+              connectNulls
+            />
+          ))}
+        </LineChart>
       </ResponsiveContainer>
     </div>
   )
