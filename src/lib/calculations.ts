@@ -170,18 +170,25 @@ export function matchRevenueToProjects(
   return revenueMap
 }
 
+// Generic single words that should never trigger a contains-match
+const GENERIC_WORDS = new Set(['design', 'web', 'app', 'site', 'logo', 'brand', 'ui', 'ux', 'slides', 'video'])
+
 function fuzzyMatch(extracted: string, options: string[]): string | null {
   const lower = extracted.toLowerCase().trim()
+  if (!lower) return null
 
   // Exact match (case-insensitive)
   const exact = options.find((o) => o.toLowerCase() === lower)
   if (exact) return exact
 
-  // Contains match
-  const contains = options.find(
-    (o) => o.toLowerCase().includes(lower) || lower.includes(o.toLowerCase())
-  )
-  if (contains) return contains
+  // Contains match — only if extracted has 2+ words OR is not a generic word
+  const isGeneric = GENERIC_WORDS.has(lower) || lower.split(' ').length < 2
+  if (!isGeneric) {
+    const contains = options.find(
+      (o) => o.toLowerCase().includes(lower) || lower.includes(o.toLowerCase())
+    )
+    if (contains) return contains
+  }
 
   return null
 }

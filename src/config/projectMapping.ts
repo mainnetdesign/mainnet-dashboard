@@ -20,7 +20,10 @@ export const NOTION_TO_CLOCKIFY: Record<string, string | null> = {
   'san health': 'Sailia',            // update if different project
   'greenpill brasil': 'GreenPill Brasil',
   'green pill': 'Green Pill',
-  'yaseen': null,                    // add to Clockify if needed
+  'yaseen': null,
+  'regen rio': null,                 // not a Clockify project
+  'slides [bluestream]': 'BlueStream',
+  'bluestream': 'BlueStream',
 }
 
 /**
