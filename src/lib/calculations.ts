@@ -1,4 +1,4 @@
-import { ClockifyEntry, ProjectCostData, CollaboratorSummary, ProjectPL, DashboardData } from '@/types'
+import { ClockifyEntry, ProjectCostData, CollaboratorSummary, ProjectPL, DashboardData, MonthlyData } from '@/types'
 import { COLLABORATORS, COLLABORATOR_MAP } from '@/config/collaborators'
 import { NotionTransaction } from '@/types'
 import { extractProjectName } from '@/config/projectMapping'
@@ -250,6 +250,54 @@ export function buildDashboardData(
     }
   })
 
+  // --- MONTHLY BREAKDOWN ---
+  const MONTH_LABELS: Record<string, string> = {
+    '01': 'Jan', '02': 'Fev', '03': 'Mar', '04': 'Abr',
+    '05': 'Mai', '06': 'Jun', '07': 'Jul', '08': 'Ago',
+    '09': 'Set', '10': 'Out', '11': 'Nov', '12': 'Dez',
+  }
+
+  // Cost per month from entries
+  const monthlyCost = new Map<string, number>()
+  for (const entry of entries) {
+    const collab = COLLABORATOR_MAP.get(entry.userId)
+    if (!collab) continue
+    const hours = entry.duration / 3600
+    let rate: number
+    if (collab.hourlyRate !== undefined) {
+      rate = collab.hourlyRate
+    } else {
+      const totalHoursThisMonth = userMonthHours.get(entry.userId)?.get(entry.month) ?? hours
+      rate = (collab.monthlySalary ?? 0) / totalHoursThisMonth
+    }
+    monthlyCost.set(entry.month, (monthlyCost.get(entry.month) ?? 0) + hours * rate)
+  }
+
+  // Revenue per month from Notion payment dates
+  const monthlyRevenue = new Map<string, number>()
+  for (const tx of transactions) {
+    if (!tx.realized || !tx.paymentDate) continue
+    const month = tx.paymentDate.slice(0, 7) // YYYY-MM
+    monthlyRevenue.set(month, (monthlyRevenue.get(month) ?? 0) + tx.value)
+  }
+
+  // Merge and sort
+  const allMonths = new Set([...monthlyCost.keys(), ...monthlyRevenue.keys()])
+  const monthly: MonthlyData[] = Array.from(allMonths)
+    .sort()
+    .map((m) => {
+      const [year, mon] = m.split('-')
+      const cost = monthlyCost.get(m) ?? 0
+      const revenue = monthlyRevenue.get(m) ?? 0
+      return {
+        month: m,
+        label: `${MONTH_LABELS[mon]}/${year.slice(2)}`,
+        cost,
+        revenue,
+        result: revenue - cost,
+      }
+    })
+
   return {
     period: { start: startDate, end: endDate },
     totalCost,
@@ -266,5 +314,6 @@ export function buildDashboardData(
     collaborators: summaries,
     totalCostAllCollaborators,
     pl,
+    monthly,
   }
 }

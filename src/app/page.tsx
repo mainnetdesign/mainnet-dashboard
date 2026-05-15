@@ -1,11 +1,14 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { DashboardData } from '@/types'
 import KPICards from '@/components/KPICards'
 import CostByProjectChart from '@/components/CostByProjectChart'
 import CostByCollaborator from '@/components/CostByCollaborator'
 import PLTable from '@/components/PLTable'
 import DateRangePicker from '@/components/DateRangePicker'
+import MonthlyChart from '@/components/MonthlyChart'
+
+const AUTO_REFRESH_MS = 60 * 60 * 1000 // 1 hora
 
 const DEFAULT_START = '2025-06-01'
 const DEFAULT_END = new Date().toISOString().split('T')[0]
@@ -25,6 +28,9 @@ export default function Dashboard() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const startRef = useRef(DEFAULT_START)
+  const endRef = useRef(DEFAULT_END)
 
   const fetchData = useCallback(async (s: string, e: string) => {
     setLoading(true)
@@ -37,6 +43,7 @@ export default function Dashboard() {
       }
       const json = await res.json()
       setData(json)
+      setLastUpdated(new Date())
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro desconhecido')
     } finally {
@@ -44,14 +51,28 @@ export default function Dashboard() {
     }
   }, [])
 
+  // Auto-refresh a cada hora
   useEffect(() => {
-    fetchData(start, end)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    fetchData(startRef.current, endRef.current)
+    const interval = setInterval(() => {
+      fetchData(startRef.current, endRef.current)
+    }, AUTO_REFRESH_MS)
+    return () => clearInterval(interval)
+  }, [fetchData])
 
   function handleRangeChange(newStart: string, newEnd: string) {
     setStart(newStart)
     setEnd(newEnd)
+    startRef.current = newStart
+    endRef.current = newEnd
     fetchData(newStart, newEnd)
+  }
+
+  function formatLastUpdated(date: Date) {
+    const diff = Math.floor((Date.now() - date.getTime()) / 60000)
+    if (diff < 1) return 'agora mesmo'
+    if (diff === 1) return 'há 1 minuto'
+    return `há ${diff} minutos`
   }
 
   return (
@@ -61,9 +82,33 @@ export default function Dashboard() {
         <div className="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-3">
             <div className="w-7 h-7 bg-gray-900 rounded-md" />
-            <span className="font-bold text-gray-900 text-lg">Mainnet Dashboard</span>
+            <div>
+              <span className="font-bold text-gray-900 text-lg">Mainnet Dashboard</span>
+              {lastUpdated && (
+                <p className="text-xs text-gray-400 leading-none mt-0.5">
+                  Atualizado {formatLastUpdated(lastUpdated)}
+                </p>
+              )}
+            </div>
           </div>
-          <DateRangePicker start={start} end={end} onChange={handleRangeChange} />
+          <div className="flex items-center gap-3 flex-wrap">
+            <DateRangePicker start={start} end={end} onChange={handleRangeChange} />
+            <button
+              onClick={() => fetchData(start, end)}
+              disabled={loading}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-gray-200 rounded-lg text-gray-600 hover:border-gray-400 hover:text-gray-900 disabled:opacity-40 transition-colors"
+              title="Atualizar dados"
+            >
+              <svg
+                className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Atualizar
+            </button>
+          </div>
         </div>
       </header>
 
@@ -153,6 +198,9 @@ export default function Dashboard() {
                 antes de jun/2025 (início do rastreio). O custo real é maior e a margem está inflada.
               </div>
             )}
+
+            {/* Monthly evolution */}
+            {data.monthly.length > 0 && <MonthlyChart data={data.monthly} />}
 
             {/* Charts row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">

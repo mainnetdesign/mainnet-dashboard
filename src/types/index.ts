@@ -55,6 +55,14 @@ export interface ProjectPL {
   hasAttention: boolean
 }
 
+export interface MonthlyData {
+  month: string   // YYYY-MM
+  label: string   // "Jan/25"
+  cost: number
+  revenue: number
+  result: number
+}
+
 export interface DashboardData {
   period: { start: string; end: string }
   totalCost: number
@@ -67,4 +75,5 @@ export interface DashboardData {
   collaborators: CollaboratorSummary[]
   totalCostAllCollaborators: number
   pl: ProjectPL[]
+  monthly: MonthlyData[]
 }
