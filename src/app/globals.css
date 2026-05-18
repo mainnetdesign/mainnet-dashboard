@@ -24,3 +24,43 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ── Print / PDF styles ── */
+@media print {
+  /* Hide interactive elements */
+  header,
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+    color: black;
+    font-size: 11px;
+  }
+
+  main {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Force white backgrounds on cards */
+  .bg-white,
+  [class*="rounded-xl"],
+  [class*="shadow"] {
+    box-shadow: none !important;
+    border: 1px solid #e5e7eb !important;
+  }
+
+  /* Avoid page breaks inside cards */
+  .grid > div,
+  table,
+  [class*="rounded-xl"] {
+    break-inside: avoid;
+  }
+
+  /* Keep charts readable */
+  svg {
+    max-width: 100%;
+  }
+}
