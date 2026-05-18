@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const PUBLIC_PATHS = ['/login', '/api/auth']
 
+// Senha de acesso ao dashboard
+// Para alterar: mude o valor abaixo e faça deploy
+const DASHBOARD_PASSWORD = process.env.DASHBOARD_PASSWORD ?? 'mainnet2025'
+
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
@@ -12,11 +16,8 @@ export function middleware(req: NextRequest) {
 
   // Check auth cookie
   const token = req.cookies.get('dashboard-auth')?.value
-  const expected = process.env.DASHBOARD_PASSWORD
 
-  if (!expected) return NextResponse.next() // password not set = open access
-
-  if (token !== expected) {
+  if (token !== DASHBOARD_PASSWORD) {
     const loginUrl = req.nextUrl.clone()
     loginUrl.pathname = '/login'
     return NextResponse.redirect(loginUrl)
