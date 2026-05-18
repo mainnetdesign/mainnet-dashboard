@@ -9,6 +9,7 @@ import DateRangePicker from '@/components/DateRangePicker'
 import MonthlyChart from '@/components/MonthlyChart'
 import AlertsPanel from '@/components/AlertsPanel'
 import RateHistoryChart from '@/components/RateHistoryChart'
+import DashboardSkeleton from '@/components/DashboardSkeleton'
 
 const AUTO_REFRESH_MS = 60 * 60 * 1000 // 1 hora
 
@@ -127,13 +128,8 @@ export default function Dashboard() {
       </header>
 
       <main className="max-w-screen-xl mx-auto px-6 py-8">
-        {/* Loading */}
-        {loading && (
-          <div className="flex flex-col items-center justify-center py-32 gap-4">
-            <div className="w-10 h-10 border-4 border-gray-200 border-t-gray-900 rounded-full animate-spin" />
-            <p className="text-gray-500 text-sm">Carregando dados do Clockify e Notion…</p>
-          </div>
-        )}
+        {/* Loading skeleton */}
+        {loading && <DashboardSkeleton />}
 
         {/* Error */}
         {!loading && error && (
@@ -224,7 +220,7 @@ export default function Dashboard() {
             {data.monthly.length > 1 && <RateHistoryChart data={data.monthly} />}
 
             {/* P&L Table */}
-            <PLTable pl={data.pl} />
+            <PLTable pl={data.pl} costByProject={data.costByProject} />
           </>
         )}
       </main>
