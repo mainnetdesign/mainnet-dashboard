@@ -2,6 +2,7 @@ import { ClockifyEntry, ProjectCostData, CollaboratorSummary, ProjectPL, Dashboa
 import { COLLABORATORS, COLLABORATOR_MAP } from '@/config/collaborators'
 import { NotionTransaction } from '@/types'
 import { extractProjectName } from '@/config/projectMapping'
+import { INTERNAL_PROJECT_NAMES } from '@/config/internalProjects'
 
 const LOW_MARGIN_THRESHOLD = 0.20 // below 20% margin = "Margem baixa"
 
@@ -247,6 +248,7 @@ export function buildDashboardData(
       margin,
       status,
       hasAttention: rev?.hasPreTracking ?? false,
+      isInternal: INTERNAL_PROJECT_NAMES.has(p.projectName),
     }
   })
 
@@ -334,6 +336,7 @@ export function buildDashboardData(
   const ALERT_NO_REVENUE_COST_THRESHOLD = 3000
   const alerts: AlertItem[] = pl
     .filter((p) => {
+      if (p.isInternal) return false // never alert on internal projects
       if (p.result < -ALERT_LOSS_THRESHOLD) return true
       if (p.margin !== null && p.margin < LOW_MARGIN_THRESHOLD * 100 && p.result >= 0) return true
       if (p.revenue === 0 && p.cost >= ALERT_NO_REVENUE_COST_THRESHOLD) return true

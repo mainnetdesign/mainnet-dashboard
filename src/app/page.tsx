@@ -10,8 +10,9 @@ import MonthlyChart from '@/components/MonthlyChart'
 import AlertsPanel from '@/components/AlertsPanel'
 import RateHistoryChart from '@/components/RateHistoryChart'
 import DashboardSkeleton from '@/components/DashboardSkeleton'
+import PriceSimulator from '@/components/PriceSimulator'
 
-const AUTO_REFRESH_MS = 60 * 60 * 1000 // 1 hora
+const AUTO_REFRESH_MS = 60 * 60 * 1000
 
 const DEFAULT_START = '2025-06-01'
 const DEFAULT_END = new Date().toISOString().split('T')[0]
@@ -32,6 +33,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const [selectedCollaboratorId, setSelectedCollaboratorId] = useState<string>('')
   const startRef = useRef(DEFAULT_START)
   const endRef = useRef(DEFAULT_END)
 
@@ -54,7 +56,6 @@ export default function Dashboard() {
     }
   }, [])
 
-  // Auto-refresh a cada hora
   useEffect(() => {
     fetchData(startRef.current, endRef.current)
     const interval = setInterval(() => {
@@ -77,6 +78,20 @@ export default function Dashboard() {
     if (diff === 1) return 'há 1 minuto'
     return `há ${diff} minutos`
   }
+
+  // Filter data by selected collaborator
+  const filteredData = data && selectedCollaboratorId
+    ? {
+        ...data,
+        pl: data.pl.filter((p) => {
+          const costEntry = data.costByProject.find((c) => c.projectId === p.clockifyProjectId)
+          return costEntry?.costByCollaborator[selectedCollaboratorId] !== undefined
+        }),
+        costByProject: data.costByProject.filter(
+          (c) => c.costByCollaborator[selectedCollaboratorId] !== undefined
+        ),
+      }
+    : data
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -128,10 +143,8 @@ export default function Dashboard() {
       </header>
 
       <main className="max-w-screen-xl mx-auto px-6 py-8">
-        {/* Loading skeleton */}
         {loading && <DashboardSkeleton />}
 
-        {/* Error */}
         {!loading && error && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
             <p className="text-red-600 font-semibold mb-1">Erro ao carregar dados</p>
@@ -145,8 +158,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Content */}
-        {!loading && !error && data && (
+        {!loading && !error && data && filteredData && (
           <>
             {/* KPI Cards */}
             <KPICards data={data} />
@@ -167,7 +179,7 @@ export default function Dashboard() {
                   RESULTADO LÍQUIDO
                 </p>
                 {(() => {
-                  const totalRevenue = data.pl.reduce((s, p) => s + p.revenue, 0)
+                  const totalRevenue = data.pl.filter((p) => !p.isInternal).reduce((s, p) => s + p.revenue, 0)
                   const net = totalRevenue - data.totalCostAllCollaborators
                   return (
                     <>
@@ -184,10 +196,10 @@ export default function Dashboard() {
                   CUSTO SEM FATURAMENTO
                 </p>
                 <p className="text-3xl font-bold text-gray-900 leading-tight mb-1">
-                  {fmtBRL(data.pl.filter((p) => p.revenue === 0).reduce((s, p) => s + p.cost, 0))}
+                  {fmtBRL(data.pl.filter((p) => p.revenue === 0 && !p.isInternal).reduce((s, p) => s + p.cost, 0))}
                 </p>
                 <p className="text-sm text-gray-500">
-                  {data.pl.filter((p) => p.revenue === 0).length} projetos sem receita
+                  {data.pl.filter((p) => p.revenue === 0 && !p.isInternal).length} projetos sem receita
                 </p>
               </div>
             </div>
@@ -206,10 +218,47 @@ export default function Dashboard() {
             {/* Monthly evolution */}
             {data.monthly.length > 0 && <MonthlyChart data={data.monthly} />}
 
+            {/* Collaborator filter bar */}
+            <div className="flex items-center gap-3 mb-4 no-print flex-wrap">
+              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                Filtrar por colaborador
+              </span>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setSelectedCollaboratorId('')}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                    !selectedCollaboratorId
+                      ? 'bg-gray-900 text-white border-gray-900'
+                      : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+                  }`}
+                >
+                  Todos
+                </button>
+                {data.collaborators.map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => setSelectedCollaboratorId(c.id === selectedCollaboratorId ? '' : c.id)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                      selectedCollaboratorId === c.id
+                        ? 'text-white border-transparent'
+                        : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+                    }`}
+                    style={selectedCollaboratorId === c.id ? { background: c.color, borderColor: c.color } : {}}
+                  >
+                    <span
+                      className="w-2 h-2 rounded-full"
+                      style={{ background: selectedCollaboratorId === c.id ? 'white' : c.color }}
+                    />
+                    {c.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Charts row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
               <div className="lg:col-span-2">
-                <CostByProjectChart data={data} />
+                <CostByProjectChart data={filteredData} />
               </div>
               <div>
                 <CostByCollaborator data={data} />
@@ -219,8 +268,32 @@ export default function Dashboard() {
             {/* Collaborator rate history */}
             {data.monthly.length > 1 && <RateHistoryChart data={data.monthly} />}
 
-            {/* P&L Table */}
-            <PLTable pl={data.pl} costByProject={data.costByProject} />
+            {/* Price Simulator */}
+            <PriceSimulator collaborators={data.collaborators} />
+
+            {/* P&L Table — client projects */}
+            <PLTable
+              pl={filteredData.pl.filter((p) => !p.isInternal)}
+              costByProject={filteredData.costByProject}
+            />
+
+            {/* P&L Table — internal projects */}
+            {data.pl.some((p) => p.isInternal) && (
+              <div className="mt-6">
+                <details className="group">
+                  <summary className="flex items-center gap-2 cursor-pointer text-sm font-semibold text-gray-400 hover:text-gray-600 transition-colors list-none mb-3 no-print">
+                    <svg className="w-4 h-4 group-open:rotate-90 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                    Projetos internos ({data.pl.filter((p) => p.isInternal).length})
+                  </summary>
+                  <PLTable
+                    pl={data.pl.filter((p) => p.isInternal)}
+                    costByProject={data.costByProject}
+                  />
+                </details>
+              </div>
+            )}
           </>
         )}
       </main>

@@ -54,6 +54,7 @@ export interface ProjectPL {
   margin: number | null
   status: 'Lucro' | 'Prejuízo' | 'Margem baixa'
   hasAttention: boolean
+  isInternal: boolean
 }
 
 export interface MonthlyData {
