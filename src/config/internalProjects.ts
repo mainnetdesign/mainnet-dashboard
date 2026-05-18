@@ -10,4 +10,10 @@ export const INTERNAL_PROJECT_NAMES = new Set([
   'Marcaum',
   'FigHeat',
   'Telegram',
+  'Hackathon',
+  'Templates',
+  'Insta2Figma',
+  'Rhema',
+  'Plugin',
+  'Studio222',
 ])
