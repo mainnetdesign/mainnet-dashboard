@@ -16,4 +16,6 @@ export const INTERNAL_PROJECT_NAMES = new Set([
   'Rhema',
   'Plugin',
   'Studio222',
+  'Webbin',
+  'Miguel Simões',
 ])
