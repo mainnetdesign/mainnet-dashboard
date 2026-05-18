@@ -43,8 +43,11 @@ const CustomTooltip = ({
 }
 
 export default function RateHistoryChart({ data }: Props) {
+  // Only show months that have at least one collaborator rate (i.e. Clockify data exists)
+  const filteredData = data.filter((m) => Object.keys(m.collaboratorRates).length > 0)
+
   // Build chart rows: each row = a month, keys = collaborator names
-  const chartData = data.map((m) => {
+  const chartData = filteredData.map((m) => {
     const row: Record<string, string | number> = { label: m.label }
     for (const collab of COLLABORATORS) {
       const rate = m.collaboratorRates[collab.id]
@@ -55,7 +58,7 @@ export default function RateHistoryChart({ data }: Props) {
 
   // Only include collaborators that appear in at least one month
   const activeCollabs = COLLABORATORS.filter((c) =>
-    data.some((m) => m.collaboratorRates[c.id] !== undefined)
+    filteredData.some((m) => m.collaboratorRates[c.id] !== undefined)
   )
 
   if (activeCollabs.length === 0) return null
