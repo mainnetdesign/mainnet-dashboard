@@ -11,11 +11,50 @@ import AlertsPanel from '@/components/AlertsPanel'
 import RateHistoryChart from '@/components/RateHistoryChart'
 import DashboardSkeleton from '@/components/DashboardSkeleton'
 import PriceSimulator from '@/components/PriceSimulator'
+import { ProjectPL, ProjectCostData } from '@/types'
 
 const AUTO_REFRESH_MS = 60 * 60 * 1000
 
 const DEFAULT_START = '2025-06-01'
 const DEFAULT_END = new Date().toISOString().split('T')[0]
+
+function InternalProjectsSection({ pl, costByProject }: { pl: ProjectPL[]; costByProject: ProjectCostData[] }) {
+  const [open, setOpen] = useState(false)
+  if (pl.length === 0) return null
+  const totalCost = pl.reduce((s, p) => s + p.cost, 0)
+  const totalHours = pl.reduce((s, p) => s + p.hours, 0)
+  return (
+    <div className="mt-6 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <h2 className="text-base font-bold text-gray-500">Projetos internos</h2>
+          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-500">
+            {pl.length}
+          </span>
+          <span className="hidden sm:flex items-center gap-3 text-xs text-gray-400">
+            <span>{Math.round(totalHours)}h registradas</span>
+            <span>·</span>
+            <span>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalCost)} em custo</span>
+          </span>
+        </div>
+        <svg
+          className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {open && (
+        <div className="border-t border-gray-50">
+          <PLTable pl={pl} costByProject={costByProject} />
+        </div>
+      )}
+    </div>
+  )
+}
 
 function fmtBRL(v: number) {
   return new Intl.NumberFormat('pt-BR', {
@@ -278,22 +317,10 @@ export default function Dashboard() {
             />
 
             {/* P&L Table — internal projects */}
-            {data.pl.some((p) => p.isInternal) && (
-              <div className="mt-6">
-                <details className="group">
-                  <summary className="flex items-center gap-2 cursor-pointer text-sm font-semibold text-gray-400 hover:text-gray-600 transition-colors list-none mb-3 no-print">
-                    <svg className="w-4 h-4 group-open:rotate-90 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
-                    Projetos internos ({data.pl.filter((p) => p.isInternal).length})
-                  </summary>
-                  <PLTable
-                    pl={data.pl.filter((p) => p.isInternal)}
-                    costByProject={data.costByProject}
-                  />
-                </details>
-              </div>
-            )}
+            <InternalProjectsSection
+              pl={data.pl.filter((p) => p.isInternal)}
+              costByProject={data.costByProject}
+            />
           </>
         )}
       </main>
