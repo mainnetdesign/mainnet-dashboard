@@ -76,11 +76,12 @@ export default function Dashboard() {
   const startRef = useRef(DEFAULT_START)
   const endRef = useRef(DEFAULT_END)
 
-  const fetchData = useCallback(async (s: string, e: string) => {
+  const fetchData = useCallback(async (s: string, e: string, bust = false) => {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`/api/dashboard?start=${s}&end=${e}`)
+      const bustParam = bust ? '&bust=1' : ''
+      const res = await fetch(`/api/dashboard?start=${s}&end=${e}${bustParam}`)
       if (!res.ok) {
         const err = await res.json()
         throw new Error(err.error ?? 'Erro ao carregar dados')
@@ -151,10 +152,10 @@ export default function Dashboard() {
           <div className="flex items-center gap-3 flex-wrap no-print">
             <DateRangePicker start={start} end={end} onChange={handleRangeChange} />
             <button
-              onClick={() => fetchData(start, end)}
+              onClick={() => fetchData(start, end, true)}
               disabled={loading}
               className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-gray-200 rounded-lg text-gray-600 hover:border-gray-400 hover:text-gray-900 disabled:opacity-40 transition-colors"
-              title="Atualizar dados"
+              title="Atualizar dados (ignora cache)"
             >
               <svg
                 className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}
