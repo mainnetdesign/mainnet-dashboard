@@ -1,7 +1,7 @@
 'use client'
 import {
-  LineChart,
-  Line,
+  ComposedChart,
+  Area,
   XAxis,
   YAxis,
   Tooltip,
@@ -26,16 +26,15 @@ const CustomTooltip = ({
   label?: string
 }) => {
   if (!active || !payload?.length) return null
+  const sorted = [...payload].sort((a, b) => b.value - a.value)
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-lg text-sm">
+    <div className="bg-white border border-gray-200 rounded-xl p-3 shadow-xl text-sm min-w-[180px]">
       <p className="font-semibold text-gray-800 mb-2">{label}</p>
-      {payload.map((p) => (
+      {sorted.map((p) => (
         <div key={p.name} className="flex items-center gap-2 mb-1">
-          <span className="w-2 h-2 rounded-full" style={{ background: p.color }} />
-          <span className="text-gray-600">{p.name}:</span>
-          <span className="font-medium ml-auto text-gray-900">
-            R${p.value.toFixed(0)}/h
-          </span>
+          <span className="w-2 h-2 rounded-full shrink-0" style={{ background: p.color }} />
+          <span className="text-gray-500 flex-1">{p.name}</span>
+          <span className="font-semibold text-gray-900">R${p.value}/h</span>
         </div>
       ))}
     </div>
@@ -43,10 +42,8 @@ const CustomTooltip = ({
 }
 
 export default function RateHistoryChart({ data }: Props) {
-  // Only show months that have at least one collaborator rate (i.e. Clockify data exists)
   const filteredData = data.filter((m) => Object.keys(m.collaboratorRates).length > 0)
 
-  // Build chart rows: each row = a month, keys = collaborator names
   const chartData = filteredData.map((m) => {
     const row: Record<string, string | number> = { label: m.label }
     for (const collab of COLLABORATORS) {
@@ -56,7 +53,6 @@ export default function RateHistoryChart({ data }: Props) {
     return row
   })
 
-  // Only include collaborators that appear in at least one month
   const activeCollabs = COLLABORATORS.filter((c) =>
     filteredData.some((m) => m.collaboratorRates[c.id] !== undefined)
   )
@@ -69,9 +65,19 @@ export default function RateHistoryChart({ data }: Props) {
       <p className="text-sm text-gray-500 mb-6">
         Taxa efetiva R$/h por colaborador ao longo dos meses
       </p>
-      <ResponsiveContainer width="100%" height={260}>
-        <LineChart data={chartData} margin={{ top: 4, right: 20, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
+      <ResponsiveContainer width="100%" height={280}>
+        <ComposedChart data={chartData} margin={{ top: 4, right: 20, left: 0, bottom: 0 }}>
+          {/* Gradient defs for each collaborator */}
+          <defs>
+            {activeCollabs.map((c) => (
+              <linearGradient key={c.id} id={`grad-${c.id}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={c.color} stopOpacity={0.15} />
+                <stop offset="95%" stopColor={c.color} stopOpacity={0} />
+              </linearGradient>
+            ))}
+          </defs>
+
+          <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
           <XAxis
             dataKey="label"
             tick={{ fontSize: 11, fill: '#9ca3af' }}
@@ -89,19 +95,21 @@ export default function RateHistoryChart({ data }: Props) {
             wrapperStyle={{ fontSize: 12, paddingTop: 16 }}
             formatter={(value) => <span style={{ color: '#374151' }}>{value}</span>}
           />
+
           {activeCollabs.map((c) => (
-            <Line
+            <Area
               key={c.id}
               type="monotone"
               dataKey={c.name}
               stroke={c.color}
-              strokeWidth={2}
-              dot={{ r: 3, fill: c.color }}
-              activeDot={{ r: 5 }}
+              strokeWidth={2.5}
+              fill={`url(#grad-${c.id})`}
+              dot={{ r: 3.5, fill: c.color, strokeWidth: 2, stroke: '#fff' }}
+              activeDot={{ r: 6, fill: c.color, stroke: '#fff', strokeWidth: 2 }}
               connectNulls
             />
           ))}
-        </LineChart>
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   )
