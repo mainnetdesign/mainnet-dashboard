@@ -18,4 +18,5 @@ export const INTERNAL_PROJECT_NAMES = new Set([
   'Studio222',
   'Webbin',
   'Miguel Simões',
+  'Solene',
 ])
