@@ -134,18 +134,13 @@ export default function Dashboard() {
     : data
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div>
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-3">
-            <a href="/" className="w-7 h-7 bg-gray-900 rounded-md flex items-center justify-center hover:opacity-75 transition-opacity no-print" title="Voltar ao início">
-              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-            </a>
             <div>
-              <span className="font-bold text-gray-900 text-lg">Mainnet Dashboard</span>
+              <span className="font-bold text-gray-900 text-lg">Dashboard</span>
               {lastUpdated && (
                 <p className="text-xs text-gray-400 leading-none mt-0.5">
                   Atualizado {formatLastUpdated(lastUpdated)}
@@ -332,3 +327,4 @@ export default function Dashboard() {
     </div>
   )
 }
+
