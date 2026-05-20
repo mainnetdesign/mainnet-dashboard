@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 
@@ -72,7 +73,7 @@ export default function Sidebar() {
       <aside className="hidden lg:flex w-56 shrink-0 flex-col h-screen bg-white border-r border-gray-100 sticky top-0">
         {/* Logo */}
         <div className="px-5 py-5 border-b border-gray-100">
-          <img src="/logo.svg" alt="Mainnet" className="h-7 w-auto" />
+          <Image src="/logo.svg" alt="Mainnet" width={120} height={37} className="h-7 w-auto" unoptimized />
         </div>
 
         {nav}
@@ -85,7 +86,7 @@ export default function Sidebar() {
 
       {/* ── Mobile top bar ── */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-20 bg-white border-b border-gray-200 flex items-center justify-between px-4 py-3">
-        <img src="/logo.svg" alt="Mainnet" className="h-6 w-auto" />
+        <Image src="/logo.svg" alt="Mainnet" width={120} height={37} className="h-6 w-auto" unoptimized />
         <button
           onClick={() => setMobileOpen((v) => !v)}
           className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
