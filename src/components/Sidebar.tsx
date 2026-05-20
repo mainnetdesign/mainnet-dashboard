@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import Image from 'next/image'
 
 const NAV = [
   {
@@ -72,15 +73,14 @@ export default function Sidebar() {
       <aside className="hidden lg:flex w-56 shrink-0 flex-col h-screen bg-white border-r border-gray-100 sticky top-0">
         {/* Logo */}
         <div className="px-5 py-5 border-b border-gray-100">
-                    <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 bg-gray-900 rounded-lg flex items-center justify-center">
-              <span className="text-white text-xs font-black">M</span>
-            </div>
-            <div>
-              <p className="font-bold text-gray-900 text-sm leading-tight">Mainnet</p>
-              <p className="text-[10px] text-gray-400 leading-tight">Design Studio</p>
-            </div>
-          </div>
+          <Image
+            src="/mainnet-logo.svg"
+            alt="Mainnet Design"
+            width={120}
+            height={33}
+            unoptimized
+            priority
+          />
         </div>
 
         {nav}
@@ -93,12 +93,14 @@ export default function Sidebar() {
 
       {/* ── Mobile top bar ── */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-20 bg-white border-b border-gray-200 flex items-center justify-between px-4 py-3">
-                  <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-gray-900 rounded-md flex items-center justify-center">
-              <span className="text-white text-[10px] font-black">M</span>
-            </div>
-            <p className="font-bold text-gray-900 text-sm">Mainnet</p>
-          </div>
+          <Image
+            src="/mainnet-logo.svg"
+            alt="Mainnet Design"
+            width={90}
+            height={25}
+            unoptimized
+            priority
+          />
         <button
           onClick={() => setMobileOpen((v) => !v)}
           className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
