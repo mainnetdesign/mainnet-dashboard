@@ -157,7 +157,7 @@ function StrategicAnalysis({ pl, monthly }: { pl: ProjectPL[]; monthly: MonthlyD
                 <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wide mb-0.5">
                   Média histórica (3m)
                 </p>
-                <p className="text-2xl font-bold text-[var(--tx)]">{fmtBRL(avgRevenue3m)}</p>
+                <p className="text-2xl font-bold" style={{ color: '#22C55E' }}>{fmtBRL(avgRevenue3m)}</p>
                 {last3.length > 0 && (
                   <p className="text-xs text-[var(--tx3)] mt-0.5">Baseado em: {last3.map((m) => m.label).join(', ')}</p>
                 )}
@@ -174,7 +174,7 @@ function StrategicAnalysis({ pl, monthly }: { pl: ProjectPL[]; monthly: MonthlyD
                 <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wide mb-0.5">
                   Receita prevista no Notion
                 </p>
-                <p className={`text-2xl font-bold ${predictedRevTotal > 0 ? 'text-[var(--tx)]' : 'text-[var(--bd3)]'}`}>
+                <p className={`text-2xl font-bold ${predictedRevTotal <= 0 ? 'text-[var(--bd3)]' : ''}`} style={predictedRevTotal > 0 ? { color: '#22C55E' } : {}}>
                   {predictedRevTotal > 0 ? fmtBRL(predictedRevTotal) : '—'}
                 </p>
                 {nextPredicted && (

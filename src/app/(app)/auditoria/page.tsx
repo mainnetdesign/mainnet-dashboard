@@ -255,21 +255,21 @@ export default function AuditoriaPage() {
 
             {/* ── 1. Action summary ── */}
             {actions.length > 0 && (
-              <div className="bg-[var(--bg3)] border border-[var(--bd2)] p-5">
+              <div className="p-5 border" style={{ background: '#FBBF2408', borderColor: '#FBBF2444' }}>
                 <div className="flex items-center gap-2.5 mb-3">
-                  <div className="w-6 h-6 bg-[var(--bd2)] flex items-center justify-center shrink-0">
-                    <svg className="w-3.5 h-3.5 text-[var(--tx)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <div className="w-6 h-6 flex items-center justify-center shrink-0" style={{ background: '#FBBF2422' }}>
+                    <svg className="w-3.5 h-3.5" style={{ color: '#FBBF24' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                     </svg>
                   </div>
-                  <p className="text-sm font-bold text-[var(--tx)]">
+                  <p className="text-sm font-bold" style={{ color: '#FBBF24' }}>
                     {actions.length} {actions.length === 1 ? 'ponto requer atenção' : 'pontos requerem atenção'}
                   </p>
                 </div>
                 <ul className="space-y-1.5 ml-8">
                   {actions.map((a, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm text-[var(--tx2)]">
-                      <span className="text-[var(--tx3)] mt-0.5 shrink-0">·</span>{a}
+                      <span className="mt-0.5 shrink-0" style={{ color: '#FBBF24' }}>·</span>{a}
                     </li>
                   ))}
                 </ul>
@@ -281,14 +281,14 @@ export default function AuditoriaPage() {
               <SectionHeader label="Visão geral" title="Resumo do período" />
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-px mb-4 border border-[var(--bd)]">
                 {[
-                  { label: 'Receita realizada',    value: fmtBRL(data.summary.totalRealizedRevenue),  sub: 'período selecionado' },
-                  { label: 'Receita vinculada',     value: fmtBRL(data.summary.totalMatchedRevenue),   sub: `${data.summary.matchedCount} transações${matchPct !== null ? ` · ${matchPct}% cobertura` : ''}` },
-                  { label: 'Sem vínculo',           value: fmtBRL(data.summary.totalUnmatchedRevenue), sub: `${data.summary.unmatchedCount} transações` },
-                  { label: 'Ignoradas / Previstas', value: `${data.summary.ignoredCount + data.summary.notRealizedCount}`, sub: `${data.summary.ignoredCount} ignoradas · ${data.summary.notRealizedCount} previstas` },
+                  { label: 'Receita realizada',    value: fmtBRL(data.summary.totalRealizedRevenue),  sub: 'período selecionado',                                                                                    color: '#22C55E' },
+                  { label: 'Receita vinculada',     value: fmtBRL(data.summary.totalMatchedRevenue),   sub: `${data.summary.matchedCount} transações${matchPct !== null ? ` · ${matchPct}% cobertura` : ''}`,         color: '#22C55E' },
+                  { label: 'Sem vínculo',           value: fmtBRL(data.summary.totalUnmatchedRevenue), sub: `${data.summary.unmatchedCount} transações`,                                                              color: '#F87171' },
+                  { label: 'Ignoradas / Previstas', value: `${data.summary.ignoredCount + data.summary.notRealizedCount}`, sub: `${data.summary.ignoredCount} ignoradas · ${data.summary.notRealizedCount} previstas`, color: '#9CA3AF' },
                 ].map((c) => (
                   <div key={c.label} className="bg-[var(--bg3)] p-5">
                     <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-2">{c.label}</p>
-                    <p className="text-2xl font-bold text-[var(--tx)] leading-tight mb-1">{c.value}</p>
+                    <p className="text-2xl font-bold leading-tight mb-1" style={{ color: c.color }}>{c.value}</p>
                     <p className="text-xs text-[var(--tx3)]">{c.sub}</p>
                   </div>
                 ))}
