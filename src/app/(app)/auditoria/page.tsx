@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
+import { useTheme } from 'next-themes'
 import {
   PieChart, Pie, Cell, Tooltip as RTooltip, ResponsiveContainer, Legend,
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -47,15 +48,26 @@ function fmtDate(s: string | null) {
   if (!s) return '—'; const [y, m, d] = s.split('-'); return `${d}/${m}/${y}`
 }
 
-const STATUS_CFG: Record<TxStatus, { label: string; borderClass: string; textClass: string; color: string }> = {
-  matched:        { label: 'Vinculado',     borderClass: 'border-[var(--inv)]',     textClass: 'text-[var(--tx)]',     color: '#FFFFFF' },
-  unmatched:      { label: 'Sem vínculo',   borderClass: 'border-[#666666]', textClass: 'text-[var(--tx2)]', color: '#666666' },
-  ignored:        { label: 'Ignorado',      borderClass: 'border-[var(--bd2)]', textClass: 'text-[var(--tx3)]', color: '#444444' },
-  'not-realized': { label: 'Não realizado', borderClass: 'border-[var(--bd3)]', textClass: 'text-[var(--tx2)]', color: '#555555' },
+const STATUS_CFG_BASE = {
+  matched:        { label: 'Vinculado',     borderClass: 'border-[var(--inv)]',  textClass: 'text-[var(--tx)]'  },
+  unmatched:      { label: 'Sem vínculo',   borderClass: 'border-[#666666]',     textClass: 'text-[var(--tx2)]' },
+  ignored:        { label: 'Ignorado',      borderClass: 'border-[var(--bd2)]',  textClass: 'text-[var(--tx3)]' },
+  'not-realized': { label: 'Não realizado', borderClass: 'border-[var(--bd3)]',  textClass: 'text-[var(--tx2)]' },
+}
+
+function useStatusCfg() {
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
+  return {
+    matched:        { ...STATUS_CFG_BASE.matched,        color: isDark ? '#FFFFFF' : '#111111' },
+    unmatched:      { ...STATUS_CFG_BASE.unmatched,      color: '#888888' },
+    ignored:        { ...STATUS_CFG_BASE.ignored,        color: isDark ? '#444444' : '#BBBBBB' },
+    'not-realized': { ...STATUS_CFG_BASE['not-realized'], color: isDark ? '#666666' : '#999999' },
+  }
 }
 
 function Badge({ status }: { status: TxStatus }) {
-  const c = STATUS_CFG[status]
+  const c = STATUS_CFG_BASE[status]
   return (
     <span className={`inline-flex items-center px-2 py-0.5 border text-xs font-semibold ${c.borderClass} ${c.textClass}`}>
       {c.label}
@@ -81,7 +93,7 @@ function exportCSV(transactions: AuditTransaction[]) {
   const header = ['Data', 'Transação', 'Valor (R$)', 'Nome extraído', 'Projeto Clockify', 'Status'].join(';')
   const rows = transactions.map((tx) =>
     [fmtDate(tx.paymentDate), `"${tx.name.replace(/"/g, '""')}"`, tx.value,
-     tx.extractedName ?? '—', tx.matchedProject ?? '—', STATUS_CFG[tx.status].label].join(';')
+     tx.extractedName ?? '—', tx.matchedProject ?? '—', STATUS_CFG_BASE[tx.status].label].join(';')
   )
   const blob = new Blob([BOM + [header, ...rows].join('\n')], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
@@ -133,6 +145,8 @@ export default function AuditoriaPage() {
   const [search, setSearch] = useState('')
   const [showAllNoRevenue, setShowAllNoRevenue] = useState(false)
   const [expandSuggestions, setExpandSuggestions] = useState(false)
+  const { theme } = useTheme()
+  const STATUS_CFG = useStatusCfg()
 
   const fetchData = useCallback(async (s: string, e: string) => {
     setLoading(true); setError(null)
@@ -282,7 +296,7 @@ export default function AuditoriaPage() {
                     <p className="text-sm font-bold text-[var(--tx)]">{matchPct}%</p>
                   </div>
                   <div className="w-full h-2 bg-[var(--bd)] overflow-hidden">
-                    <div className="h-full bg-white transition-all duration-700" style={{ width: `${matchPct}%` }} />
+                    <div className="h-full bg-[var(--inv)] transition-all duration-700" style={{ width: `${matchPct}%` }} />
                   </div>
                   <div className="flex justify-between mt-1.5 text-xs text-[var(--tx3)]">
                     <span className="text-[var(--tx)] font-medium">{data.summary.matchedCount} vinculadas</span>
@@ -304,22 +318,22 @@ export default function AuditoriaPage() {
                     <PieChart>
                       <Pie
                         data={[
-                          { name: 'Vinculado',     value: data.summary.matchedCount,     color: '#FFFFFF' },
-                          { name: 'Sem vínculo',   value: data.summary.unmatchedCount,   color: '#666666' },
-                          { name: 'Ignorado',      value: data.summary.ignoredCount,     color: '#333333' },
-                          { name: 'Não realizado', value: data.summary.notRealizedCount, color: '#1A1A1A' },
+                          { name: 'Vinculado',     value: data.summary.matchedCount,     color: STATUS_CFG.matched.color },
+                          { name: 'Sem vínculo',   value: data.summary.unmatchedCount,   color: STATUS_CFG.unmatched.color },
+                          { name: 'Ignorado',      value: data.summary.ignoredCount,     color: STATUS_CFG.ignored.color },
+                          { name: 'Não realizado', value: data.summary.notRealizedCount, color: STATUS_CFG['not-realized'].color },
                         ].filter((d) => d.value > 0)}
                         cx="50%" cy="50%" innerRadius={60} outerRadius={88} paddingAngle={3} dataKey="value"
                       >
                         {[
-                          { name: 'Vinculado', value: data.summary.matchedCount, color: '#FFFFFF' },
-                          { name: 'Sem vínculo', value: data.summary.unmatchedCount, color: '#666666' },
-                          { name: 'Ignorado', value: data.summary.ignoredCount, color: '#333333' },
-                          { name: 'Não realizado', value: data.summary.notRealizedCount, color: '#1A1A1A' },
-                        ].filter((d) => d.value > 0).map((entry) => <Cell key={entry.name} fill={entry.color} stroke="#111111" />)}
+                          { name: 'Vinculado',     value: data.summary.matchedCount,     color: STATUS_CFG.matched.color },
+                          { name: 'Sem vínculo',   value: data.summary.unmatchedCount,   color: STATUS_CFG.unmatched.color },
+                          { name: 'Ignorado',      value: data.summary.ignoredCount,     color: STATUS_CFG.ignored.color },
+                          { name: 'Não realizado', value: data.summary.notRealizedCount, color: STATUS_CFG['not-realized'].color },
+                        ].filter((d) => d.value > 0).map((entry) => <Cell key={entry.name} fill={entry.color} stroke="var(--bg3)" />)}
                       </Pie>
                       <RTooltip content={<PieTooltip />} />
-                      <Legend wrapperStyle={{ fontSize: 12, paddingTop: 12 }} formatter={(value) => <span style={{ color: '#999999' }}>{value}</span>} />
+                      <Legend wrapperStyle={{ fontSize: 12, paddingTop: 12 }} formatter={(value) => <span style={{ color: theme === 'dark' ? '#999999' : '#555555' }}>{value}</span>} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
@@ -330,14 +344,14 @@ export default function AuditoriaPage() {
                   {data.monthlyBreakdown.length > 0 ? (
                     <ResponsiveContainer width="100%" height={220}>
                       <BarChart data={data.monthlyBreakdown} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#222222" vertical={false} />
-                        <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#666666' }} axisLine={false} tickLine={false} />
-                        <YAxis tick={{ fontSize: 11, fill: '#666666' }} axisLine={false} tickLine={false} />
+                        <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#222222' : '#E8E8E8'} vertical={false} />
+                        <XAxis dataKey="label" tick={{ fontSize: 11, fill: theme === 'dark' ? '#666666' : '#888888' }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fontSize: 11, fill: theme === 'dark' ? '#666666' : '#888888' }} axisLine={false} tickLine={false} />
                         <RTooltip content={<BarTooltip />} />
-                        <Bar dataKey="matched"    name="Vinculado"     stackId="a" fill="#FFFFFF"  radius={[0,0,0,0]} />
-                        <Bar dataKey="unmatched"  name="Sem vínculo"   stackId="a" fill="#666666"  radius={[0,0,0,0]} />
-                        <Bar dataKey="ignored"    name="Ignorado"      stackId="a" fill="#333333"  radius={[0,0,0,0]} />
-                        <Bar dataKey="notRealized" name="Não realizado" stackId="a" fill="#1A1A1A" radius={[0,0,0,0]} />
+                        <Bar dataKey="matched"     name="Vinculado"     stackId="a" fill={STATUS_CFG.matched.color}        radius={[0,0,0,0]} />
+                        <Bar dataKey="unmatched"   name="Sem vínculo"   stackId="a" fill={STATUS_CFG.unmatched.color}      radius={[0,0,0,0]} />
+                        <Bar dataKey="ignored"     name="Ignorado"      stackId="a" fill={STATUS_CFG.ignored.color}        radius={[0,0,0,0]} />
+                        <Bar dataKey="notRealized" name="Não realizado" stackId="a" fill={STATUS_CFG['not-realized'].color} radius={[0,0,0,0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   ) : (
@@ -432,7 +446,7 @@ export default function AuditoriaPage() {
                             )}
                           </div>
                           <div className="w-full h-1.5 bg-[var(--bd)] overflow-hidden">
-                            <div className="h-full bg-white" style={{ width: `${pct}%` }} />
+                            <div className="h-full bg-[var(--inv)]" style={{ width: `${pct}%` }} />
                           </div>
                         </div>
                       )
@@ -555,7 +569,7 @@ export default function AuditoriaPage() {
                         <button key={s} onClick={() => setFilterStatus(s)}
                           className={`px-2.5 py-1 text-xs font-semibold border transition-colors ${
                             filterStatus === s
-                              ? 'bg-white text-black border-[var(--inv)]'
+                              ? 'bg-[var(--inv)] text-[var(--inv-tx)] border-[var(--inv)]'
                               : 'border-[var(--bd)] text-[var(--tx2)] hover:border-[var(--bd3)] hover:text-[var(--tx)]'
                           }`}>
                           {isAll ? 'Todas' : cfg!.label} ({count})

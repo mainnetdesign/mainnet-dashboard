@@ -63,13 +63,13 @@ export default function MonthlyChart({ data }: Props) {
   const { theme } = useTheme()
 
   const isDark = theme === 'dark'
-  const gridColor = isDark ? '#222222' : '#EEEEEE'
-  const axisColor = isDark ? '#666666' : '#999999'
+  const gridColor = isDark ? '#222222' : '#E8E8E8'
+  const axisColor = isDark ? '#666666' : '#888888'
   const legendColor = isDark ? '#999999' : '#555555'
-  const revenueColor = isDark ? '#FFFFFF' : '#000000'
-  const costColor = isDark ? '#666666' : '#999999'
-  const resultColor = isDark ? '#999999' : '#888888'
-  const targetColor = isDark ? '#444444' : '#BBBBBB'
+  const revenueColor = isDark ? '#FFFFFF' : '#111111'
+  const costColor = isDark ? '#666666' : '#888888'
+  const resultColor = isDark ? '#999999' : '#555555'
+  const targetColor = isDark ? '#444444' : '#CCCCCC'
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY)
