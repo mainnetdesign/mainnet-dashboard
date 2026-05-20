@@ -1,8 +1,25 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-bg-primary: #000000;
+  --color-bg-secondary: #0A0A0A;
+  --color-bg-card: #111111;
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #999999;
+  --color-text-tertiary: #666666;
+  --color-border: #222222;
+  --color-border-hover: #444444;
+
+  --font-heading: 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  --font-body: 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  --font-mono: 'SF Mono', 'JetBrains Mono', monospace;
+
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
+
+  --background: #000000;
+  --foreground: #FFFFFF;
 }
 
 @theme inline {
@@ -12,23 +29,14 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
 }
 
 /* ── Print / PDF styles ── */
 @media print {
-  /* Hide interactive elements */
-  header,
   .no-print {
     display: none !important;
   }
@@ -44,22 +52,17 @@ body {
     max-width: 100% !important;
   }
 
-  /* Force white backgrounds on cards */
-  .bg-white,
-  [class*="rounded-xl"],
-  [class*="shadow"] {
+  div, section, article {
+    background: white !important;
+    color: black !important;
+    border-color: #e5e7eb !important;
     box-shadow: none !important;
-    border: 1px solid #e5e7eb !important;
   }
 
-  /* Avoid page breaks inside cards */
-  .grid > div,
-  table,
-  [class*="rounded-xl"] {
+  table {
     break-inside: avoid;
   }
 
-  /* Keep charts readable */
   svg {
     max-width: 100%;
   }

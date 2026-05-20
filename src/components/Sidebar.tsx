@@ -53,13 +53,13 @@ export default function Sidebar() {
             key={item.href}
             href={item.href}
             onClick={() => setMobileOpen(false)}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+            className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${
               active
-                ? 'bg-gray-900 text-white shadow-sm'
-                : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
+                ? 'bg-white text-black'
+                : 'text-[#999999] hover:bg-[#111111] hover:text-white'
             }`}
           >
-            <span className={active ? 'text-white' : 'text-gray-400'}>{item.icon}</span>
+            <span className={active ? 'text-black' : 'text-[#666666]'}>{item.icon}</span>
             <span>{item.label}</span>
           </Link>
         )
@@ -70,9 +70,9 @@ export default function Sidebar() {
   return (
     <>
       {/* ── Desktop sidebar ── */}
-      <aside className="hidden lg:flex w-56 shrink-0 flex-col h-screen bg-white border-r border-gray-100 sticky top-0">
+      <aside className="hidden lg:flex w-56 shrink-0 flex-col h-screen bg-black border-r border-[#222222] sticky top-0">
         {/* Logo */}
-        <div className="px-5 py-5 border-b border-gray-100">
+        <div className="px-5 py-5 border-b border-[#222222]">
           <Image
             src="/mainnet-logo.svg"
             alt="Mainnet Design"
@@ -80,19 +80,20 @@ export default function Sidebar() {
             height={33}
             unoptimized
             priority
+            style={{ filter: 'invert(1)' }}
           />
         </div>
 
         {nav}
 
         {/* Footer */}
-        <div className="px-5 py-4 border-t border-gray-100">
-          <p className="text-[10px] text-gray-300 leading-relaxed">Somente leitura · dados ao vivo</p>
+        <div className="px-5 py-4 border-t border-[#222222]">
+          <p className="text-[10px] text-[#444444] leading-relaxed uppercase tracking-wider">Somente leitura · dados ao vivo</p>
         </div>
       </aside>
 
       {/* ── Mobile top bar ── */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-20 bg-white border-b border-gray-200 flex items-center justify-between px-4 py-3">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-20 bg-black border-b border-[#222222] flex items-center justify-between px-4 py-3">
           <Image
             src="/mainnet-logo.svg"
             alt="Mainnet Design"
@@ -100,18 +101,19 @@ export default function Sidebar() {
             height={25}
             unoptimized
             priority
+            style={{ filter: 'invert(1)' }}
           />
         <button
           onClick={() => setMobileOpen((v) => !v)}
-          className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+          className="p-1.5 hover:bg-[#111111] transition-colors"
           aria-label="Menu"
         >
           {mobileOpen ? (
-            <svg className="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-5 h-5 text-[#999999]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           ) : (
-            <svg className="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-5 h-5 text-[#999999]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           )}
@@ -121,8 +123,8 @@ export default function Sidebar() {
       {/* Mobile drawer */}
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 z-10 flex" onClick={() => setMobileOpen(false)}>
-          <div className="absolute inset-0 bg-black/20" />
-          <aside className="relative w-56 bg-white shadow-xl flex flex-col pt-16" onClick={(e) => e.stopPropagation()}>
+          <div className="absolute inset-0 bg-black/60" />
+          <aside className="relative w-56 bg-black border-r border-[#222222] shadow-xl flex flex-col pt-16" onClick={(e) => e.stopPropagation()}>
             {nav}
           </aside>
         </div>

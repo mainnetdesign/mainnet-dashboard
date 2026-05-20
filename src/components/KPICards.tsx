@@ -1,5 +1,5 @@
 'use client'
-import { DashboardData, ComparisonKPIs } from '@/types'
+import { DashboardData } from '@/types'
 
 function fmt(value: number) {
   return new Intl.NumberFormat('pt-BR', {
@@ -10,21 +10,10 @@ function fmt(value: number) {
   }).format(value)
 }
 
-function fmtRate(value: number) {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value) + '/h'
-}
-
 function monthsDiff(start: string, end: string) {
   const s = new Date(start)
   const e = new Date(end)
-  const months =
-    (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth()) + 1
-  return months
+  return (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth()) + 1
 }
 
 function DeltaBadge({ current, previous }: { current: number; previous: number }) {
@@ -32,7 +21,9 @@ function DeltaBadge({ current, previous }: { current: number; previous: number }
   const pct = ((current - previous) / Math.abs(previous)) * 100
   const up = pct >= 0
   return (
-    <span className={`inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 rounded-full ${up ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
+    <span className={`inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 border ${
+      up ? 'border-[#444444] text-[#999999]' : 'border-[#333333] text-[#666666]'
+    }`}>
       {up ? '↑' : '↓'} {Math.abs(pct).toFixed(0)}%
     </span>
   )
@@ -50,15 +41,15 @@ function Card({ label, value, sub, largeText, delta }: {
   delta?: { current: number; previous: number }
 }) {
   return (
-    <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-      <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">{label}</p>
+    <div className="bg-[#111111] p-5 border border-[#222222]">
+      <p className="text-[11px] font-semibold text-[#666666] uppercase tracking-wider mb-2">{label}</p>
       <div className="flex items-baseline gap-2 mb-1">
-        <p className={`font-bold text-gray-900 leading-tight ${largeText ? 'text-2xl' : 'text-3xl'}`}>
+        <p className={`font-bold text-white leading-tight ${largeText ? 'text-2xl' : 'text-3xl'}`}>
           {value}
         </p>
         {delta && <DeltaBadge current={delta.current} previous={delta.previous} />}
       </div>
-      <p className="text-sm text-gray-500">{sub}</p>
+      <p className="text-sm text-[#999999]">{sub}</p>
     </div>
   )
 }
@@ -69,7 +60,7 @@ export default function KPICards({ data }: Props) {
   const currRevenue = data.pl.reduce((s, p) => s + p.revenue, 0)
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-px mb-8 border border-[#222222]">
       <Card
         label="TOTAL INVESTIDO"
         value={fmt(data.totalCost)}
