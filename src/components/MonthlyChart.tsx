@@ -66,10 +66,10 @@ export default function MonthlyChart({ data }: Props) {
   const gridColor = isDark ? '#222222' : '#E8E8E8'
   const axisColor = isDark ? '#666666' : '#888888'
   const legendColor = isDark ? '#999999' : '#555555'
-  const revenueColor = isDark ? '#FFFFFF' : '#111111'
-  const costColor = isDark ? '#666666' : '#888888'
-  const resultColor = isDark ? '#999999' : '#555555'
-  const targetColor = isDark ? '#444444' : '#CCCCCC'
+  const revenueColor = '#22C55E'
+  const costColor = '#F87171'
+  const resultColor = '#60A5FA'
+  const targetColor = isDark ? '#555555' : '#BBBBBB'
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY)

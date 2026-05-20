@@ -55,14 +55,19 @@ const STATUS_CFG_BASE = {
   'not-realized': { label: 'Não realizado', borderClass: 'border-[var(--bd3)]',  textClass: 'text-[var(--tx2)]' },
 }
 
+const STATUS_CHART_COLORS = {
+  matched:        '#22C55E',
+  unmatched:      '#F87171',
+  ignored:        '#9CA3AF',
+  'not-realized': '#FBBF24',
+}
+
 function useStatusCfg() {
-  const { theme } = useTheme()
-  const isDark = theme === 'dark'
   return {
-    matched:        { ...STATUS_CFG_BASE.matched,        color: isDark ? '#FFFFFF' : '#111111' },
-    unmatched:      { ...STATUS_CFG_BASE.unmatched,      color: '#888888' },
-    ignored:        { ...STATUS_CFG_BASE.ignored,        color: isDark ? '#444444' : '#BBBBBB' },
-    'not-realized': { ...STATUS_CFG_BASE['not-realized'], color: isDark ? '#666666' : '#999999' },
+    matched:        { ...STATUS_CFG_BASE.matched,        color: STATUS_CHART_COLORS.matched },
+    unmatched:      { ...STATUS_CFG_BASE.unmatched,      color: STATUS_CHART_COLORS.unmatched },
+    ignored:        { ...STATUS_CFG_BASE.ignored,        color: STATUS_CHART_COLORS.ignored },
+    'not-realized': { ...STATUS_CFG_BASE['not-realized'], color: STATUS_CHART_COLORS['not-realized'] },
   }
 }
 
