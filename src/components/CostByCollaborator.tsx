@@ -31,35 +31,35 @@ export default function CostByCollaborator({ data }: Props) {
   })()
 
   return (
-    <div className="bg-[#111111] p-6 border border-[#222222]">
-      <h2 className="text-base font-bold text-white mb-1">Custo por colaborador</h2>
-      <p className="text-sm text-[#999999] mb-6">Total no período de {totalMonths} meses</p>
+    <div className="bg-[var(--bg3)] p-6 border border-[var(--bd)]">
+      <h2 className="text-base font-bold text-[var(--tx)] mb-1">Custo por colaborador</h2>
+      <p className="text-sm text-[var(--tx2)] mb-6">Total no período de {totalMonths} meses</p>
 
       <div className="space-y-5">
         {data.collaborators.map((c) => (
           <div key={c.id}>
             <div className="flex items-baseline justify-between mb-1">
-              <span className="text-sm font-semibold text-white">{c.name}</span>
+              <span className="text-sm font-semibold text-[var(--tx)]">{c.name}</span>
               <div className="text-right">
-                <span className="text-sm font-bold text-white">{fmtBRL(c.totalCost)}</span>
-                <span className="text-xs text-[#666666] ml-2">{c.percentOfTotal.toFixed(1)}%</span>
+                <span className="text-sm font-bold text-[var(--tx)]">{fmtBRL(c.totalCost)}</span>
+                <span className="text-xs text-[var(--tx3)] ml-2">{c.percentOfTotal.toFixed(1)}%</span>
               </div>
             </div>
 
-            <div className="relative h-1.5 bg-[#222222] mb-1">
+            <div className="relative h-1.5 bg-[var(--bd)] mb-1">
               <div
                 className="absolute left-0 top-0 h-full transition-all"
                 style={{ width: `${c.percentOfTotal}%`, background: c.color }}
               />
             </div>
 
-            <p className="text-xs text-[#666666]">{fmtRate(c.effectiveHourlyRate)}</p>
+            <p className="text-xs text-[var(--tx3)]">{fmtRate(c.effectiveHourlyRate)}</p>
           </div>
         ))}
 
-        <div className="border-t border-[#222222] pt-4 flex justify-between">
-          <span className="text-sm font-semibold text-[#999999]">Total geral</span>
-          <span className="text-sm font-bold text-white">{fmtBRL(data.totalCostAllCollaborators)}</span>
+        <div className="border-t border-[var(--bd)] pt-4 flex justify-between">
+          <span className="text-sm font-semibold text-[var(--tx2)]">Total geral</span>
+          <span className="text-sm font-bold text-[var(--tx)]">{fmtBRL(data.totalCostAllCollaborators)}</span>
         </div>
       </div>
     </div>

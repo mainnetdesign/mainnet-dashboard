@@ -11,6 +11,7 @@ import {
 } from 'recharts'
 import { MonthlyData } from '@/types'
 import { COLLABORATORS } from '@/config/collaborators'
+import { useTheme } from 'next-themes'
 
 interface Props {
   data: MonthlyData[]
@@ -28,13 +29,13 @@ const CustomTooltip = ({
   if (!active || !payload?.length) return null
   const sorted = [...payload].sort((a, b) => b.value - a.value)
   return (
-    <div className="bg-[#111111] border border-[#222222] p-3 text-sm min-w-[180px]">
-      <p className="font-semibold text-white mb-2">{label}</p>
+    <div className="bg-[var(--bg3)] border border-[var(--bd)] p-3 text-sm min-w-[180px]">
+      <p className="font-semibold text-[var(--tx)] mb-2">{label}</p>
       {sorted.map((p) => (
         <div key={p.name} className="flex items-center gap-2 mb-1">
           <span className="w-2 h-2 rounded-full shrink-0" style={{ background: p.color }} />
-          <span className="text-[#999999] flex-1">{p.name}</span>
-          <span className="font-semibold text-white">R${p.value}/h</span>
+          <span className="text-[var(--tx2)] flex-1">{p.name}</span>
+          <span className="font-semibold text-[var(--tx)]">R${p.value}/h</span>
         </div>
       ))}
     </div>
@@ -42,6 +43,13 @@ const CustomTooltip = ({
 }
 
 export default function RateHistoryChart({ data }: Props) {
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
+  const gridColor = isDark ? '#222222' : '#EEEEEE'
+  const axisColor = isDark ? '#666666' : '#999999'
+  const legendColor = isDark ? '#999999' : '#555555'
+  const dotStroke = isDark ? '#000000' : '#FFFFFF'
+
   const filteredData = data.filter((m) => Object.keys(m.collaboratorRates).length > 0)
 
   const chartData = filteredData.map((m) => {
@@ -60,9 +68,9 @@ export default function RateHistoryChart({ data }: Props) {
   if (activeCollabs.length === 0) return null
 
   return (
-    <div className="bg-[#111111] p-6 border border-[#222222] mb-8">
-      <h2 className="text-base font-bold text-white mb-1">Histórico de custo/hora</h2>
-      <p className="text-sm text-[#999999] mb-6">Taxa efetiva R$/h por colaborador ao longo dos meses</p>
+    <div className="bg-[var(--bg3)] p-6 border border-[var(--bd)] mb-8">
+      <h2 className="text-base font-bold text-[var(--tx)] mb-1">Histórico de custo/hora</h2>
+      <p className="text-sm text-[var(--tx2)] mb-6">Taxa efetiva R$/h por colaborador ao longo dos meses</p>
       <ResponsiveContainer width="100%" height={280}>
         <ComposedChart data={chartData} margin={{ top: 4, right: 20, left: 0, bottom: 0 }}>
           <defs>
@@ -74,13 +82,13 @@ export default function RateHistoryChart({ data }: Props) {
             ))}
           </defs>
 
-          <CartesianGrid strokeDasharray="3 3" stroke="#222222" vertical={false} />
-          <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#666666' }} axisLine={false} tickLine={false} />
-          <YAxis tickFormatter={(v) => `R$${v}`} tick={{ fontSize: 11, fill: '#666666' }} axisLine={false} tickLine={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
+          <XAxis dataKey="label" tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
+          <YAxis tickFormatter={(v) => `R$${v}`} tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
           <Tooltip content={<CustomTooltip />} />
           <Legend
             wrapperStyle={{ fontSize: 12, paddingTop: 16 }}
-            formatter={(value) => <span style={{ color: '#999999' }}>{value}</span>}
+            formatter={(value) => <span style={{ color: legendColor }}>{value}</span>}
           />
 
           {activeCollabs.map((c) => (
@@ -91,8 +99,8 @@ export default function RateHistoryChart({ data }: Props) {
               stroke={c.color}
               strokeWidth={2.5}
               fill={`url(#grad-${c.id})`}
-              dot={{ r: 3.5, fill: c.color, strokeWidth: 2, stroke: '#000000' }}
-              activeDot={{ r: 6, fill: c.color, stroke: '#000000', strokeWidth: 2 }}
+              dot={{ r: 3.5, fill: c.color, strokeWidth: 2, stroke: dotStroke }}
+              activeDot={{ r: 6, fill: c.color, stroke: dotStroke, strokeWidth: 2 }}
               connectNulls
             />
           ))}

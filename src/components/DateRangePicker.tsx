@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useTheme } from 'next-themes'
 
 interface Props {
   start: string
@@ -38,6 +39,7 @@ const PRESETS = [
 export default function DateRangePicker({ start, end, onChange }: Props) {
   const [localStart, setLocalStart] = useState(start)
   const [localEnd, setLocalEnd] = useState(end)
+  const { theme } = useTheme()
 
   function apply() { onChange(localStart, localEnd) }
 
@@ -50,7 +52,7 @@ export default function DateRangePicker({ start, end, onChange }: Props) {
             const { start: s, end: e } = p.get()
             setLocalStart(s); setLocalEnd(e); onChange(s, e)
           }}
-          className="px-3 py-1.5 text-sm border border-[#222222] text-[#999999] hover:border-[#444444] hover:text-white transition-colors"
+          className="px-3 py-1.5 text-sm border border-[var(--bd)] text-[var(--tx2)] hover:border-[var(--bd3)] hover:text-[var(--tx)] transition-colors"
         >
           {p.label}
         </button>
@@ -61,20 +63,20 @@ export default function DateRangePicker({ start, end, onChange }: Props) {
           type="date"
           value={localStart}
           onChange={(e) => setLocalStart(e.target.value)}
-          className="bg-[#111111] border border-[#222222] px-3 py-1.5 text-sm text-white focus:outline-none focus:border-[#444444]"
-          style={{ colorScheme: 'dark' }}
+          className="bg-[var(--bg3)] border border-[var(--bd)] px-3 py-1.5 text-sm text-[var(--tx)] focus:outline-none focus:border-[var(--bd3)]"
+          style={{ colorScheme: theme === 'dark' ? 'dark' : 'light' }}
         />
-        <span className="text-[#666666] text-sm">→</span>
+        <span className="text-[var(--tx3)] text-sm">→</span>
         <input
           type="date"
           value={localEnd}
           onChange={(e) => setLocalEnd(e.target.value)}
-          className="bg-[#111111] border border-[#222222] px-3 py-1.5 text-sm text-white focus:outline-none focus:border-[#444444]"
-          style={{ colorScheme: 'dark' }}
+          className="bg-[var(--bg3)] border border-[var(--bd)] px-3 py-1.5 text-sm text-[var(--tx)] focus:outline-none focus:border-[var(--bd3)]"
+          style={{ colorScheme: theme === 'dark' ? 'dark' : 'light' }}
         />
         <button
           onClick={apply}
-          className="px-4 py-1.5 text-sm font-medium bg-white text-black hover:bg-[#e5e5e5] transition-colors"
+          className="px-4 py-1.5 text-sm font-medium bg-[var(--inv)] text-[var(--inv-tx)] hover:opacity-80 transition-opacity"
         >
           Aplicar
         </button>

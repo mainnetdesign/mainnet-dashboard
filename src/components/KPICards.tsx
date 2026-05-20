@@ -22,7 +22,7 @@ function DeltaBadge({ current, previous }: { current: number; previous: number }
   const up = pct >= 0
   return (
     <span className={`inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 border ${
-      up ? 'border-[#444444] text-[#999999]' : 'border-[#333333] text-[#666666]'
+      up ? 'border-[var(--bd3)] text-[var(--tx2)]' : 'border-[var(--bd2)] text-[var(--tx3)]'
     }`}>
       {up ? '↑' : '↓'} {Math.abs(pct).toFixed(0)}%
     </span>
@@ -41,15 +41,15 @@ function Card({ label, value, sub, largeText, delta }: {
   delta?: { current: number; previous: number }
 }) {
   return (
-    <div className="bg-[#111111] p-5 border border-[#222222]">
-      <p className="text-[11px] font-semibold text-[#666666] uppercase tracking-wider mb-2">{label}</p>
+    <div className="bg-[var(--bg3)] p-5 border border-[var(--bd)]">
+      <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-2">{label}</p>
       <div className="flex items-baseline gap-2 mb-1">
-        <p className={`font-bold text-white leading-tight ${largeText ? 'text-2xl' : 'text-3xl'}`}>
+        <p className={`font-bold text-[var(--tx)] leading-tight ${largeText ? 'text-2xl' : 'text-3xl'}`}>
           {value}
         </p>
         {delta && <DeltaBadge current={delta.current} previous={delta.previous} />}
       </div>
-      <p className="text-sm text-[#999999]">{sub}</p>
+      <p className="text-sm text-[var(--tx2)]">{sub}</p>
     </div>
   )
 }
@@ -60,7 +60,7 @@ export default function KPICards({ data }: Props) {
   const currRevenue = data.pl.reduce((s, p) => s + p.revenue, 0)
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-px mb-8 border border-[#222222]">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-px mb-8 border border-[var(--bd)]">
       <Card
         label="TOTAL INVESTIDO"
         value={fmt(data.totalCost)}

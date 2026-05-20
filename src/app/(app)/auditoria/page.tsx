@@ -48,10 +48,10 @@ function fmtDate(s: string | null) {
 }
 
 const STATUS_CFG: Record<TxStatus, { label: string; borderClass: string; textClass: string; color: string }> = {
-  matched:        { label: 'Vinculado',     borderClass: 'border-white',     textClass: 'text-white',     color: '#FFFFFF' },
-  unmatched:      { label: 'Sem vínculo',   borderClass: 'border-[#666666]', textClass: 'text-[#999999]', color: '#666666' },
-  ignored:        { label: 'Ignorado',      borderClass: 'border-[#333333]', textClass: 'text-[#666666]', color: '#444444' },
-  'not-realized': { label: 'Não realizado', borderClass: 'border-[#444444]', textClass: 'text-[#999999]', color: '#555555' },
+  matched:        { label: 'Vinculado',     borderClass: 'border-[var(--inv)]',     textClass: 'text-[var(--tx)]',     color: '#FFFFFF' },
+  unmatched:      { label: 'Sem vínculo',   borderClass: 'border-[#666666]', textClass: 'text-[var(--tx2)]', color: '#666666' },
+  ignored:        { label: 'Ignorado',      borderClass: 'border-[var(--bd2)]', textClass: 'text-[var(--tx3)]', color: '#444444' },
+  'not-realized': { label: 'Não realizado', borderClass: 'border-[var(--bd3)]', textClass: 'text-[var(--tx2)]', color: '#555555' },
 }
 
 function Badge({ status }: { status: TxStatus }) {
@@ -66,11 +66,11 @@ function Badge({ status }: { status: TxStatus }) {
 function SectionHeader({ label, title, count }: { label: string; title: string; count?: number }) {
   return (
     <div className="flex items-center gap-3 mb-4">
-      <p className="text-[10px] font-bold text-[#666666] uppercase tracking-widest whitespace-nowrap">{label}</p>
-      <div className="flex-1 h-px bg-[#222222]" />
-      <h2 className="text-sm font-bold text-white whitespace-nowrap">{title}</h2>
+      <p className="text-[10px] font-bold text-[var(--tx3)] uppercase tracking-widest whitespace-nowrap">{label}</p>
+      <div className="flex-1 h-px bg-[var(--bd)]" />
+      <h2 className="text-sm font-bold text-[var(--tx)] whitespace-nowrap">{title}</h2>
       {count !== undefined && (
-        <span className="text-xs font-semibold text-[#666666] border border-[#333333] px-2 py-0.5">{count}</span>
+        <span className="text-xs font-semibold text-[var(--tx3)] border border-[var(--bd2)] px-2 py-0.5">{count}</span>
       )}
     </div>
   )
@@ -93,11 +93,11 @@ function PieTooltip({ active, payload }: { active?: boolean; payload?: Array<{ n
   if (!active || !payload?.length) return null
   const p = payload[0]
   return (
-    <div className="bg-[#111111] border border-[#222222] px-3 py-2 text-sm">
+    <div className="bg-[var(--bg3)] border border-[var(--bd)] px-3 py-2 text-sm">
       <div className="flex items-center gap-2">
         <span className="w-2 h-2 rounded-full shrink-0" style={{ background: p.payload.color }} />
-        <span className="text-[#999999]">{p.name}</span>
-        <span className="font-bold text-white ml-2">{p.value}</span>
+        <span className="text-[var(--tx2)]">{p.name}</span>
+        <span className="font-bold text-[var(--tx)] ml-2">{p.value}</span>
       </div>
     </div>
   )
@@ -106,13 +106,13 @@ function PieTooltip({ active, payload }: { active?: boolean; payload?: Array<{ n
 function BarTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ name: string; value: number; color: string }>; label?: string }) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-[#111111] border border-[#222222] p-3 text-sm min-w-[140px]">
-      <p className="font-semibold text-white mb-2">{label}</p>
+    <div className="bg-[var(--bg3)] border border-[var(--bd)] p-3 text-sm min-w-[140px]">
+      <p className="font-semibold text-[var(--tx)] mb-2">{label}</p>
       {payload.filter(p => p.value > 0).map((p) => (
         <div key={p.name} className="flex items-center gap-2 mb-1">
           <span className="w-2 h-2 rounded-full shrink-0" style={{ background: p.color }} />
-          <span className="text-[#999999] flex-1 text-xs">{p.name}</span>
-          <span className="font-semibold text-white">{p.value}</span>
+          <span className="text-[var(--tx2)] flex-1 text-xs">{p.name}</span>
+          <span className="font-semibold text-[var(--tx)]">{p.value}</span>
         </div>
       ))}
     </div>
@@ -177,27 +177,27 @@ export default function AuditoriaPage() {
   return (
     <div>
       {/* ── Header ── */}
-      <header className="bg-black border-b border-[#222222] sticky top-0 z-10">
+      <header className="bg-[var(--bg)] border-b border-[var(--bd)] sticky top-0 z-10">
         <div className="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between flex-wrap gap-4">
           <div>
-            <span className="font-bold text-white text-lg">Auditoria</span>
-            <p className="text-[11px] text-[#666666] leading-none mt-0.5 uppercase tracking-wider">Diagnóstico de transações · somente leitura</p>
+            <span className="font-bold text-[var(--tx)] text-lg">Auditoria</span>
+            <p className="text-[11px] text-[var(--tx3)] leading-none mt-0.5 uppercase tracking-wider">Diagnóstico de transações · somente leitura</p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1.5 border border-[#222222] px-3 py-1.5 bg-[#111111]">
+            <div className="flex items-center gap-1.5 border border-[var(--bd)] px-3 py-1.5 bg-[var(--bg3)]">
               <input type="date" value={start} onChange={(e) => setStart(e.target.value)}
-                className="text-sm text-white outline-none bg-transparent" style={{ colorScheme: 'dark' }} />
-              <span className="text-[#444444] text-sm">→</span>
+                className="text-sm text-[var(--tx)] outline-none bg-transparent" style={{ colorScheme: 'dark' }} />
+              <span className="text-[var(--bd3)] text-sm">→</span>
               <input type="date" value={end} onChange={(e) => setEnd(e.target.value)}
-                className="text-sm text-white outline-none bg-transparent" style={{ colorScheme: 'dark' }} />
+                className="text-sm text-[var(--tx)] outline-none bg-transparent" style={{ colorScheme: 'dark' }} />
             </div>
             <button onClick={() => fetchData(start, end)} disabled={loading}
-              className="px-3 py-1.5 text-sm font-medium bg-white text-black hover:bg-[#e5e5e5] disabled:opacity-40 transition-colors">
+              className="px-3 py-1.5 text-sm font-medium bg-[var(--inv)] text-[var(--inv-tx)] hover:opacity-80 disabled:opacity-40 transition-colors">
               {loading ? 'Carregando…' : 'Aplicar'}
             </button>
             {data && (
               <button onClick={() => exportCSV(data.periodTransactions)}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-[#222222] text-[#999999] hover:border-[#444444] hover:text-white transition-colors">
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-[var(--bd)] text-[var(--tx2)] hover:border-[var(--bd3)] hover:text-[var(--tx)] transition-colors">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
@@ -212,20 +212,20 @@ export default function AuditoriaPage() {
 
         {loading && (
           <div className="space-y-6 animate-pulse">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-px border border-[#222222]">
-              {[...Array(4)].map((_, i) => <div key={i} className="bg-[#111111] h-28" />)}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-px border border-[var(--bd)]">
+              {[...Array(4)].map((_, i) => <div key={i} className="bg-[var(--bg3)] h-28" />)}
             </div>
-            <div className="bg-[#111111] border border-[#222222] h-64" />
-            <div className="bg-[#111111] border border-[#222222] h-96" />
+            <div className="bg-[var(--bg3)] border border-[var(--bd)] h-64" />
+            <div className="bg-[var(--bg3)] border border-[var(--bd)] h-96" />
           </div>
         )}
 
         {!loading && error && (
-          <div className="bg-[#111111] border border-[#222222] p-6 text-center">
-            <p className="text-white font-semibold mb-1">Erro ao carregar dados</p>
-            <p className="text-[#999999] text-sm">{error}</p>
+          <div className="bg-[var(--bg3)] border border-[var(--bd)] p-6 text-center">
+            <p className="text-[var(--tx)] font-semibold mb-1">Erro ao carregar dados</p>
+            <p className="text-[var(--tx2)] text-sm">{error}</p>
             <button onClick={() => fetchData(start, end)}
-              className="mt-4 px-4 py-2 bg-white text-black text-sm hover:bg-[#e5e5e5] transition-colors">
+              className="mt-4 px-4 py-2 bg-white text-black text-sm hover:opacity-80 transition-colors">
               Tentar novamente
             </button>
           </div>
@@ -236,21 +236,21 @@ export default function AuditoriaPage() {
 
             {/* ── 1. Action summary ── */}
             {actions.length > 0 && (
-              <div className="bg-[#111111] border border-[#333333] p-5">
+              <div className="bg-[var(--bg3)] border border-[var(--bd2)] p-5">
                 <div className="flex items-center gap-2.5 mb-3">
-                  <div className="w-6 h-6 bg-[#333333] flex items-center justify-center shrink-0">
-                    <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <div className="w-6 h-6 bg-[var(--bd2)] flex items-center justify-center shrink-0">
+                    <svg className="w-3.5 h-3.5 text-[var(--tx)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                     </svg>
                   </div>
-                  <p className="text-sm font-bold text-white">
+                  <p className="text-sm font-bold text-[var(--tx)]">
                     {actions.length} {actions.length === 1 ? 'ponto requer atenção' : 'pontos requerem atenção'}
                   </p>
                 </div>
                 <ul className="space-y-1.5 ml-8">
                   {actions.map((a, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-[#999999]">
-                      <span className="text-[#666666] mt-0.5 shrink-0">·</span>{a}
+                    <li key={i} className="flex items-start gap-2 text-sm text-[var(--tx2)]">
+                      <span className="text-[var(--tx3)] mt-0.5 shrink-0">·</span>{a}
                     </li>
                   ))}
                 </ul>
@@ -260,34 +260,34 @@ export default function AuditoriaPage() {
             {/* ── 2. KPI cards + coverage ── */}
             <div>
               <SectionHeader label="Visão geral" title="Resumo do período" />
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-px mb-4 border border-[#222222]">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-px mb-4 border border-[var(--bd)]">
                 {[
                   { label: 'Receita realizada',    value: fmtBRL(data.summary.totalRealizedRevenue),  sub: 'período selecionado' },
                   { label: 'Receita vinculada',     value: fmtBRL(data.summary.totalMatchedRevenue),   sub: `${data.summary.matchedCount} transações${matchPct !== null ? ` · ${matchPct}% cobertura` : ''}` },
                   { label: 'Sem vínculo',           value: fmtBRL(data.summary.totalUnmatchedRevenue), sub: `${data.summary.unmatchedCount} transações` },
                   { label: 'Ignoradas / Previstas', value: `${data.summary.ignoredCount + data.summary.notRealizedCount}`, sub: `${data.summary.ignoredCount} ignoradas · ${data.summary.notRealizedCount} previstas` },
                 ].map((c) => (
-                  <div key={c.label} className="bg-[#111111] p-5">
-                    <p className="text-[11px] font-semibold text-[#666666] uppercase tracking-wider mb-2">{c.label}</p>
-                    <p className="text-2xl font-bold text-white leading-tight mb-1">{c.value}</p>
-                    <p className="text-xs text-[#666666]">{c.sub}</p>
+                  <div key={c.label} className="bg-[var(--bg3)] p-5">
+                    <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-2">{c.label}</p>
+                    <p className="text-2xl font-bold text-[var(--tx)] leading-tight mb-1">{c.value}</p>
+                    <p className="text-xs text-[var(--tx3)]">{c.sub}</p>
                   </div>
                 ))}
               </div>
 
               {matchPct !== null && (
-                <div className="bg-[#111111] p-5 border border-[#222222]">
+                <div className="bg-[var(--bg3)] p-5 border border-[var(--bd)]">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-semibold text-white">Cobertura de vínculo</p>
-                    <p className="text-sm font-bold text-white">{matchPct}%</p>
+                    <p className="text-sm font-semibold text-[var(--tx)]">Cobertura de vínculo</p>
+                    <p className="text-sm font-bold text-[var(--tx)]">{matchPct}%</p>
                   </div>
-                  <div className="w-full h-2 bg-[#222222] overflow-hidden">
+                  <div className="w-full h-2 bg-[var(--bd)] overflow-hidden">
                     <div className="h-full bg-white transition-all duration-700" style={{ width: `${matchPct}%` }} />
                   </div>
-                  <div className="flex justify-between mt-1.5 text-xs text-[#666666]">
-                    <span className="text-white font-medium">{data.summary.matchedCount} vinculadas</span>
+                  <div className="flex justify-between mt-1.5 text-xs text-[var(--tx3)]">
+                    <span className="text-[var(--tx)] font-medium">{data.summary.matchedCount} vinculadas</span>
                     <span>{data.summary.ignoredCount} ignoradas</span>
-                    <span className="text-[#999999] font-medium">{data.summary.unmatchedCount} sem vínculo</span>
+                    <span className="text-[var(--tx2)] font-medium">{data.summary.unmatchedCount} sem vínculo</span>
                   </div>
                 </div>
               )}
@@ -296,10 +296,10 @@ export default function AuditoriaPage() {
             {/* ── 3. Charts ── */}
             <div>
               <SectionHeader label="Análise visual" title="Distribuição e tendência mensal" />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-px border border-[#222222]">
-                <div className="bg-[#111111] p-6">
-                  <p className="text-sm font-bold text-white mb-1">Status das transações</p>
-                  <p className="text-xs text-[#666666] mb-4">Distribuição por tipo no período</p>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-px border border-[var(--bd)]">
+                <div className="bg-[var(--bg3)] p-6">
+                  <p className="text-sm font-bold text-[var(--tx)] mb-1">Status das transações</p>
+                  <p className="text-xs text-[var(--tx3)] mb-4">Distribuição por tipo no período</p>
                   <ResponsiveContainer width="100%" height={220}>
                     <PieChart>
                       <Pie
@@ -324,9 +324,9 @@ export default function AuditoriaPage() {
                   </ResponsiveContainer>
                 </div>
 
-                <div className="bg-[#111111] p-6">
-                  <p className="text-sm font-bold text-white mb-1">Transações por mês</p>
-                  <p className="text-xs text-[#666666] mb-4">Vinculadas vs sem vínculo ao longo do tempo</p>
+                <div className="bg-[var(--bg3)] p-6">
+                  <p className="text-sm font-bold text-[var(--tx)] mb-1">Transações por mês</p>
+                  <p className="text-xs text-[var(--tx3)] mb-4">Vinculadas vs sem vínculo ao longo do tempo</p>
                   {data.monthlyBreakdown.length > 0 ? (
                     <ResponsiveContainer width="100%" height={220}>
                       <BarChart data={data.monthlyBreakdown} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
@@ -341,7 +341,7 @@ export default function AuditoriaPage() {
                       </BarChart>
                     </ResponsiveContainer>
                   ) : (
-                    <div className="flex items-center justify-center h-[220px] text-sm text-[#444444]">Sem dados suficientes</div>
+                    <div className="flex items-center justify-center h-[220px] text-sm text-[var(--bd3)]">Sem dados suficientes</div>
                   )}
                 </div>
               </div>
@@ -351,22 +351,22 @@ export default function AuditoriaPage() {
             {data.overdueNotRealized.length > 0 && (
               <div>
                 <SectionHeader label="Recebimentos atrasados" title="Previstos há mais de 30 dias" count={data.overdueNotRealized.length} />
-                <div className="bg-[#111111] border border-[#222222] overflow-hidden">
-                  <div className="divide-y divide-[#222222]">
+                <div className="bg-[var(--bg3)] border border-[var(--bd)] overflow-hidden">
+                  <div className="divide-y divide-[var(--bd)]">
                     {data.overdueNotRealized.map((tx) => (
-                      <div key={tx.id} className="flex items-center gap-4 px-5 py-3 hover:bg-[#1A1A1A] transition-colors">
+                      <div key={tx.id} className="flex items-center gap-4 px-5 py-3 hover:bg-[var(--bg4)] transition-colors">
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-white truncate">{tx.name}</p>
-                          <p className="text-xs text-[#666666] mt-0.5">Previsto para {fmtDate(tx.paymentDate)}</p>
+                          <p className="text-sm font-medium text-[var(--tx)] truncate">{tx.name}</p>
+                          <p className="text-xs text-[var(--tx3)] mt-0.5">Previsto para {fmtDate(tx.paymentDate)}</p>
                         </div>
-                        <span className="text-sm font-bold text-white shrink-0">{fmtBRL(tx.value)}</span>
-                        <span className="text-xs font-semibold text-[#999999] border border-[#444444] px-2 py-0.5 shrink-0">
+                        <span className="text-sm font-bold text-[var(--tx)] shrink-0">{fmtBRL(tx.value)}</span>
+                        <span className="text-xs font-semibold text-[var(--tx2)] border border-[var(--bd3)] px-2 py-0.5 shrink-0">
                           {tx.daysOverdue}d atraso
                         </span>
                       </div>
                     ))}
                   </div>
-                  <div className="px-5 py-3 bg-black border-t border-[#222222] flex justify-between text-xs text-[#666666] font-medium">
+                  <div className="px-5 py-3 bg-[var(--bg)] border-t border-[var(--bd)] flex justify-between text-xs text-[var(--tx3)] font-medium">
                     <span>{data.overdueNotRealized.length} recebimentos pendentes</span>
                     <span>{fmtBRL(data.overdueNotRealized.reduce((s, t) => s + t.value, 0))}</span>
                   </div>
@@ -380,18 +380,18 @@ export default function AuditoriaPage() {
                 <SectionHeader label="Possíveis duplicatas" title="Mesmo valor e nome no mesmo mês" count={data.duplicateGroups.length} />
                 <div className="space-y-3">
                   {data.duplicateGroups.map((group, gi) => (
-                    <div key={gi} className="bg-[#111111] border border-[#222222] overflow-hidden">
-                      <div className="px-5 py-3 bg-black border-b border-[#222222] flex items-center justify-between">
-                        <p className="text-xs font-semibold text-[#999999]">
+                    <div key={gi} className="bg-[var(--bg3)] border border-[var(--bd)] overflow-hidden">
+                      <div className="px-5 py-3 bg-[var(--bg)] border-b border-[var(--bd)] flex items-center justify-between">
+                        <p className="text-xs font-semibold text-[var(--tx2)]">
                           {group.transactions.length} transações · {group.month} · {fmtBRL(group.value)} cada
                         </p>
-                        <span className="text-xs text-[#666666]">Verifique no Notion</span>
+                        <span className="text-xs text-[var(--tx3)]">Verifique no Notion</span>
                       </div>
-                      <div className="divide-y divide-[#222222]">
+                      <div className="divide-y divide-[var(--bd)]">
                         {group.transactions.map((tx) => (
                           <div key={tx.id} className="flex items-center gap-4 px-5 py-2.5">
-                            <p className="flex-1 text-sm text-[#999999] truncate">{tx.name}</p>
-                            <span className="text-xs text-[#666666] shrink-0">{fmtDate(tx.paymentDate)}</span>
+                            <p className="flex-1 text-sm text-[var(--tx2)] truncate">{tx.name}</p>
+                            <span className="text-xs text-[var(--tx3)] shrink-0">{fmtDate(tx.paymentDate)}</span>
                             <Badge status={tx.status as TxStatus} />
                           </div>
                         ))}
@@ -406,32 +406,32 @@ export default function AuditoriaPage() {
             {data.impliedRates.length > 0 && (
               <div>
                 <SectionHeader label="Taxa implícita" title="Receita ÷ horas por projeto" count={data.impliedRates.length} />
-                <div className="bg-[#111111] border border-[#222222] overflow-hidden">
+                <div className="bg-[var(--bg3)] border border-[var(--bd)] overflow-hidden">
                   {(() => {
                     const avg = Math.round(data.impliedRates.reduce((s, r) => s + r.rate, 0) / data.impliedRates.length)
                     return (
-                      <div className="px-5 py-3 bg-black border-b border-[#222222] flex items-center justify-between text-xs text-[#666666]">
-                        <span>Taxa média: <strong className="text-[#999999]">R${avg}/h</strong></span>
+                      <div className="px-5 py-3 bg-[var(--bg)] border-b border-[var(--bd)] flex items-center justify-between text-xs text-[var(--tx3)]">
+                        <span>Taxa média: <strong className="text-[var(--tx2)]">R${avg}/h</strong></span>
                         <span>anomalia = fora de 25–250% da média</span>
                       </div>
                     )
                   })()}
-                  <div className="divide-y divide-[#222222]">
+                  <div className="divide-y divide-[var(--bd)]">
                     {data.impliedRates.map((r) => {
                       const maxRate = Math.max(...data.impliedRates.map(x => x.rate))
                       const pct = maxRate > 0 ? (r.rate / maxRate) * 100 : 0
                       return (
-                        <div key={r.name} className="px-5 py-3 hover:bg-[#1A1A1A] transition-colors">
+                        <div key={r.name} className="px-5 py-3 hover:bg-[var(--bg4)] transition-colors">
                           <div className="flex items-center gap-4 mb-1.5">
-                            <p className="text-sm font-medium text-white flex-1 truncate">{r.name}</p>
-                            <span className="text-xs text-[#666666] shrink-0">{r.hours}h</span>
-                            <span className="text-xs text-[#666666] shrink-0">{fmtBRL(r.revenue)}</span>
-                            <span className={`text-sm font-bold shrink-0 ${r.anomaly ? 'text-[#999999]' : 'text-white'}`}>R${r.rate}/h</span>
+                            <p className="text-sm font-medium text-[var(--tx)] flex-1 truncate">{r.name}</p>
+                            <span className="text-xs text-[var(--tx3)] shrink-0">{r.hours}h</span>
+                            <span className="text-xs text-[var(--tx3)] shrink-0">{fmtBRL(r.revenue)}</span>
+                            <span className={`text-sm font-bold shrink-0 ${r.anomaly ? 'text-[var(--tx2)]' : 'text-[var(--tx)]'}`}>R${r.rate}/h</span>
                             {r.anomaly && (
-                              <span className="text-xs font-semibold text-[#999999] border border-[#444444] px-1.5 py-0.5 shrink-0">⚠ fora do padrão</span>
+                              <span className="text-xs font-semibold text-[var(--tx2)] border border-[var(--bd3)] px-1.5 py-0.5 shrink-0">⚠ fora do padrão</span>
                             )}
                           </div>
-                          <div className="w-full h-1.5 bg-[#222222] overflow-hidden">
+                          <div className="w-full h-1.5 bg-[var(--bd)] overflow-hidden">
                             <div className="h-full bg-white" style={{ width: `${pct}%` }} />
                           </div>
                         </div>
@@ -446,28 +446,28 @@ export default function AuditoriaPage() {
             {(data.projectsWithNoRevenue.length > 0 || data.revenueProjectsNoHours.length > 0) && (
               <div>
                 <SectionHeader label="Inconsistências de projeto" title="Horas sem receita · Receita sem horas" />
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-px border border-[#222222]">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-px border border-[var(--bd)]">
                   {data.projectsWithNoRevenue.length > 0 && (
-                    <div className="bg-[#111111] overflow-hidden">
-                      <div className="px-5 py-3.5 border-b border-[#222222] flex items-center justify-between">
+                    <div className="bg-[var(--bg3)] overflow-hidden">
+                      <div className="px-5 py-3.5 border-b border-[var(--bd)] flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-bold text-white">Horas sem receita</p>
-                          <p className="text-xs text-[#666666] mt-0.5">Clockify sem transação no Notion</p>
+                          <p className="text-sm font-bold text-[var(--tx)]">Horas sem receita</p>
+                          <p className="text-xs text-[var(--tx3)] mt-0.5">Clockify sem transação no Notion</p>
                         </div>
-                        <span className="text-xs font-semibold text-[#999999] border border-[#333333] px-2 py-0.5">
+                        <span className="text-xs font-semibold text-[var(--tx2)] border border-[var(--bd2)] px-2 py-0.5">
                           {data.projectsWithNoRevenue.length}
                         </span>
                       </div>
-                      <div className="divide-y divide-[#222222]">
+                      <div className="divide-y divide-[var(--bd)]">
                         {(showAllNoRevenue ? data.projectsWithNoRevenue : data.projectsWithNoRevenue.slice(0, 8)).map((p) => (
-                          <div key={p.name} className="flex items-center justify-between px-5 py-2.5 hover:bg-[#1A1A1A] transition-colors">
-                            <span className="text-sm text-[#999999] truncate">{p.name}</span>
-                            <span className="text-xs font-medium text-[#666666] shrink-0 ml-2">{p.hours}h</span>
+                          <div key={p.name} className="flex items-center justify-between px-5 py-2.5 hover:bg-[var(--bg4)] transition-colors">
+                            <span className="text-sm text-[var(--tx2)] truncate">{p.name}</span>
+                            <span className="text-xs font-medium text-[var(--tx3)] shrink-0 ml-2">{p.hours}h</span>
                           </div>
                         ))}
                         {data.projectsWithNoRevenue.length > 8 && (
                           <button onClick={() => setShowAllNoRevenue(v => !v)}
-                            className="w-full text-xs text-[#666666] hover:text-white py-2.5 text-center transition-colors border-t border-[#222222]">
+                            className="w-full text-xs text-[var(--tx3)] hover:text-[var(--tx)] py-2.5 text-center transition-colors border-t border-[var(--bd)]">
                             {showAllNoRevenue ? 'Ver menos' : `+${data.projectsWithNoRevenue.length - 8} projetos`}
                           </button>
                         )}
@@ -475,21 +475,21 @@ export default function AuditoriaPage() {
                     </div>
                   )}
                   {data.revenueProjectsNoHours.length > 0 && (
-                    <div className="bg-[#111111] overflow-hidden">
-                      <div className="px-5 py-3.5 border-b border-[#222222] flex items-center justify-between">
+                    <div className="bg-[var(--bg3)] overflow-hidden">
+                      <div className="px-5 py-3.5 border-b border-[var(--bd)] flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-bold text-white">Receita sem horas</p>
-                          <p className="text-xs text-[#666666] mt-0.5">Notion sem registro no Clockify</p>
+                          <p className="text-sm font-bold text-[var(--tx)]">Receita sem horas</p>
+                          <p className="text-xs text-[var(--tx3)] mt-0.5">Notion sem registro no Clockify</p>
                         </div>
-                        <span className="text-xs font-semibold text-[#999999] border border-[#333333] px-2 py-0.5">
+                        <span className="text-xs font-semibold text-[var(--tx2)] border border-[var(--bd2)] px-2 py-0.5">
                           {data.revenueProjectsNoHours.length}
                         </span>
                       </div>
-                      <div className="divide-y divide-[#222222]">
+                      <div className="divide-y divide-[var(--bd)]">
                         {data.revenueProjectsNoHours.map((p) => (
-                          <div key={p.name} className="flex items-center justify-between px-5 py-2.5 hover:bg-[#1A1A1A] transition-colors">
-                            <span className="text-sm text-[#999999] truncate">{p.name}</span>
-                            <span className="text-xs font-semibold text-white shrink-0 ml-2">{fmtBRL(p.revenue)}</span>
+                          <div key={p.name} className="flex items-center justify-between px-5 py-2.5 hover:bg-[var(--bg4)] transition-colors">
+                            <span className="text-sm text-[var(--tx2)] truncate">{p.name}</span>
+                            <span className="text-xs font-semibold text-[var(--tx)] shrink-0 ml-2">{fmtBRL(p.revenue)}</span>
                           </div>
                         ))}
                       </div>
@@ -505,24 +505,24 @@ export default function AuditoriaPage() {
                 <SectionHeader label="Sugestões de vínculo" title="Projetos parecidos para transações sem vínculo" count={data.suggestions.length} />
                 <div className={`space-y-2 ${!expandSuggestions ? 'max-h-96 overflow-hidden relative' : ''}`}>
                   {data.suggestions.map((s) => (
-                    <div key={s.txId} className="bg-[#111111] border border-[#222222] px-5 py-4">
+                    <div key={s.txId} className="bg-[var(--bg3)] border border-[var(--bd)] px-5 py-4">
                       <div className="flex items-start justify-between gap-4 mb-3">
                         <div className="min-w-0">
-                          <p className="text-sm font-semibold text-white truncate">{s.txName}</p>
-                          <p className="text-xs text-[#666666] mt-0.5">
+                          <p className="text-sm font-semibold text-[var(--tx)] truncate">{s.txName}</p>
+                          <p className="text-xs text-[var(--tx3)] mt-0.5">
                             {fmtDate(s.paymentDate)} · {fmtBRL(s.txValue)} · nome extraído:{' '}
-                            <span className="font-mono bg-[#222222] px-1 text-[#999999]">{s.extractedName}</span>
+                            <span className="font-mono bg-[var(--bd)] px-1 text-[var(--tx2)]">{s.extractedName}</span>
                           </p>
                         </div>
                         <Badge status="unmatched" />
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        <span className="text-xs text-[#666666] self-center">Projetos próximos:</span>
+                        <span className="text-xs text-[var(--tx3)] self-center">Projetos próximos:</span>
                         {s.suggestions.map((sg) => (
                           <span key={sg.project}
-                            className="flex items-center gap-1.5 text-xs border border-[#333333] text-[#999999] px-2.5 py-1 font-medium">
+                            className="flex items-center gap-1.5 text-xs border border-[var(--bd2)] text-[var(--tx2)] px-2.5 py-1 font-medium">
                             {sg.project}
-                            <span className="text-[#666666]">{Math.round(sg.score * 100)}%</span>
+                            <span className="text-[var(--tx3)]">{Math.round(sg.score * 100)}%</span>
                           </span>
                         ))}
                       </div>
@@ -534,7 +534,7 @@ export default function AuditoriaPage() {
                 </div>
                 {data.suggestions.length > 3 && (
                   <button onClick={() => setExpandSuggestions(v => !v)}
-                    className="mt-3 w-full text-xs font-medium text-[#666666] hover:text-white py-2 border border-[#222222] bg-[#111111] transition-colors hover:border-[#444444]">
+                    className="mt-3 w-full text-xs font-medium text-[var(--tx3)] hover:text-[var(--tx)] py-2 border border-[var(--bd)] bg-[var(--bg3)] transition-colors hover:border-[var(--bd3)]">
                     {expandSuggestions ? 'Ver menos' : `Ver todas as ${data.suggestions.length} sugestões`}
                   </button>
                 )}
@@ -544,8 +544,8 @@ export default function AuditoriaPage() {
             {/* ── 9. Transaction table ── */}
             <div>
               <SectionHeader label="Detalhe" title="Todas as transações do período" count={data.periodTransactions.length} />
-              <div className="bg-[#111111] border border-[#222222] overflow-hidden">
-                <div className="px-5 py-4 border-b border-[#222222] flex items-center justify-between flex-wrap gap-3">
+              <div className="bg-[var(--bg3)] border border-[var(--bd)] overflow-hidden">
+                <div className="px-5 py-4 border-b border-[var(--bd)] flex items-center justify-between flex-wrap gap-3">
                   <div className="flex gap-1 flex-wrap">
                     {(['all', 'matched', 'unmatched', 'ignored', 'not-realized'] as const).map((s) => {
                       const isAll = s === 'all'
@@ -555,8 +555,8 @@ export default function AuditoriaPage() {
                         <button key={s} onClick={() => setFilterStatus(s)}
                           className={`px-2.5 py-1 text-xs font-semibold border transition-colors ${
                             filterStatus === s
-                              ? 'bg-white text-black border-white'
-                              : 'border-[#222222] text-[#999999] hover:border-[#444444] hover:text-white'
+                              ? 'bg-white text-black border-[var(--inv)]'
+                              : 'border-[var(--bd)] text-[var(--tx2)] hover:border-[var(--bd3)] hover:text-[var(--tx)]'
                           }`}>
                           {isAll ? 'Todas' : cfg!.label} ({count})
                         </button>
@@ -564,42 +564,42 @@ export default function AuditoriaPage() {
                     })}
                   </div>
                   <div className="relative">
-                    <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#444444]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--bd3)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     <input type="text" placeholder="Buscar…" value={search} onChange={(e) => setSearch(e.target.value)}
-                      className="pl-8 pr-3 py-1.5 text-sm bg-[#0A0A0A] border border-[#222222] text-white outline-none focus:border-[#444444] w-44 placeholder-[#444444]" />
+                      className="pl-8 pr-3 py-1.5 text-sm bg-[var(--bg2)] border border-[var(--bd)] text-[var(--tx)] outline-none focus:border-[var(--bd3)] w-44 placeholder-[var(--bd3)]" />
                   </div>
                 </div>
 
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-[#222222] bg-black">
+                      <tr className="border-b border-[var(--bd)] bg-[var(--bg)]">
                         {['Data', 'Transação (Notion)', 'Valor', 'Nome extraído', 'Projeto Clockify', 'Status'].map((h, i) => (
-                          <th key={h} className={`text-[11px] font-semibold text-[#666666] uppercase tracking-wide px-5 py-3 ${i >= 2 && i < 4 ? 'px-3' : ''} ${i === 2 ? 'text-right' : 'text-left'} ${i === 5 ? 'text-center' : ''}`}>
+                          <th key={h} className={`text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wide px-5 py-3 ${i >= 2 && i < 4 ? 'px-3' : ''} ${i === 2 ? 'text-right' : 'text-left'} ${i === 5 ? 'text-center' : ''}`}>
                             {h}
                           </th>
                         ))}
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#222222]">
+                    <tbody className="divide-y divide-[var(--bd)]">
                       {visibleTx.length === 0 && (
-                        <tr><td colSpan={6} className="text-center text-[#444444] py-16 text-sm">Nenhuma transação encontrada</td></tr>
+                        <tr><td colSpan={6} className="text-center text-[var(--bd3)] py-16 text-sm">Nenhuma transação encontrada</td></tr>
                       )}
                       {visibleTx.map((tx) => (
-                        <tr key={tx.id} className="hover:bg-[#1A1A1A] transition-colors">
-                          <td className="px-5 py-3 text-[#666666] whitespace-nowrap text-xs">{fmtDate(tx.paymentDate)}</td>
-                          <td className="px-5 py-3 font-medium text-white max-w-[240px]">
+                        <tr key={tx.id} className="hover:bg-[var(--bg4)] transition-colors">
+                          <td className="px-5 py-3 text-[var(--tx3)] whitespace-nowrap text-xs">{fmtDate(tx.paymentDate)}</td>
+                          <td className="px-5 py-3 font-medium text-[var(--tx)] max-w-[240px]">
                             <span className="truncate block" title={tx.name}>{tx.name}</span>
                           </td>
-                          <td className="px-3 py-3 text-right font-semibold text-white whitespace-nowrap">{fmtBRL(tx.value)}</td>
+                          <td className="px-3 py-3 text-right font-semibold text-[var(--tx)] whitespace-nowrap">{fmtBRL(tx.value)}</td>
                           <td className="px-3 py-3">
                             {tx.extractedName
-                              ? <span className="font-mono text-xs bg-[#222222] text-[#999999] px-1.5 py-0.5">{tx.extractedName}</span>
-                              : <span className="text-[#444444] text-xs">—</span>}
+                              ? <span className="font-mono text-xs bg-[var(--bd)] text-[var(--tx2)] px-1.5 py-0.5">{tx.extractedName}</span>
+                              : <span className="text-[var(--bd3)] text-xs">—</span>}
                           </td>
-                          <td className="px-3 py-3 text-sm text-[#999999]">{tx.matchedProject ?? <span className="text-[#444444] text-xs">—</span>}</td>
+                          <td className="px-3 py-3 text-sm text-[var(--tx2)]">{tx.matchedProject ?? <span className="text-[var(--bd3)] text-xs">—</span>}</td>
                           <td className="px-5 py-3 text-center"><Badge status={tx.status} /></td>
                         </tr>
                       ))}
@@ -608,9 +608,9 @@ export default function AuditoriaPage() {
                 </div>
 
                 {visibleTx.length > 0 && (
-                  <div className="px-5 py-3 border-t border-[#222222] flex items-center justify-between text-xs text-[#666666]">
+                  <div className="px-5 py-3 border-t border-[var(--bd)] flex items-center justify-between text-xs text-[var(--tx3)]">
                     <span>{visibleTx.length} transações</span>
-                    <span className="font-semibold text-[#999999]">{fmtBRL(visibleTx.reduce((s, tx) => s + tx.value, 0))}</span>
+                    <span className="font-semibold text-[var(--tx2)]">{fmtBRL(visibleTx.reduce((s, tx) => s + tx.value, 0))}</span>
                   </div>
                 )}
               </div>
@@ -618,7 +618,7 @@ export default function AuditoriaPage() {
 
             {/* ── 10. Clockify reference ── */}
             <details className="group">
-              <summary className="cursor-pointer flex items-center gap-2 text-[11px] font-semibold text-[#666666] hover:text-white transition-colors py-2 select-none list-none uppercase tracking-wider">
+              <summary className="cursor-pointer flex items-center gap-2 text-[11px] font-semibold text-[var(--tx3)] hover:text-[var(--tx)] transition-colors py-2 select-none list-none uppercase tracking-wider">
                 <svg className="w-3.5 h-3.5 group-open:rotate-90 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
@@ -626,7 +626,7 @@ export default function AuditoriaPage() {
               </summary>
               <div className="mt-3 flex flex-wrap gap-2">
                 {data.clockifyProjects.map((p) => (
-                  <span key={p} className="text-xs px-2.5 py-1 bg-[#111111] border border-[#222222] text-[#999999] hover:border-[#444444] transition-colors">
+                  <span key={p} className="text-xs px-2.5 py-1 bg-[var(--bg3)] border border-[var(--bd)] text-[var(--tx2)] hover:border-[var(--bd3)] transition-colors">
                     {p}
                   </span>
                 ))}

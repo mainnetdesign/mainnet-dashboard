@@ -1,14 +1,14 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import { useTheme } from 'next-themes'
 
 const NAV = [
   {
     href: '/dashboard',
     label: 'Dashboard',
-    description: 'Receita, custo e margem',
     icon: (
       <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
         <path strokeLinecap="round" strokeLinejoin="round"
@@ -19,7 +19,6 @@ const NAV = [
   {
     href: '/auditoria',
     label: 'Auditoria',
-    description: 'Diagnóstico de transações',
     icon: (
       <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
         <path strokeLinecap="round" strokeLinejoin="round"
@@ -30,7 +29,6 @@ const NAV = [
   {
     href: '/relatorio',
     label: 'Relatório',
-    description: 'Relatório mensal imprimível',
     icon: (
       <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
         <path strokeLinecap="round" strokeLinejoin="round"
@@ -39,6 +37,37 @@ const NAV = [
     ),
   },
 ]
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => setMounted(true), [])
+  if (!mounted) return <div className="w-8 h-8" />
+
+  const isDark = theme === 'dark'
+
+  return (
+    <button
+      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      title={isDark ? 'Modo claro' : 'Modo escuro'}
+      className="w-8 h-8 flex items-center justify-center border border-[var(--bd)] text-[var(--tx3)] hover:border-[var(--bd3)] hover:text-[var(--tx)] transition-colors"
+    >
+      {isDark ? (
+        /* Sun icon */
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <circle cx="12" cy="12" r="5" />
+          <path strokeLinecap="round" d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+        </svg>
+      ) : (
+        /* Moon icon */
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+        </svg>
+      )}
+    </button>
+  )
+}
 
 export default function Sidebar() {
   const pathname = usePathname()
@@ -55,11 +84,11 @@ export default function Sidebar() {
             onClick={() => setMobileOpen(false)}
             className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${
               active
-                ? 'bg-white text-black'
-                : 'text-[#999999] hover:bg-[#111111] hover:text-white'
+                ? 'bg-[var(--inv)] text-[var(--inv-tx)]'
+                : 'text-[var(--tx2)] hover:bg-[var(--bg3)] hover:text-[var(--tx)]'
             }`}
           >
-            <span className={active ? 'text-black' : 'text-[#666666]'}>{item.icon}</span>
+            <span className={active ? 'text-[var(--inv-tx)]' : 'text-[var(--tx3)]'}>{item.icon}</span>
             <span>{item.label}</span>
           </Link>
         )
@@ -70,61 +99,65 @@ export default function Sidebar() {
   return (
     <>
       {/* ── Desktop sidebar ── */}
-      <aside className="hidden lg:flex w-56 shrink-0 flex-col h-screen bg-black border-r border-[#222222] sticky top-0">
+      <aside className="hidden lg:flex w-56 shrink-0 flex-col h-screen bg-[var(--bg)] border-r border-[var(--bd)] sticky top-0">
         {/* Logo */}
-        <div className="px-5 py-5 border-b border-[#222222]">
+        <div className="px-5 py-5 border-b border-[var(--bd)] flex items-center justify-between">
           <Image
             src="/mainnet-logo.svg"
             alt="Mainnet Design"
-            width={120}
-            height={33}
+            width={110}
+            height={30}
             unoptimized
             priority
-            style={{ filter: 'invert(1)' }}
+            className="dark:invert"
           />
+          <ThemeToggle />
         </div>
 
         {nav}
 
         {/* Footer */}
-        <div className="px-5 py-4 border-t border-[#222222]">
-          <p className="text-[10px] text-[#444444] leading-relaxed uppercase tracking-wider">Somente leitura · dados ao vivo</p>
+        <div className="px-5 py-4 border-t border-[var(--bd)]">
+          <p className="text-[10px] text-[var(--tx3)] leading-relaxed uppercase tracking-wider">Somente leitura · dados ao vivo</p>
         </div>
       </aside>
 
       {/* ── Mobile top bar ── */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-20 bg-black border-b border-[#222222] flex items-center justify-between px-4 py-3">
-          <Image
-            src="/mainnet-logo.svg"
-            alt="Mainnet Design"
-            width={90}
-            height={25}
-            unoptimized
-            priority
-            style={{ filter: 'invert(1)' }}
-          />
-        <button
-          onClick={() => setMobileOpen((v) => !v)}
-          className="p-1.5 hover:bg-[#111111] transition-colors"
-          aria-label="Menu"
-        >
-          {mobileOpen ? (
-            <svg className="w-5 h-5 text-[#999999]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          ) : (
-            <svg className="w-5 h-5 text-[#999999]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          )}
-        </button>
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-20 bg-[var(--bg)] border-b border-[var(--bd)] flex items-center justify-between px-4 py-3">
+        <Image
+          src="/mainnet-logo.svg"
+          alt="Mainnet Design"
+          width={90}
+          height={25}
+          unoptimized
+          priority
+          className="dark:invert"
+        />
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <button
+            onClick={() => setMobileOpen((v) => !v)}
+            className="p-1.5 hover:bg-[var(--bg3)] transition-colors"
+            aria-label="Menu"
+          >
+            {mobileOpen ? (
+              <svg className="w-5 h-5 text-[var(--tx2)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5 text-[var(--tx2)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Mobile drawer */}
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 z-10 flex" onClick={() => setMobileOpen(false)}>
           <div className="absolute inset-0 bg-black/60" />
-          <aside className="relative w-56 bg-black border-r border-[#222222] shadow-xl flex flex-col pt-16" onClick={(e) => e.stopPropagation()}>
+          <aside className="relative w-56 bg-[var(--bg)] border-r border-[var(--bd)] shadow-xl flex flex-col pt-16" onClick={(e) => e.stopPropagation()}>
             {nav}
           </aside>
         </div>

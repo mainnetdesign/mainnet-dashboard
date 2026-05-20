@@ -23,31 +23,31 @@ function InternalProjectsSection({ pl, costByProject }: { pl: ProjectPL[]; costB
   const totalCost = pl.reduce((s, p) => s + p.cost, 0)
   const totalHours = pl.reduce((s, p) => s + p.hours, 0)
   return (
-    <div className="mt-6 bg-[#111111] border border-[#222222] overflow-hidden">
+    <div className="mt-6 bg-[var(--bg3)] border border-[var(--bd)] overflow-hidden">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-6 py-4 hover:bg-[#1A1A1A] transition-colors"
+        className="w-full flex items-center justify-between px-6 py-4 hover:bg-[var(--bg4)] transition-colors"
       >
         <div className="flex items-center gap-3">
-          <h2 className="text-base font-bold text-[#999999]">Projetos internos</h2>
-          <span className="px-2 py-0.5 border border-[#333333] text-xs font-semibold text-[#666666]">
+          <h2 className="text-base font-bold text-[var(--tx2)]">Projetos internos</h2>
+          <span className="px-2 py-0.5 border border-[var(--bd2)] text-xs font-semibold text-[var(--tx3)]">
             {pl.length}
           </span>
-          <span className="hidden sm:flex items-center gap-3 text-xs text-[#666666]">
+          <span className="hidden sm:flex items-center gap-3 text-xs text-[var(--tx3)]">
             <span>{Math.round(totalHours)}h registradas</span>
             <span>·</span>
             <span>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalCost)} em custo</span>
           </span>
         </div>
         <svg
-          className={`w-4 h-4 text-[#666666] transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 text-[var(--tx3)] transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
           fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
       {open && (
-        <div className="border-t border-[#222222]">
+        <div className="border-t border-[var(--bd)]">
           <PLTable pl={pl} costByProject={costByProject} />
         </div>
       )}
@@ -84,28 +84,27 @@ function StrategicAnalysis({ pl, monthly }: { pl: ProjectPL[]; monthly: MonthlyD
       onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}
       className="mb-8 group"
     >
-      <summary className="flex items-center justify-between px-6 py-4 bg-[#111111] border border-[#222222] cursor-pointer list-none select-none hover:bg-[#1A1A1A] transition-colors">
+      <summary className="flex items-center justify-between px-6 py-4 bg-[var(--bg3)] border border-[var(--bd)] cursor-pointer list-none select-none hover:bg-[var(--bg4)] transition-colors">
         <div className="flex items-center gap-3">
-          <span className="text-base font-bold text-white">Análise Estratégica</span>
-          <span className="px-2 py-0.5 border border-[#333333] text-xs font-medium text-[#666666]">
+          <span className="text-base font-bold text-[var(--tx)]">Análise Estratégica</span>
+          <span className="px-2 py-0.5 border border-[var(--bd2)] text-xs font-medium text-[var(--tx3)]">
             IA · contexto
           </span>
         </div>
         <svg
-          className={`w-4 h-4 text-[#666666] transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 text-[var(--tx3)] transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
           fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </summary>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-px mt-px bg-[#222222]">
-        {/* Card A: Revenue Concentration */}
-        <div className="bg-[#111111] p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-px mt-px bg-[var(--bd)]">
+        <div className="bg-[var(--bg3)] p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-white">Concentração de Receita</h3>
+            <h3 className="text-sm font-bold text-[var(--tx)]">Concentração de Receita</h3>
             {top1Pct > 40 && (
-              <span className="flex items-center gap-1 px-2 py-0.5 border border-[#444444] text-xs font-semibold text-[#999999]">
+              <span className="flex items-center gap-1 px-2 py-0.5 border border-[var(--bd3)] text-xs font-semibold text-[var(--tx2)]">
                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
@@ -115,25 +114,25 @@ function StrategicAnalysis({ pl, monthly }: { pl: ProjectPL[]; monthly: MonthlyD
           </div>
 
           {clientPl.length === 0 ? (
-            <p className="text-sm text-[#666666] text-center py-4">Nenhum projeto com receita neste período</p>
+            <p className="text-sm text-[var(--tx3)] text-center py-4">Nenhum projeto com receita neste período</p>
           ) : (
             <div className="space-y-3">
-              {top5.map((p, i) => {
+              {top5.map((p) => {
                 const pct = totalRev > 0 ? (p.revenue / totalRev) * 100 : 0
                 return (
                   <div key={p.clockifyProjectId}>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-white truncate max-w-[60%]">
+                      <span className="text-sm font-medium text-[var(--tx)] truncate max-w-[60%]">
                         {p.clockifyProjectName}
                       </span>
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-xs text-[#999999]">{fmtBRL(p.revenue)}</span>
-                        <span className="text-xs font-bold text-[#999999]">{pct.toFixed(1)}%</span>
+                        <span className="text-xs text-[var(--tx2)]">{fmtBRL(p.revenue)}</span>
+                        <span className="text-xs font-bold text-[var(--tx2)]">{pct.toFixed(1)}%</span>
                       </div>
                     </div>
-                    <div className="h-1.5 bg-[#222222] overflow-hidden">
+                    <div className="h-1.5 bg-[var(--bd)] overflow-hidden">
                       <div
-                        className="h-full bg-white transition-all"
+                        className="h-full bg-[var(--inv)] transition-all"
                         style={{ width: `${Math.min(pct, 100)}%` }}
                       />
                     </div>
@@ -141,7 +140,7 @@ function StrategicAnalysis({ pl, monthly }: { pl: ProjectPL[]; monthly: MonthlyD
                 )
               })}
               {totalRev > 0 && (
-                <p className="text-xs text-[#666666] pt-1">
+                <p className="text-xs text-[var(--tx3)] pt-1">
                   Total: {fmtBRL(totalRev)} · {clientPl.length} projeto{clientPl.length !== 1 ? 's' : ''} com receita
                 </p>
               )}
@@ -149,57 +148,56 @@ function StrategicAnalysis({ pl, monthly }: { pl: ProjectPL[]; monthly: MonthlyD
           )}
         </div>
 
-        {/* Card B: Next Month Forecast */}
-        <div className="bg-[#111111] p-6">
-          <h3 className="text-sm font-bold text-white mb-4">Previsão de Receita</h3>
+        <div className="bg-[var(--bg3)] p-6">
+          <h3 className="text-sm font-bold text-[var(--tx)] mb-4">Previsão de Receita</h3>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between py-3 px-4 bg-[#0A0A0A] border border-[#222222]">
+            <div className="flex items-center justify-between py-3 px-4 bg-[var(--bg2)] border border-[var(--bd)]">
               <div>
-                <p className="text-[11px] font-semibold text-[#666666] uppercase tracking-wide mb-0.5">
+                <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wide mb-0.5">
                   Média histórica (3m)
                 </p>
-                <p className="text-2xl font-bold text-white">{fmtBRL(avgRevenue3m)}</p>
+                <p className="text-2xl font-bold text-[var(--tx)]">{fmtBRL(avgRevenue3m)}</p>
                 {last3.length > 0 && (
-                  <p className="text-xs text-[#666666] mt-0.5">Baseado em: {last3.map((m) => m.label).join(', ')}</p>
+                  <p className="text-xs text-[var(--tx3)] mt-0.5">Baseado em: {last3.map((m) => m.label).join(', ')}</p>
                 )}
               </div>
-              <div className="w-10 h-10 bg-[#222222] flex items-center justify-center shrink-0">
-                <svg className="w-5 h-5 text-[#666666]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <div className="w-10 h-10 bg-[var(--bd)] flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5 text-[var(--tx3)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
             </div>
 
-            <div className="flex items-center justify-between py-3 px-4 bg-[#0A0A0A] border border-[#222222]">
+            <div className="flex items-center justify-between py-3 px-4 bg-[var(--bg2)] border border-[var(--bd)]">
               <div>
-                <p className="text-[11px] font-semibold text-[#666666] uppercase tracking-wide mb-0.5">
+                <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wide mb-0.5">
                   Receita prevista no Notion
                 </p>
-                <p className={`text-2xl font-bold ${predictedRevTotal > 0 ? 'text-white' : 'text-[#444444]'}`}>
+                <p className={`text-2xl font-bold ${predictedRevTotal > 0 ? 'text-[var(--tx)]' : 'text-[var(--bd3)]'}`}>
                   {predictedRevTotal > 0 ? fmtBRL(predictedRevTotal) : '—'}
                 </p>
                 {nextPredicted && (
-                  <p className="text-xs text-[#666666] mt-0.5">
+                  <p className="text-xs text-[var(--tx3)] mt-0.5">
                     Próx. período: {fmtBRL(nextPredicted.predictedRevenue)} ({nextPredicted.label})
                   </p>
                 )}
               </div>
-              <div className="w-10 h-10 bg-[#222222] flex items-center justify-center shrink-0">
-                <svg className="w-5 h-5 text-[#666666]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <div className="w-10 h-10 bg-[var(--bd)] flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5 text-[var(--tx3)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </div>
             </div>
 
             {avgRevenue3m > 0 && predictedRevTotal > 0 && (
-              <div className="flex items-center gap-2 text-xs text-[#666666] px-1">
+              <div className="flex items-center gap-2 text-xs text-[var(--tx3)] px-1">
                 {(() => {
                   const delta = predictedRevTotal - avgRevenue3m
                   const deltaPct = (delta / avgRevenue3m) * 100
                   const positive = delta >= 0
                   return (
-                    <span className={`flex items-center gap-1 font-semibold ${positive ? 'text-white' : 'text-[#999999]'}`}>
+                    <span className={`flex items-center gap-1 font-semibold ${positive ? 'text-[var(--tx)]' : 'text-[var(--tx2)]'}`}>
                       {positive ? '↑' : '↓'} {Math.abs(deltaPct).toFixed(1)}% em relação à média histórica
                     </span>
                   )
@@ -280,13 +278,12 @@ export default function Dashboard() {
 
   return (
     <div>
-      {/* Header */}
-      <header className="bg-black border-b border-[#222222] sticky top-0 z-10">
+      <header className="bg-[var(--bg)] border-b border-[var(--bd)] sticky top-0 z-10">
         <div className="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between flex-wrap gap-4">
           <div>
-            <span className="font-bold text-white text-lg">Dashboard</span>
+            <span className="font-bold text-[var(--tx)] text-lg">Dashboard</span>
             {lastUpdated && (
-              <p className="text-[11px] text-[#666666] leading-none mt-0.5 uppercase tracking-wider">
+              <p className="text-[11px] text-[var(--tx3)] leading-none mt-0.5 uppercase tracking-wider">
                 Atualizado {formatLastUpdated(lastUpdated)}
               </p>
             )}
@@ -296,7 +293,7 @@ export default function Dashboard() {
             <button
               onClick={() => fetchData(start, end, true)}
               disabled={loading}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-[#222222] text-[#999999] hover:border-[#444444] hover:text-white disabled:opacity-40 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-[var(--bd)] text-[var(--tx2)] hover:border-[var(--bd3)] hover:text-[var(--tx)] disabled:opacity-40 transition-colors"
               title="Atualizar dados (ignora cache)"
             >
               <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -307,7 +304,7 @@ export default function Dashboard() {
             <button
               onClick={() => window.print()}
               disabled={loading}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-[#222222] text-[#999999] hover:border-[#444444] hover:text-white disabled:opacity-40 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-[var(--bd)] text-[var(--tx2)] hover:border-[var(--bd3)] hover:text-[var(--tx)] disabled:opacity-40 transition-colors"
               title="Exportar PDF"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -323,12 +320,12 @@ export default function Dashboard() {
         {loading && <DashboardSkeleton />}
 
         {!loading && error && (
-          <div className="bg-[#111111] border border-[#222222] p-6 text-center">
-            <p className="text-white font-semibold mb-1">Erro ao carregar dados</p>
-            <p className="text-[#999999] text-sm">{error}</p>
+          <div className="bg-[var(--bg3)] border border-[var(--bd)] p-6 text-center">
+            <p className="text-[var(--tx)] font-semibold mb-1">Erro ao carregar dados</p>
+            <p className="text-[var(--tx2)] text-sm">{error}</p>
             <button
               onClick={() => fetchData(start, end)}
-              className="mt-4 px-4 py-2 bg-white text-black text-sm hover:bg-[#e5e5e5] transition-colors"
+              className="mt-4 px-4 py-2 bg-[var(--inv)] text-[var(--inv-tx)] text-sm hover:opacity-80 transition-opacity"
             >
               Tentar novamente
             </button>
@@ -339,34 +336,33 @@ export default function Dashboard() {
           <>
             <KPICards data={data} />
 
-            {/* Financial summary */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-px mb-8 border border-[#222222]">
-              <div className="bg-[#111111] p-5">
-                <p className="text-[11px] font-semibold text-[#666666] uppercase tracking-wider mb-2">CUSTO TOTAL (HORAS)</p>
-                <p className="text-3xl font-bold text-white leading-tight mb-1">{fmtBRL(data.totalCostAllCollaborators)}</p>
-                <p className="text-sm text-[#999999]">{data.collaborators.length} pessoas</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-px mb-8 border border-[var(--bd)]">
+              <div className="bg-[var(--bg3)] p-5">
+                <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-2">CUSTO TOTAL (HORAS)</p>
+                <p className="text-3xl font-bold text-[var(--tx)] leading-tight mb-1">{fmtBRL(data.totalCostAllCollaborators)}</p>
+                <p className="text-sm text-[var(--tx2)]">{data.collaborators.length} pessoas</p>
               </div>
-              <div className="bg-[#111111] p-5">
-                <p className="text-[11px] font-semibold text-[#666666] uppercase tracking-wider mb-2">RESULTADO LÍQUIDO</p>
+              <div className="bg-[var(--bg3)] p-5">
+                <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-2">RESULTADO LÍQUIDO</p>
                 {(() => {
                   const totalRevenue = data.pl.filter((p) => !p.isInternal).reduce((s, p) => s + p.revenue, 0)
                   const net = totalRevenue - data.totalCostAllCollaborators
                   return (
                     <>
-                      <p className={`text-3xl font-bold leading-tight mb-1 ${net >= 0 ? 'text-white' : 'text-[#999999]'}`}>
+                      <p className={`text-3xl font-bold leading-tight mb-1 ${net >= 0 ? 'text-[var(--tx)]' : 'text-[var(--tx2)]'}`}>
                         {net >= 0 ? '+' : ''}{fmtBRL(net)}
                       </p>
-                      <p className="text-sm text-[#999999]">{net >= 0 ? 'superávit' : 'déficit'}</p>
+                      <p className="text-sm text-[var(--tx2)]">{net >= 0 ? 'superávit' : 'déficit'}</p>
                     </>
                   )
                 })()}
               </div>
-              <div className="bg-[#111111] p-5">
-                <p className="text-[11px] font-semibold text-[#666666] uppercase tracking-wider mb-2">CUSTO SEM FATURAMENTO</p>
-                <p className="text-3xl font-bold text-white leading-tight mb-1">
+              <div className="bg-[var(--bg3)] p-5">
+                <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-2">CUSTO SEM FATURAMENTO</p>
+                <p className="text-3xl font-bold text-[var(--tx)] leading-tight mb-1">
                   {fmtBRL(data.pl.filter((p) => p.revenue === 0 && !p.isInternal).reduce((s, p) => s + p.cost, 0))}
                 </p>
-                <p className="text-sm text-[#999999]">
+                <p className="text-sm text-[var(--tx2)]">
                   {data.pl.filter((p) => p.revenue === 0 && !p.isInternal).length} projetos sem receita
                 </p>
               </div>
@@ -376,17 +372,16 @@ export default function Dashboard() {
             <StrategicAnalysis pl={data.pl} monthly={data.monthly} />
 
             {data.pl.some((p) => p.hasAttention) && (
-              <div className="bg-[#111111] border border-[#222222] p-4 mb-8 text-sm text-[#999999]">
-                <strong className="text-white">* atenção</strong> — Projetos marcados têm receita que inclui trabalho feito
+              <div className="bg-[var(--bg3)] border border-[var(--bd)] p-4 mb-8 text-sm text-[var(--tx2)]">
+                <strong className="text-[var(--tx)]">* atenção</strong> — Projetos marcados têm receita que inclui trabalho feito
                 antes de jun/2025 (início do rastreio). O custo real é maior e a margem está inflada.
               </div>
             )}
 
             {data.monthly.length > 0 && <MonthlyChart data={data.monthly} />}
 
-            {/* Collaborator filter */}
             <div className="flex items-center gap-3 mb-4 no-print flex-wrap">
-              <span className="text-[11px] font-semibold text-[#666666] uppercase tracking-wider">
+              <span className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider">
                 Filtrar por colaborador
               </span>
               <div className="flex flex-wrap gap-2">
@@ -394,8 +389,8 @@ export default function Dashboard() {
                   onClick={() => setSelectedCollaboratorId('')}
                   className={`px-3 py-1.5 text-sm font-medium border transition-colors ${
                     !selectedCollaboratorId
-                      ? 'bg-white text-black border-white'
-                      : 'border-[#222222] text-[#999999] hover:border-[#444444] hover:text-white'
+                      ? 'bg-[var(--inv)] text-[var(--inv-tx)] border-[var(--inv)]'
+                      : 'border-[var(--bd)] text-[var(--tx2)] hover:border-[var(--bd3)] hover:text-[var(--tx)]'
                   }`}
                 >
                   Todos
@@ -407,7 +402,7 @@ export default function Dashboard() {
                     className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border transition-colors ${
                       selectedCollaboratorId === c.id
                         ? 'text-white border-transparent'
-                        : 'border-[#222222] text-[#999999] hover:border-[#444444] hover:text-white'
+                        : 'border-[var(--bd)] text-[var(--tx2)] hover:border-[var(--bd3)] hover:text-[var(--tx)]'
                     }`}
                     style={selectedCollaboratorId === c.id ? { background: c.color, borderColor: c.color } : {}}
                   >
@@ -421,7 +416,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-px mb-8 border border-[#222222]">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-px mb-8 border border-[var(--bd)]">
               <div className="lg:col-span-2"><CostByProjectChart data={filteredData} /></div>
               <div><CostByCollaborator data={data} /></div>
             </div>

@@ -56,23 +56,22 @@ function ProjectDrawer({
   return (
     <>
       <div className="fixed inset-0 bg-black/60 z-40 no-print" onClick={onClose} />
-      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-[#0A0A0A] border-l border-[#222222] z-50 flex flex-col no-print">
-        {/* Header */}
-        <div className="flex items-start justify-between p-6 border-b border-[#222222]">
+      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-[var(--bg2)] border-l border-[var(--bd)] z-50 flex flex-col no-print">
+        <div className="flex items-start justify-between p-6 border-b border-[var(--bd)]">
           <div>
-            <h3 className="text-lg font-bold text-white leading-tight">
+            <h3 className="text-lg font-bold text-[var(--tx)] leading-tight">
               {project.clockifyProjectName}
               {project.hasAttention && (
-                <span className="ml-2 text-xs text-[#666666] font-normal">* atenção</span>
+                <span className="ml-2 text-xs text-[var(--tx3)] font-normal">* atenção</span>
               )}
             </h3>
-            <span className="inline-block mt-1.5 px-2 py-0.5 border border-[#333333] text-xs font-medium text-[#999999]">
+            <span className="inline-block mt-1.5 px-2 py-0.5 border border-[var(--bd2)] text-xs font-medium text-[var(--tx2)]">
               {project.status}
             </span>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-[#666666] hover:text-white hover:bg-[#111111] transition-colors"
+            className="p-1.5 text-[var(--tx3)] hover:text-[var(--tx)] hover:bg-[var(--bg3)] transition-colors"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -80,39 +79,38 @@ function ProjectDrawer({
           </button>
         </div>
 
-        {/* KPIs */}
-        <div className="grid grid-cols-2 gap-px p-6 border-b border-[#222222] bg-[#222222]">
-          <div className="bg-[#0A0A0A] p-4">
-            <p className="text-[11px] font-semibold text-[#666666] uppercase tracking-wider mb-1">Horas</p>
-            <p className="text-2xl font-bold text-white">{Math.round(project.hours)}h</p>
+        <div className="grid grid-cols-2 gap-px p-6 border-b border-[var(--bd)] bg-[var(--bd)]">
+          <div className="bg-[var(--bg2)] p-4">
+            <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-1">Horas</p>
+            <p className="text-2xl font-bold text-[var(--tx)]">{Math.round(project.hours)}h</p>
           </div>
-          <div className="bg-[#0A0A0A] p-4">
-            <p className="text-[11px] font-semibold text-[#666666] uppercase tracking-wider mb-1">Custo</p>
-            <p className="text-2xl font-bold text-white">{fmtBRL(project.cost)}</p>
+          <div className="bg-[var(--bg2)] p-4">
+            <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-1">Custo</p>
+            <p className="text-2xl font-bold text-[var(--tx)]">{fmtBRL(project.cost)}</p>
           </div>
-          <div className="bg-[#0A0A0A] p-4">
-            <p className="text-[11px] font-semibold text-[#666666] uppercase tracking-wider mb-1">Receita</p>
-            <p className="text-2xl font-bold text-white">
-              {project.revenue > 0 ? fmtBRL(project.revenue) : <span className="text-[#444444]">—</span>}
+          <div className="bg-[var(--bg2)] p-4">
+            <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-1">Receita</p>
+            <p className="text-2xl font-bold text-[var(--tx)]">
+              {project.revenue > 0 ? fmtBRL(project.revenue) : <span className="text-[var(--bd3)]">—</span>}
             </p>
           </div>
-          <div className="bg-[#0A0A0A] p-4">
-            <p className="text-[11px] font-semibold text-[#666666] uppercase tracking-wider mb-1">Resultado</p>
-            <p className={`text-2xl font-bold ${project.result >= 0 ? 'text-white' : 'text-[#999999]'}`}>
+          <div className="bg-[var(--bg2)] p-4">
+            <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-1">Resultado</p>
+            <p className={`text-2xl font-bold ${project.result >= 0 ? 'text-[var(--tx)]' : 'text-[var(--tx2)]'}`}>
               {project.result >= 0 ? '+' : ''}{fmtBRL(project.result)}
             </p>
           </div>
           {project.margin !== null && (
-            <div className="col-span-2 bg-[#0A0A0A] p-4">
-              <p className="text-[11px] font-semibold text-[#666666] uppercase tracking-wider mb-2">Margem</p>
+            <div className="col-span-2 bg-[var(--bg2)] p-4">
+              <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-2">Margem</p>
               <div className="flex items-center gap-3">
-                <div className="flex-1 h-1.5 bg-[#222222] overflow-hidden">
+                <div className="flex-1 h-1.5 bg-[var(--bd)] overflow-hidden">
                   <div
-                    className="h-full bg-white transition-all"
+                    className="h-full bg-[var(--inv)] transition-all"
                     style={{ width: `${Math.max(0, Math.min(100, project.margin))}%` }}
                   />
                 </div>
-                <span className="text-sm font-semibold text-white w-10 text-right">
+                <span className="text-sm font-semibold text-[var(--tx)] w-10 text-right">
                   {Math.round(project.margin)}%
                 </span>
               </div>
@@ -120,13 +118,12 @@ function ProjectDrawer({
           )}
         </div>
 
-        {/* Collaborator breakdown */}
         <div className="flex-1 overflow-y-auto p-6">
-          <h4 className="text-[11px] font-semibold text-[#666666] uppercase tracking-wider mb-4">
+          <h4 className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-4">
             Breakdown por colaborador
           </h4>
           {collabs.length === 0 ? (
-            <p className="text-sm text-[#666666]">Nenhum dado de colaborador disponível.</p>
+            <p className="text-sm text-[var(--tx3)]">Nenhum dado de colaborador disponível.</p>
           ) : (
             <div className="space-y-4">
               {collabs.map(([userId, data]) => {
@@ -136,18 +133,18 @@ function ProjectDrawer({
                     <div className="flex items-center justify-between mb-1.5">
                       <div className="flex items-center gap-2">
                         <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: data.color }} />
-                        <span className="text-sm font-medium text-white">{data.name}</span>
+                        <span className="text-sm font-medium text-[var(--tx)]">{data.name}</span>
                       </div>
                       <div className="text-right">
-                        <span className="text-sm font-semibold text-white">{fmtBRL(data.cost)}</span>
-                        <span className="text-xs text-[#666666] ml-2">{Math.round(data.hours)}h</span>
+                        <span className="text-sm font-semibold text-[var(--tx)]">{fmtBRL(data.cost)}</span>
+                        <span className="text-xs text-[var(--tx3)] ml-2">{Math.round(data.hours)}h</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="flex-1 h-1.5 bg-[#222222] overflow-hidden">
+                      <div className="flex-1 h-1.5 bg-[var(--bd)] overflow-hidden">
                         <div className="h-full" style={{ width: `${pct}%`, background: data.color }} />
                       </div>
-                      <span className="text-xs text-[#666666] w-8 text-right">{Math.round(pct)}%</span>
+                      <span className="text-xs text-[var(--tx3)] w-8 text-right">{Math.round(pct)}%</span>
                     </div>
                   </div>
                 )
@@ -187,7 +184,7 @@ export default function PLTable({ pl, costByProject }: Props) {
 
   const SortHeader = ({ label, k }: { label: string; k: SortKey }) => (
     <th
-      className="text-right px-3 py-3 text-[11px] font-semibold text-[#666666] uppercase tracking-wider cursor-pointer hover:text-[#999999] select-none"
+      className="text-right px-3 py-3 text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider cursor-pointer hover:text-[var(--tx2)] select-none"
       onClick={() => toggleSort(k)}
     >
       {label} {sortKey === k ? (sortDir === 'desc' ? '↓' : '↑') : ''}
@@ -213,18 +210,18 @@ export default function PLTable({ pl, costByProject }: Props) {
 
   return (
     <>
-      <div className="bg-[#111111] border border-[#222222]">
+      <div className="bg-[var(--bg3)] border border-[var(--bd)]">
         <div className="p-6 pb-4">
           <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
             <div>
-              <h2 className="text-base font-bold text-white mb-1">P&L por projeto — dados reais do Clockify</h2>
-              <p className="text-sm text-[#999999]">
+              <h2 className="text-base font-bold text-[var(--tx)] mb-1">P&L por projeto — dados reais do Clockify</h2>
+              <p className="text-sm text-[var(--tx2)]">
                 Custo = horas reais × custo/hora · clique em qualquer linha para ver detalhes
               </p>
             </div>
             <button
               onClick={() => exportCSV(sorted)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-[#222222] text-[#999999] hover:border-[#444444] hover:text-white transition-colors whitespace-nowrap no-print"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-[var(--bd)] text-[var(--tx2)] hover:border-[var(--bd3)] hover:text-[var(--tx)] transition-colors whitespace-nowrap no-print"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -240,8 +237,8 @@ export default function PLTable({ pl, costByProject }: Props) {
                 onClick={() => setFilter(f.key)}
                 className={`px-4 py-1.5 text-sm font-medium border transition-colors ${
                   filter === f.key
-                    ? 'bg-white text-black border-white'
-                    : 'border-[#222222] text-[#999999] hover:border-[#444444] hover:text-white'
+                    ? 'bg-[var(--inv)] text-[var(--inv-tx)] border-[var(--inv)]'
+                    : 'border-[var(--bd)] text-[var(--tx2)] hover:border-[var(--bd3)] hover:text-[var(--tx)]'
                 }`}
               >
                 {f.label}
@@ -252,9 +249,9 @@ export default function PLTable({ pl, costByProject }: Props) {
 
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="border-t border-[#222222]">
+            <thead className="border-t border-[var(--bd)]">
               <tr>
-                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[#666666] uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider">
                   Projeto
                 </th>
                 <SortHeader label="Horas" k="hours" />
@@ -262,41 +259,41 @@ export default function PLTable({ pl, costByProject }: Props) {
                 <SortHeader label="Custo" k="cost" />
                 <SortHeader label="Resultado" k="result" />
                 <SortHeader label="Margem" k="margin" />
-                <th className="text-right px-6 py-3 text-[11px] font-semibold text-[#666666] uppercase tracking-wider">
+                <th className="text-right px-6 py-3 text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider">
                   Status
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#222222]">
+            <tbody className="divide-y divide-[var(--bd)]">
               {sorted.map((p) => (
                 <tr
                   key={p.clockifyProjectId}
-                  className="hover:bg-[#1A1A1A] transition-colors cursor-pointer"
+                  className="hover:bg-[var(--bg4)] transition-colors cursor-pointer"
                   onClick={() => setSelected(p)}
                 >
                   <td className="px-6 py-4">
-                    <span className="text-sm font-semibold text-white">
+                    <span className="text-sm font-semibold text-[var(--tx)]">
                       {p.clockifyProjectName}
                       {p.hasAttention && (
-                        <span className="ml-1.5 text-xs text-[#666666] font-normal">* atenção</span>
+                        <span className="ml-1.5 text-xs text-[var(--tx3)] font-normal">* atenção</span>
                       )}
                     </span>
                   </td>
-                  <td className="px-3 py-4 text-right text-sm text-[#999999]">{Math.round(p.hours)}h</td>
-                  <td className="px-3 py-4 text-right text-sm text-[#999999]">
-                    {p.revenue > 0 ? fmtBRL(p.revenue) : <span className="text-[#444444]">—</span>}
+                  <td className="px-3 py-4 text-right text-sm text-[var(--tx2)]">{Math.round(p.hours)}h</td>
+                  <td className="px-3 py-4 text-right text-sm text-[var(--tx2)]">
+                    {p.revenue > 0 ? fmtBRL(p.revenue) : <span className="text-[var(--bd3)]">—</span>}
                   </td>
-                  <td className="px-3 py-4 text-right text-sm text-[#999999]">{fmtBRL(p.cost)}</td>
+                  <td className="px-3 py-4 text-right text-sm text-[var(--tx2)]">{fmtBRL(p.cost)}</td>
                   <td className="px-3 py-4 text-right text-sm font-semibold">
-                    <span className={p.result >= 0 ? 'text-white' : 'text-[#999999]'}>
+                    <span className={p.result >= 0 ? 'text-[var(--tx)]' : 'text-[var(--tx2)]'}>
                       {p.result >= 0 ? '+' : ''}{fmtBRL(p.result)}
                     </span>
                   </td>
-                  <td className="px-3 py-4 text-right text-sm text-[#999999]">
-                    {p.margin !== null ? `${Math.round(p.margin)}%` : <span className="text-[#444444]">—</span>}
+                  <td className="px-3 py-4 text-right text-sm text-[var(--tx2)]">
+                    {p.margin !== null ? `${Math.round(p.margin)}%` : <span className="text-[var(--bd3)]">—</span>}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <span className="inline-block px-2 py-0.5 border border-[#333333] text-xs font-medium text-[#999999]">
+                    <span className="inline-block px-2 py-0.5 border border-[var(--bd2)] text-xs font-medium text-[var(--tx2)]">
                       {statusLabel[p.status] ?? p.status}
                     </span>
                   </td>
