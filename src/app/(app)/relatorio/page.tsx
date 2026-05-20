@@ -90,7 +90,7 @@ function RelatorioContent() {
       {/* No-print controls bar */}
       <div className="no-print sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
-          <img src="/logo.svg" alt="Mainnet" className="h-6 w-auto" />
+          <img src="/mainnet-logo.svg" alt="Mainnet" className="h-6 w-auto" />
           <span className="text-sm font-semibold text-gray-600">Relatório Mensal</span>
         </div>
         <div className="flex items-center gap-3">
@@ -148,7 +148,7 @@ function RelatorioContent() {
           {/* ── REPORT HEADER ── */}
           <div className="flex items-start justify-between mb-10 pb-8 border-b border-gray-200">
             <div>
-              <img src="/logo.svg" alt="Mainnet" className="h-8 w-auto mb-4" />
+              <img src="/mainnet-logo.svg" alt="Mainnet" className="h-8 w-auto mb-4" />
               <h1 className="text-3xl font-bold text-gray-900 mb-1">Relatório Mensal</h1>
               <p className="text-lg text-gray-500 font-medium">{formatMonthLabel(month)}</p>
             </div>
