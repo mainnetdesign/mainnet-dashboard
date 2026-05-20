@@ -86,11 +86,11 @@ function ProjectDrawer({
           </div>
           <div className="bg-[var(--bg2)] p-4">
             <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-1">Custo</p>
-            <p className="text-2xl font-bold text-[var(--tx)]">{fmtBRL(project.cost)}</p>
+            <p className="text-2xl font-bold" style={{ color: '#F87171' }}>{fmtBRL(project.cost)}</p>
           </div>
           <div className="bg-[var(--bg2)] p-4">
             <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-1">Receita</p>
-            <p className="text-2xl font-bold text-[var(--tx)]">
+            <p className="text-2xl font-bold" style={{ color: project.revenue > 0 ? '#22C55E' : undefined }}>
               {project.revenue > 0 ? fmtBRL(project.revenue) : <span className="text-[var(--bd3)]">—</span>}
             </p>
           </div>
@@ -106,11 +106,11 @@ function ProjectDrawer({
               <div className="flex items-center gap-3">
                 <div className="flex-1 h-1.5 bg-[var(--bd)] overflow-hidden">
                   <div
-                    className="h-full bg-[var(--inv)] transition-all"
-                    style={{ width: `${Math.max(0, Math.min(100, project.margin))}%` }}
+                    className="h-full transition-all"
+                    style={{ width: `${Math.max(0, Math.min(100, project.margin))}%`, background: project.margin >= 40 ? '#22C55E' : project.margin >= 20 ? '#FBBF24' : '#F87171' }}
                   />
                 </div>
-                <span className="text-sm font-semibold text-[var(--tx)] w-10 text-right">
+                <span className="text-sm font-semibold w-10 text-right" style={{ color: project.margin >= 40 ? '#22C55E' : project.margin >= 20 ? '#FBBF24' : '#F87171' }}>
                   {Math.round(project.margin)}%
                 </span>
               </div>
@@ -286,16 +286,16 @@ export default function PLTable({ pl, costByProject }: Props) {
                     </span>
                   </td>
                   <td className="px-3 py-4 text-right text-sm text-[var(--tx2)]">{Math.round(p.hours)}h</td>
-                  <td className="px-3 py-4 text-right text-sm text-[var(--tx2)]">
+                  <td className="px-3 py-4 text-right text-sm font-medium" style={{ color: p.revenue > 0 ? '#22C55E' : undefined }}>
                     {p.revenue > 0 ? fmtBRL(p.revenue) : <span className="text-[var(--bd3)]">—</span>}
                   </td>
-                  <td className="px-3 py-4 text-right text-sm text-[var(--tx2)]">{fmtBRL(p.cost)}</td>
+                  <td className="px-3 py-4 text-right text-sm" style={{ color: '#F87171' }}>{fmtBRL(p.cost)}</td>
                   <td className="px-3 py-4 text-right text-sm font-semibold">
                     <span className={p.result >= 0 ? 'text-[#22C55E]' : 'text-[#F87171]'}>
                       {p.result >= 0 ? '+' : ''}{fmtBRL(p.result)}
                     </span>
                   </td>
-                  <td className="px-3 py-4 text-right text-sm text-[var(--tx2)]">
+                  <td className="px-3 py-4 text-right text-sm font-medium" style={{ color: p.margin !== null ? (p.margin >= 40 ? '#22C55E' : p.margin >= 20 ? '#FBBF24' : '#F87171') : undefined }}>
                     {p.margin !== null ? `${Math.round(p.margin)}%` : <span className="text-[var(--bd3)]">—</span>}
                   </td>
                   <td className="px-6 py-4 text-right">

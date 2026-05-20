@@ -104,7 +104,7 @@ function StrategicAnalysis({ pl, monthly }: { pl: ProjectPL[]; monthly: MonthlyD
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-bold text-[var(--tx)]">Concentração de Receita</h3>
             {top1Pct > 40 && (
-              <span className="flex items-center gap-1 px-2 py-0.5 border border-[var(--bd3)] text-xs font-semibold text-[var(--tx2)]">
+              <span className="flex items-center gap-1 px-2 py-0.5 border text-xs font-semibold" style={{ color: '#FBBF24', borderColor: '#FBBF2466' }}>
                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
@@ -126,14 +126,14 @@ function StrategicAnalysis({ pl, monthly }: { pl: ProjectPL[]; monthly: MonthlyD
                         {p.clockifyProjectName}
                       </span>
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-xs text-[var(--tx2)]">{fmtBRL(p.revenue)}</span>
-                        <span className="text-xs font-bold text-[var(--tx2)]">{pct.toFixed(1)}%</span>
+                        <span className="text-xs" style={{ color: '#22C55E' }}>{fmtBRL(p.revenue)}</span>
+                        <span className="text-xs font-bold" style={{ color: pct > 50 ? '#FBBF24' : '#22C55E' }}>{pct.toFixed(1)}%</span>
                       </div>
                     </div>
                     <div className="h-1.5 bg-[var(--bd)] overflow-hidden">
                       <div
-                        className="h-full bg-[var(--inv)] transition-all"
-                        style={{ width: `${Math.min(pct, 100)}%` }}
+                        className="h-full transition-all"
+                        style={{ width: `${Math.min(pct, 100)}%`, background: pct > 50 ? '#FBBF24' : '#22C55E' }}
                       />
                     </div>
                   </div>

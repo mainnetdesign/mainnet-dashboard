@@ -128,7 +128,7 @@ export default function PriceSimulator({ collaborators }: Props) {
                       Preço mínimo ({targetMargin}% margem)
                     </p>
                     <p className="text-3xl font-bold text-[var(--tx)]">{fmtBRL(minPrice)}</p>
-                    <p className="text-xs text-[var(--tx2)] mt-1">Lucro: {fmtBRL(minPrice - totalCost)}</p>
+                    <p className="text-xs mt-1" style={{ color: '#22C55E' }}>Lucro: {fmtBRL(minPrice - totalCost)}</p>
                   </div>
 
                   <div className="bg-[var(--bg3)] border border-[var(--bd3)] p-5">
@@ -136,7 +136,7 @@ export default function PriceSimulator({ collaborators }: Props) {
                       Preço sugerido (50% margem)
                     </p>
                     <p className="text-3xl font-bold text-[var(--tx)]">{fmtBRL(suggestedPrice)}</p>
-                    <p className="text-xs text-[var(--tx2)] mt-1">Lucro: {fmtBRL(suggestedPrice - totalCost)}</p>
+                    <p className="text-xs mt-1" style={{ color: '#22C55E' }}>Lucro: {fmtBRL(suggestedPrice - totalCost)}</p>
                   </div>
                 </>
               )}

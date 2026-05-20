@@ -163,12 +163,12 @@ function RelatorioContent() {
           <div className="grid grid-cols-3 gap-px mb-10 border border-[var(--bd)]">
             <div className="bg-[var(--bg3)] p-6">
               <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-2">Receita Total</p>
-              <p className="text-3xl font-bold text-[var(--tx)] leading-tight">{fmtBRL(totalRevenue)}</p>
+              <p className="text-3xl font-bold leading-tight" style={{ color: '#22C55E' }}>{fmtBRL(totalRevenue)}</p>
               <p className="text-xs text-[var(--tx3)] mt-1">{clientPl.length} projeto{clientPl.length !== 1 ? 's' : ''} faturados</p>
             </div>
             <div className="bg-[var(--bg3)] p-6">
               <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-2">Custo Total</p>
-              <p className="text-3xl font-bold text-[var(--tx)] leading-tight">{fmtBRL(totalCost)}</p>
+              <p className="text-3xl font-bold leading-tight" style={{ color: '#F87171' }}>{fmtBRL(totalCost)}</p>
               <p className="text-xs text-[var(--tx3)] mt-1">{data.collaborators.length} colaboradores</p>
             </div>
             <div className="bg-[var(--bg3)] p-6">
@@ -201,9 +201,9 @@ function RelatorioContent() {
                       <tr key={p.clockifyProjectId} className={`border-b border-[var(--bd)] last:border-0 ${i % 2 === 1 ? 'bg-[var(--bg2)]' : ''}`}>
                         <td className="px-5 py-3 font-medium text-[var(--tx)]">{p.clockifyProjectName}</td>
                         <td className="px-5 py-3 text-right text-[var(--tx2)]">{fmtHours(p.hours)}</td>
-                        <td className="px-5 py-3 text-right font-semibold text-[var(--tx)]">{p.revenue > 0 ? fmtBRL(p.revenue) : '—'}</td>
-                        <td className="px-5 py-3 text-right text-[var(--tx2)]">{fmtBRL(p.cost)}</td>
-                        <td className="px-5 py-3 text-right font-semibold text-[var(--tx2)]">{fmtPct(p.margin)}</td>
+                        <td className="px-5 py-3 text-right font-semibold" style={{ color: '#22C55E' }}>{p.revenue > 0 ? fmtBRL(p.revenue) : <span className="text-[var(--tx3)]">—</span>}</td>
+                        <td className="px-5 py-3 text-right" style={{ color: '#F87171' }}>{fmtBRL(p.cost)}</td>
+                        <td className="px-5 py-3 text-right font-semibold" style={{ color: p.margin === null ? 'var(--tx3)' : p.margin >= 40 ? '#22C55E' : p.margin >= 20 ? '#FBBF24' : '#F87171' }}>{fmtPct(p.margin)}</td>
                       </tr>
                     ))}
                   {clientPl.length === 0 && (
@@ -219,9 +219,9 @@ function RelatorioContent() {
                     <tr className="border-t border-[var(--bd)] bg-[var(--bg)]">
                       <td className="px-5 py-3 text-[11px] font-bold text-[var(--tx3)] uppercase tracking-wider">Total</td>
                       <td className="px-5 py-3 text-right text-[11px] font-bold text-[var(--tx2)]">{fmtHours(clientPl.reduce((s, p) => s + p.hours, 0))}</td>
-                      <td className="px-5 py-3 text-right text-[11px] font-bold text-[var(--tx)]">{fmtBRL(totalRevenue)}</td>
-                      <td className="px-5 py-3 text-right text-[11px] font-bold text-[var(--tx2)]">{fmtBRL(totalCost)}</td>
-                      <td className="px-5 py-3 text-right text-[11px] font-bold text-[var(--tx2)]">
+                      <td className="px-5 py-3 text-right text-[11px] font-bold" style={{ color: '#22C55E' }}>{fmtBRL(totalRevenue)}</td>
+                      <td className="px-5 py-3 text-right text-[11px] font-bold" style={{ color: '#F87171' }}>{fmtBRL(totalCost)}</td>
+                      <td className="px-5 py-3 text-right text-[11px] font-bold" style={{ color: totalRevenue > 0 ? (((totalRevenue - totalCost) / totalRevenue) * 100 >= 40 ? '#22C55E' : ((totalRevenue - totalCost) / totalRevenue) * 100 >= 20 ? '#FBBF24' : '#F87171') : 'var(--tx3)' }}>
                         {totalRevenue > 0 ? fmtPct(((totalRevenue - totalCost) / totalRevenue) * 100) : '—'}
                       </td>
                     </tr>
