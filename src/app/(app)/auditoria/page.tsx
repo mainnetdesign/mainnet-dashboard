@@ -49,10 +49,10 @@ function fmtDate(s: string | null) {
 }
 
 const STATUS_CFG_BASE = {
-  matched:        { label: 'Vinculado',     borderClass: 'border-[var(--inv)]',  textClass: 'text-[var(--tx)]'  },
-  unmatched:      { label: 'Sem vínculo',   borderClass: 'border-[#666666]',     textClass: 'text-[var(--tx2)]' },
-  ignored:        { label: 'Ignorado',      borderClass: 'border-[var(--bd2)]',  textClass: 'text-[var(--tx3)]' },
-  'not-realized': { label: 'Não realizado', borderClass: 'border-[var(--bd3)]',  textClass: 'text-[var(--tx2)]' },
+  matched:        { label: 'Vinculado',     borderClass: 'border-[#22C55E]/50',  textClass: 'text-[#22C55E]'  },
+  unmatched:      { label: 'Sem vínculo',   borderClass: 'border-[#F87171]/50',  textClass: 'text-[#F87171]' },
+  ignored:        { label: 'Ignorado',      borderClass: 'border-[#9CA3AF]/50',  textClass: 'text-[#9CA3AF]' },
+  'not-realized': { label: 'Não realizado', borderClass: 'border-[#FBBF24]/50',  textClass: 'text-[#FBBF24]' },
 }
 
 const STATUS_CHART_COLORS = {
@@ -300,13 +300,23 @@ export default function AuditoriaPage() {
                     <p className="text-sm font-semibold text-[var(--tx)]">Cobertura de vínculo</p>
                     <p className="text-sm font-bold text-[var(--tx)]">{matchPct}%</p>
                   </div>
-                  <div className="w-full h-2 bg-[var(--bd)] overflow-hidden">
-                    <div className="h-full bg-[var(--inv)] transition-all duration-700" style={{ width: `${matchPct}%` }} />
+                  <div className="w-full h-2 bg-[var(--bd)] overflow-hidden flex">
+                    {(() => {
+                      const total = data.summary.matchedCount + data.summary.unmatchedCount + data.summary.ignoredCount
+                      const mPct = total > 0 ? (data.summary.matchedCount / total) * 100 : 0
+                      const iPct = total > 0 ? (data.summary.ignoredCount / total) * 100 : 0
+                      const uPct = total > 0 ? (data.summary.unmatchedCount / total) * 100 : 0
+                      return (<>
+                        <div className="h-full transition-all duration-700" style={{ width: `${mPct}%`, background: '#22C55E' }} />
+                        <div className="h-full transition-all duration-700" style={{ width: `${iPct}%`, background: '#9CA3AF' }} />
+                        <div className="h-full transition-all duration-700" style={{ width: `${uPct}%`, background: '#F87171' }} />
+                      </>)
+                    })()}
                   </div>
-                  <div className="flex justify-between mt-1.5 text-xs text-[var(--tx3)]">
-                    <span className="text-[var(--tx)] font-medium">{data.summary.matchedCount} vinculadas</span>
-                    <span>{data.summary.ignoredCount} ignoradas</span>
-                    <span className="text-[var(--tx2)] font-medium">{data.summary.unmatchedCount} sem vínculo</span>
+                  <div className="flex justify-between mt-1.5 text-xs">
+                    <span style={{ color: '#22C55E' }} className="font-medium">{data.summary.matchedCount} vinculadas</span>
+                    <span style={{ color: '#9CA3AF' }}>{data.summary.ignoredCount} ignoradas</span>
+                    <span style={{ color: '#F87171' }} className="font-medium">{data.summary.unmatchedCount} sem vínculo</span>
                   </div>
                 </div>
               )}
@@ -379,7 +389,7 @@ export default function AuditoriaPage() {
                           <p className="text-xs text-[var(--tx3)] mt-0.5">Previsto para {fmtDate(tx.paymentDate)}</p>
                         </div>
                         <span className="text-sm font-bold text-[var(--tx)] shrink-0">{fmtBRL(tx.value)}</span>
-                        <span className="text-xs font-semibold text-[var(--tx2)] border border-[var(--bd3)] px-2 py-0.5 shrink-0">
+                        <span className="text-xs font-semibold px-2 py-0.5 shrink-0 border" style={{ color: '#FBBF24', borderColor: '#FBBF2466' }}>
                           {tx.daysOverdue}d atraso
                         </span>
                       </div>
@@ -445,13 +455,13 @@ export default function AuditoriaPage() {
                             <p className="text-sm font-medium text-[var(--tx)] flex-1 truncate">{r.name}</p>
                             <span className="text-xs text-[var(--tx3)] shrink-0">{r.hours}h</span>
                             <span className="text-xs text-[var(--tx3)] shrink-0">{fmtBRL(r.revenue)}</span>
-                            <span className={`text-sm font-bold shrink-0 ${r.anomaly ? 'text-[var(--tx2)]' : 'text-[var(--tx)]'}`}>R${r.rate}/h</span>
+                            <span className="text-sm font-bold shrink-0" style={{ color: r.anomaly ? '#FBBF24' : 'var(--tx)' }}>R${r.rate}/h</span>
                             {r.anomaly && (
-                              <span className="text-xs font-semibold text-[var(--tx2)] border border-[var(--bd3)] px-1.5 py-0.5 shrink-0">⚠ fora do padrão</span>
+                              <span className="text-xs font-semibold px-1.5 py-0.5 shrink-0 border" style={{ color: '#FBBF24', borderColor: '#FBBF2466' }}>⚠ fora do padrão</span>
                             )}
                           </div>
                           <div className="w-full h-1.5 bg-[var(--bd)] overflow-hidden">
-                            <div className="h-full bg-[var(--inv)]" style={{ width: `${pct}%` }} />
+                            <div className="h-full" style={{ width: `${pct}%`, background: r.anomaly ? '#FBBF24' : 'var(--inv)' }} />
                           </div>
                         </div>
                       )
@@ -548,7 +558,7 @@ export default function AuditoriaPage() {
                     </div>
                   ))}
                   {!expandSuggestions && data.suggestions.length > 3 && (
-                    <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black to-transparent pointer-events-none" />
+                    <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[var(--bg)] to-transparent pointer-events-none" />
                   )}
                 </div>
                 {data.suggestions.length > 3 && (
