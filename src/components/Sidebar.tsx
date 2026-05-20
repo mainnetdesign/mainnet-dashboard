@@ -26,6 +26,17 @@ const NAV = [
       </svg>
     ),
   },
+  {
+    href: '/relatorio',
+    label: 'Relatório',
+    description: 'Relatório mensal imprimível',
+    icon: (
+      <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <path strokeLinecap="round" strokeLinejoin="round"
+          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+    ),
+  },
 ]
 
 export default function Sidebar() {
@@ -61,13 +72,7 @@ export default function Sidebar() {
       <aside className="hidden lg:flex w-56 shrink-0 flex-col h-screen bg-white border-r border-gray-100 sticky top-0">
         {/* Logo */}
         <div className="px-5 py-5 border-b border-gray-100">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 bg-gray-900 rounded-lg" />
-            <div>
-              <p className="font-bold text-gray-900 text-sm leading-tight">Mainnet</p>
-              <p className="text-[10px] text-gray-400 leading-tight">Design Studio</p>
-            </div>
-          </div>
+          <img src="/logo.svg" alt="Mainnet" className="h-7 w-auto" />
         </div>
 
         {nav}
@@ -80,10 +85,7 @@ export default function Sidebar() {
 
       {/* ── Mobile top bar ── */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-20 bg-white border-b border-gray-200 flex items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-2.5">
-          <div className="w-6 h-6 bg-gray-900 rounded-md" />
-          <p className="font-bold text-gray-900 text-sm">Mainnet</p>
-        </div>
+        <img src="/logo.svg" alt="Mainnet" className="h-6 w-auto" />
         <button
           onClick={() => setMobileOpen((v) => !v)}
           className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
