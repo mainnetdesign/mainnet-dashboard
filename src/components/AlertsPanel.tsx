@@ -16,9 +16,9 @@ interface Props {
 }
 
 const TYPE_CONFIG = {
-  loss: { label: 'Prejuízo', icon: '↓' },
-  'low-margin': { label: 'Margem baixa', icon: '⚠' },
-  'no-revenue': { label: 'Sem receita', icon: '○' },
+  loss: { label: 'Prejuízo', icon: '↓', color: '#F87171', dotColor: '#F87171' },
+  'low-margin': { label: 'Margem baixa', icon: '⚠', color: '#FBBF24', dotColor: '#FBBF24' },
+  'no-revenue': { label: 'Sem receita', icon: '○', color: '#9CA3AF', dotColor: '#9CA3AF' },
 }
 
 const THRESHOLD_KEY = 'mainnet-alert-threshold'
@@ -125,7 +125,7 @@ function AlertHistory({ alerts }: { alerts: AlertItem[] }) {
                     return (
                       <div key={i} className="flex items-center justify-between text-xs text-[var(--tx2)] py-0.5">
                         <span className="font-medium text-[var(--tx)]">{a.projectName}</span>
-                        <span className="px-1.5 py-0.5 border border-[var(--bd2)] text-xs text-[var(--tx3)]">
+                        <span className="px-1.5 py-0.5 border text-xs" style={{ color: cfg.color, borderColor: cfg.color + '66' }}>
                           {cfg.label}
                         </span>
                       </div>
@@ -196,19 +196,19 @@ export default function AlertsPanel({ alerts }: Props) {
           <div className="hidden sm:flex items-center gap-3">
             {losses > 0 && (
               <span className="flex items-center gap-1 text-xs text-[var(--tx2)]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--tx3)] inline-block" />
+                <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: '#F87171' }} />
                 {losses} prejuízo
               </span>
             )}
             {lowMargin > 0 && (
               <span className="flex items-center gap-1 text-xs text-[var(--tx2)]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--bd3)] inline-block" />
+                <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: '#FBBF24' }} />
                 {lowMargin} margem baixa
               </span>
             )}
             {noRevenue > 0 && (
               <span className="flex items-center gap-1 text-xs text-[var(--tx2)]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--bd2)] inline-block" />
+                <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: '#9CA3AF' }} />
                 {noRevenue} sem receita
               </span>
             )}
@@ -288,7 +288,7 @@ export default function AlertsPanel({ alerts }: Props) {
                 >
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <p className="text-sm font-semibold text-[var(--tx)] leading-snug">{alert.projectName}</p>
-                    <span className="shrink-0 text-xs font-semibold px-2 py-0.5 border border-[var(--bd2)] text-[var(--tx2)]">
+                    <span className="shrink-0 text-xs font-semibold px-2 py-0.5 border" style={{ color: cfg.color, borderColor: cfg.color + '66' }}>
                       {cfg.icon} {cfg.label}
                     </span>
                   </div>

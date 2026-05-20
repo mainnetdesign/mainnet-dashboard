@@ -173,7 +173,7 @@ function RelatorioContent() {
             </div>
             <div className="bg-[var(--bg3)] p-6">
               <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-2">Resultado Líquido</p>
-              <p className={`text-3xl font-bold leading-tight ${netResult >= 0 ? 'text-[var(--tx)]' : 'text-[var(--tx2)]'}`}>
+              <p className={`text-3xl font-bold leading-tight ${netResult >= 0 ? 'text-[#22C55E]' : 'text-[#F87171]'}`}>
                 {netResult >= 0 ? '+' : ''}{fmtBRL(netResult)}
               </p>
               <p className="text-xs text-[var(--tx3)] mt-1">{netResult >= 0 ? 'superávit' : 'déficit'}</p>

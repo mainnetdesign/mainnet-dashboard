@@ -22,7 +22,7 @@ function DeltaBadge({ current, previous }: { current: number; previous: number }
   const up = pct >= 0
   return (
     <span className={`inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 border ${
-      up ? 'border-[var(--bd3)] text-[var(--tx2)]' : 'border-[var(--bd2)] text-[var(--tx3)]'
+      up ? 'border-[#22C55E]/40 text-[#22C55E]' : 'border-[#F87171]/40 text-[#F87171]'
     }`}>
       {up ? '↑' : '↓'} {Math.abs(pct).toFixed(0)}%
     </span>

@@ -96,7 +96,7 @@ function ProjectDrawer({
           </div>
           <div className="bg-[var(--bg2)] p-4">
             <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-1">Resultado</p>
-            <p className={`text-2xl font-bold ${project.result >= 0 ? 'text-[var(--tx)]' : 'text-[var(--tx2)]'}`}>
+            <p className={`text-2xl font-bold ${project.result >= 0 ? 'text-[#22C55E]' : 'text-[#F87171]'}`}>
               {project.result >= 0 ? '+' : ''}{fmtBRL(project.result)}
             </p>
           </div>
@@ -204,6 +204,12 @@ export default function PLTable({ pl, costByProject }: Props) {
     'Margem baixa': 'Margem baixa',
   }
 
+  const statusColor: Record<string, string> = {
+    Lucro: 'border-[#22C55E]/40 text-[#22C55E]',
+    Prejuízo: 'border-[#F87171]/40 text-[#F87171]',
+    'Margem baixa': 'border-[#FBBF24]/40 text-[#FBBF24]',
+  }
+
   const selectedCostData = selected
     ? costByProject.find((c) => c.projectId === selected.clockifyProjectId)
     : undefined
@@ -285,7 +291,7 @@ export default function PLTable({ pl, costByProject }: Props) {
                   </td>
                   <td className="px-3 py-4 text-right text-sm text-[var(--tx2)]">{fmtBRL(p.cost)}</td>
                   <td className="px-3 py-4 text-right text-sm font-semibold">
-                    <span className={p.result >= 0 ? 'text-[var(--tx)]' : 'text-[var(--tx2)]'}>
+                    <span className={p.result >= 0 ? 'text-[#22C55E]' : 'text-[#F87171]'}>
                       {p.result >= 0 ? '+' : ''}{fmtBRL(p.result)}
                     </span>
                   </td>
@@ -293,7 +299,7 @@ export default function PLTable({ pl, costByProject }: Props) {
                     {p.margin !== null ? `${Math.round(p.margin)}%` : <span className="text-[var(--bd3)]">—</span>}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <span className="inline-block px-2 py-0.5 border border-[var(--bd2)] text-xs font-medium text-[var(--tx2)]">
+                    <span className={`inline-block px-2 py-0.5 border text-xs font-medium ${statusColor[p.status] ?? 'border-[var(--bd2)] text-[var(--tx2)]'}`}>
                       {statusLabel[p.status] ?? p.status}
                     </span>
                   </td>

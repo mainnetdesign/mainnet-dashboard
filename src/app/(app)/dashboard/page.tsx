@@ -197,7 +197,7 @@ function StrategicAnalysis({ pl, monthly }: { pl: ProjectPL[]; monthly: MonthlyD
                   const deltaPct = (delta / avgRevenue3m) * 100
                   const positive = delta >= 0
                   return (
-                    <span className={`flex items-center gap-1 font-semibold ${positive ? 'text-[var(--tx)]' : 'text-[var(--tx2)]'}`}>
+                    <span className={`flex items-center gap-1 font-semibold ${positive ? 'text-[#22C55E]' : 'text-[#F87171]'}`}>
                       {positive ? '↑' : '↓'} {Math.abs(deltaPct).toFixed(1)}% em relação à média histórica
                     </span>
                   )
@@ -349,7 +349,7 @@ export default function Dashboard() {
                   const net = totalRevenue - data.totalCostAllCollaborators
                   return (
                     <>
-                      <p className={`text-3xl font-bold leading-tight mb-1 ${net >= 0 ? 'text-[var(--tx)]' : 'text-[var(--tx2)]'}`}>
+                      <p className={`text-3xl font-bold leading-tight mb-1 ${net >= 0 ? 'text-[#22C55E]' : 'text-[#F87171]'}`}>
                         {net >= 0 ? '+' : ''}{fmtBRL(net)}
                       </p>
                       <p className="text-sm text-[var(--tx2)]">{net >= 0 ? 'superávit' : 'déficit'}</p>
