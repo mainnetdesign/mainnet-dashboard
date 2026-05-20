@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { DashboardData } from '@/types'
 
@@ -41,7 +41,7 @@ function formatMonthLabel(month: string): string {
   return `${names[m - 1]} ${y}`
 }
 
-export default function RelatorioPage() {
+function RelatorioContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [month, setMonth] = useState<string>(searchParams.get('month') ?? getCurrentMonth())
@@ -317,5 +317,13 @@ export default function RelatorioPage() {
         }
       `}</style>
     </div>
+  )
+}
+
+export default function RelatorioPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-64 text-gray-400 text-sm">Carregando relatório…</div>}>
+      <RelatorioContent />
+    </Suspense>
   )
 }
