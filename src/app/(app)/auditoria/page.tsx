@@ -539,7 +539,7 @@ export default function AuditoriaPage() {
                         <div className="min-w-0">
                           <p className="text-sm font-semibold text-[var(--tx)] truncate">{s.txName}</p>
                           <p className="text-xs text-[var(--tx3)] mt-0.5">
-                            {fmtDate(s.paymentDate)} · {fmtBRL(s.txValue)} · nome extraído:{' '}
+                            {fmtDate(s.paymentDate)} · <span style={{ color: '#22C55E' }}>{fmtBRL(s.txValue)}</span> · nome extraído:{' '}
                             <span className="font-mono bg-[var(--bd)] px-1 text-[var(--tx2)]">{s.extractedName}</span>
                           </p>
                         </div>

@@ -191,11 +191,11 @@ export default function PLTable({ pl, costByProject }: Props) {
     </th>
   )
 
-  const filters: Array<{ key: Filter; label: string }> = [
+  const filters: Array<{ key: Filter; label: string; color?: string }> = [
     { key: 'all', label: 'Todos' },
-    { key: 'profit', label: 'Lucro' },
-    { key: 'loss', label: 'Prejuízo' },
-    { key: 'low-margin', label: 'Margem baixa' },
+    { key: 'profit', label: 'Lucro', color: '#22C55E' },
+    { key: 'loss', label: 'Prejuízo', color: '#F87171' },
+    { key: 'low-margin', label: 'Margem baixa', color: '#FBBF24' },
   ]
 
   const statusLabel: Record<string, string> = {
@@ -241,11 +241,13 @@ export default function PLTable({ pl, costByProject }: Props) {
               <button
                 key={f.key}
                 onClick={() => setFilter(f.key)}
-                className={`px-4 py-1.5 text-sm font-medium border transition-colors ${
-                  filter === f.key
-                    ? 'bg-[var(--inv)] text-[var(--inv-tx)] border-[var(--inv)]'
-                    : 'border-[var(--bd)] text-[var(--tx2)] hover:border-[var(--bd3)] hover:text-[var(--tx)]'
-                }`}
+                className="px-4 py-1.5 text-sm font-medium border transition-colors"
+                style={filter === f.key
+                  ? { background: f.color ?? 'var(--inv)', color: f.color ? '#000' : 'var(--inv-tx)', borderColor: f.color ?? 'var(--inv)' }
+                  : f.color
+                    ? { borderColor: f.color + '55', color: f.color }
+                    : { borderColor: 'var(--bd)', color: 'var(--tx2)' }
+                }
               >
                 {f.label}
               </button>

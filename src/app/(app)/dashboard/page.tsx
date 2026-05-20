@@ -372,8 +372,8 @@ export default function Dashboard() {
             <StrategicAnalysis pl={data.pl} monthly={data.monthly} />
 
             {data.pl.some((p) => p.hasAttention) && (
-              <div className="bg-[var(--bg3)] border border-[var(--bd)] p-4 mb-8 text-sm text-[var(--tx2)]">
-                <strong className="text-[var(--tx)]">* atenção</strong> — Projetos marcados têm receita que inclui trabalho feito
+              <div className="p-4 mb-8 text-sm border" style={{ background: '#FBBF2408', borderColor: '#FBBF2444', color: 'var(--tx2)' }}>
+                <strong style={{ color: '#FBBF24' }}>* atenção</strong> — Projetos marcados têm receita que inclui trabalho feito
                 antes de jun/2025 (início do rastreio). O custo real é maior e a margem está inflada.
               </div>
             )}
