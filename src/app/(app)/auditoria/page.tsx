@@ -582,11 +582,13 @@ export default function AuditoriaPage() {
                       const cfg = isAll ? null : STATUS_CFG[s]
                       return (
                         <button key={s} onClick={() => setFilterStatus(s)}
-                          className={`px-2.5 py-1 text-xs font-semibold border transition-colors ${
-                            filterStatus === s
-                              ? 'bg-[var(--inv)] text-[var(--inv-tx)] border-[var(--inv)]'
-                              : 'border-[var(--bd)] text-[var(--tx2)] hover:border-[var(--bd3)] hover:text-[var(--tx)]'
-                          }`}>
+                          className="px-2.5 py-1 text-xs font-semibold border transition-colors"
+                          style={filterStatus === s
+                            ? { background: 'var(--inv)', color: 'var(--inv-tx)', borderColor: 'var(--inv)' }
+                            : isAll
+                              ? { borderColor: 'var(--bd)', color: 'var(--tx2)' }
+                              : { borderColor: cfg!.color + '55', color: cfg!.color }
+                          }>
                           {isAll ? 'Todas' : cfg!.label} ({count})
                         </button>
                       )
@@ -622,7 +624,7 @@ export default function AuditoriaPage() {
                           <td className="px-5 py-3 font-medium text-[var(--tx)] max-w-[240px]">
                             <span className="truncate block" title={tx.name}>{tx.name}</span>
                           </td>
-                          <td className="px-3 py-3 text-right font-semibold text-[var(--tx)] whitespace-nowrap">{fmtBRL(tx.value)}</td>
+                          <td className="px-3 py-3 text-right font-semibold whitespace-nowrap" style={{ color: '#22C55E' }}>{fmtBRL(tx.value)}</td>
                           <td className="px-3 py-3">
                             {tx.extractedName
                               ? <span className="font-mono text-xs bg-[var(--bd)] text-[var(--tx2)] px-1.5 py-0.5">{tx.extractedName}</span>

@@ -339,7 +339,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-px mb-8 border border-[var(--bd)]">
               <div className="bg-[var(--bg3)] p-5">
                 <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-2">CUSTO TOTAL (HORAS)</p>
-                <p className="text-3xl font-bold text-[var(--tx)] leading-tight mb-1">{fmtBRL(data.totalCostAllCollaborators)}</p>
+                <p className="text-3xl font-bold leading-tight mb-1" style={{ color: '#F87171' }}>{fmtBRL(data.totalCostAllCollaborators)}</p>
                 <p className="text-sm text-[var(--tx2)]">{data.collaborators.length} pessoas</p>
               </div>
               <div className="bg-[var(--bg3)] p-5">
@@ -359,7 +359,7 @@ export default function Dashboard() {
               </div>
               <div className="bg-[var(--bg3)] p-5">
                 <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-2">CUSTO SEM FATURAMENTO</p>
-                <p className="text-3xl font-bold text-[var(--tx)] leading-tight mb-1">
+                <p className="text-3xl font-bold leading-tight mb-1" style={{ color: '#F87171' }}>
                   {fmtBRL(data.pl.filter((p) => p.revenue === 0 && !p.isInternal).reduce((s, p) => s + p.cost, 0))}
                 </p>
                 <p className="text-sm text-[var(--tx2)]">

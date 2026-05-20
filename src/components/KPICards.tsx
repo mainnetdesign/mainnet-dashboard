@@ -33,18 +33,22 @@ interface Props {
   data: DashboardData
 }
 
-function Card({ label, value, sub, largeText, delta }: {
+function Card({ label, value, sub, largeText, delta, valueColor }: {
   label: string
   value: string
   sub: string
   largeText?: boolean
   delta?: { current: number; previous: number }
+  valueColor?: string
 }) {
   return (
     <div className="bg-[var(--bg3)] p-5 border border-[var(--bd)]">
       <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-2">{label}</p>
       <div className="flex items-baseline gap-2 mb-1">
-        <p className={`font-bold text-[var(--tx)] leading-tight ${largeText ? 'text-2xl' : 'text-3xl'}`}>
+        <p
+          className={`font-bold leading-tight ${largeText ? 'text-2xl' : 'text-3xl'}`}
+          style={{ color: valueColor ?? 'var(--tx)' }}
+        >
           {value}
         </p>
         {delta && <DeltaBadge current={delta.current} previous={delta.previous} />}
@@ -65,11 +69,13 @@ export default function KPICards({ data }: Props) {
         label="TOTAL INVESTIDO"
         value={fmt(data.totalCost)}
         sub={`${months} meses · ${data.collaborators.length} colaboradores`}
+        valueColor="#F87171"
       />
       <Card
         label="OVERHEAD SEM PROJETO"
         value={fmt(data.overheadCost)}
         sub={`${data.overheadPercent.toFixed(1)}% das horas`}
+        valueColor="#F87171"
       />
       <Card
         label="PROJETO MAIS CARO"
@@ -82,6 +88,7 @@ export default function KPICards({ data }: Props) {
         value={fmt(currRevenue)}
         sub={prevRevenue > 0 ? `vs ${fmt(prevRevenue)} período anterior` : 'entradas realizadas no Notion'}
         delta={prevRevenue > 0 ? { current: currRevenue, previous: prevRevenue } : undefined}
+        valueColor="#22C55E"
       />
     </div>
   )
