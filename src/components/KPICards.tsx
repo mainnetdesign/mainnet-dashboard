@@ -85,7 +85,7 @@ export default function KPICards({ data }: Props) {
         sub={fmt(data.mostExpensiveProject.cost)}
         largeText
         subColor="#22C55E"
-        subSize="text-xl"
+        subSize="text-2xl"
       />
       <Card
         label="RECEITA RASTREADA"
