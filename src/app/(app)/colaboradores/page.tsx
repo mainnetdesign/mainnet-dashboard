@@ -258,6 +258,11 @@ export default function ColaboradoresPage() {
   const workingDays = countWorkingDays(start, end)
   const availableHoursPerPerson = workingDays * 6
 
+  // build a set of internal project IDs from the PL table
+  const internalProjectIds = new Set(
+    (data?.pl ?? []).filter((p) => p.isInternal).map((p) => p.clockifyProjectId)
+  )
+
   const metrics: CollaboratorMetrics[] = data
     ? data.collaborators.map((c) => {
         // sum hours per collaborator across projects
@@ -267,7 +272,7 @@ export default function ColaboradoresPage() {
         for (const proj of data.costByProject) {
           const entry = proj.costByCollaborator[c.id]
           if (!entry) continue
-          if (proj.isInternal) {
+          if (internalProjectIds.has(proj.projectId)) {
             internalHours += entry.hours
           } else {
             productiveHours += entry.hours
