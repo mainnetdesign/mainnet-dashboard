@@ -454,8 +454,8 @@ export default function AuditoriaPage() {
                           <div className="flex items-center gap-4 mb-1.5">
                             <p className="text-sm font-medium text-[var(--tx)] flex-1 truncate">{r.name}</p>
                             <span className="text-xs text-[var(--tx3)] shrink-0">{r.hours}h</span>
-                            <span className="text-xs text-[var(--tx3)] shrink-0">{fmtBRL(r.revenue)}</span>
-                            <span className="text-sm font-bold shrink-0" style={{ color: r.anomaly ? '#FBBF24' : 'var(--tx)' }}>R${r.rate}/h</span>
+                            <span className="text-xs font-medium shrink-0" style={{ color: '#22C55E' }}>{fmtBRL(r.revenue)}</span>
+                            <span className="text-sm font-bold shrink-0" style={{ color: r.anomaly ? '#FBBF24' : '#60A5FA' }}>R${r.rate}/h</span>
                             {r.anomaly && (
                               <span className="text-xs font-semibold px-1.5 py-0.5 shrink-0 border" style={{ color: '#FBBF24', borderColor: '#FBBF2466' }}>⚠ fora do padrão</span>
                             )}
