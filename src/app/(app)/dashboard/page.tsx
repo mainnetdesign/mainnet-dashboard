@@ -122,7 +122,7 @@ function StrategicAnalysis({ pl, monthly }: { pl: ProjectPL[]; monthly: MonthlyD
                 return (
                   <div key={p.clockifyProjectId}>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-[var(--tx)] truncate max-w-[60%]">
+                      <span className="text-sm font-medium truncate max-w-[60%]" style={{ color: pct > 50 ? '#FBBF24' : '#22C55E' }}>
                         {p.clockifyProjectName}
                       </span>
                       <div className="flex items-center gap-2 shrink-0">

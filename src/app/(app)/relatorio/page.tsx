@@ -200,7 +200,7 @@ function RelatorioContent() {
                     .map((p, i) => (
                       <tr key={p.clockifyProjectId} className={`border-b border-[var(--bd)] last:border-0 ${i % 2 === 1 ? 'bg-[var(--bg2)]' : ''}`}>
                         <td className="px-5 py-3 font-medium text-[var(--tx)]">{p.clockifyProjectName}</td>
-                        <td className="px-5 py-3 text-right text-[var(--tx2)]">{fmtHours(p.hours)}</td>
+                        <td className="px-5 py-3 text-right font-medium" style={{ color: '#FB923C' }}>{fmtHours(p.hours)}</td>
                         <td className="px-5 py-3 text-right font-semibold" style={{ color: '#22C55E' }}>{p.revenue > 0 ? fmtBRL(p.revenue) : <span className="text-[var(--tx3)]">—</span>}</td>
                         <td className="px-5 py-3 text-right" style={{ color: '#F87171' }}>{fmtBRL(p.cost)}</td>
                         <td className="px-5 py-3 text-right font-semibold" style={{ color: p.margin === null ? 'var(--tx3)' : p.margin >= 40 ? '#22C55E' : p.margin >= 20 ? '#FBBF24' : '#F87171' }}>{fmtPct(p.margin)}</td>
@@ -218,7 +218,7 @@ function RelatorioContent() {
                   <tfoot>
                     <tr className="border-t border-[var(--bd)] bg-[var(--bg)]">
                       <td className="px-5 py-3 text-[11px] font-bold text-[var(--tx3)] uppercase tracking-wider">Total</td>
-                      <td className="px-5 py-3 text-right text-[11px] font-bold text-[var(--tx2)]">{fmtHours(clientPl.reduce((s, p) => s + p.hours, 0))}</td>
+                      <td className="px-5 py-3 text-right text-[11px] font-bold" style={{ color: '#FB923C' }}>{fmtHours(clientPl.reduce((s, p) => s + p.hours, 0))}</td>
                       <td className="px-5 py-3 text-right text-[11px] font-bold" style={{ color: '#22C55E' }}>{fmtBRL(totalRevenue)}</td>
                       <td className="px-5 py-3 text-right text-[11px] font-bold" style={{ color: '#F87171' }}>{fmtBRL(totalCost)}</td>
                       <td className="px-5 py-3 text-right text-[11px] font-bold" style={{ color: totalRevenue > 0 ? (((totalRevenue - totalCost) / totalRevenue) * 100 >= 40 ? '#22C55E' : ((totalRevenue - totalCost) / totalRevenue) * 100 >= 20 ? '#FBBF24' : '#F87171') : 'var(--tx3)' }}>
@@ -248,7 +248,7 @@ function RelatorioContent() {
                           <span className="text-sm font-medium text-[var(--tx)]">{c.name}</span>
                         </div>
                         <div className="flex items-center gap-6 text-sm">
-                          <span className="text-[var(--tx2)]">{fmtHours(c.totalHours)}</span>
+                          <span style={{ color: '#FB923C' }}>{fmtHours(c.totalHours)}</span>
                           <span className="font-semibold w-24 text-right" style={{ color: '#F87171' }}>{fmtBRL(c.totalCost)}</span>
                           <span className="text-xs text-[var(--tx3)] w-10 text-right">{c.percentOfTotal.toFixed(1)}%</span>
                         </div>
@@ -257,7 +257,7 @@ function RelatorioContent() {
                   <div className="flex items-center justify-between px-5 py-3.5 bg-[var(--bg)]">
                     <span className="text-[11px] font-bold text-[var(--tx3)] uppercase tracking-wider">Total</span>
                     <div className="flex items-center gap-6 text-sm">
-                      <span className="text-[var(--tx2)]">{fmtHours(data.collaborators.reduce((s, c) => s + c.totalHours, 0))}</span>
+                      <span style={{ color: '#FB923C' }}>{fmtHours(data.collaborators.reduce((s, c) => s + c.totalHours, 0))}</span>
                       <span className="font-bold w-24 text-right" style={{ color: '#F87171' }}>{fmtBRL(totalCost)}</span>
                       <span className="text-xs text-[var(--tx3)] w-10 text-right" />
                     </div>

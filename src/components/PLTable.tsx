@@ -82,7 +82,7 @@ function ProjectDrawer({
         <div className="grid grid-cols-2 gap-px p-6 border-b border-[var(--bd)] bg-[var(--bd)]">
           <div className="bg-[var(--bg2)] p-4">
             <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-1">Horas</p>
-            <p className="text-2xl font-bold text-[var(--tx)]">{Math.round(project.hours)}h</p>
+            <p className="text-2xl font-bold" style={{ color: '#FB923C' }}>{Math.round(project.hours)}h</p>
           </div>
           <div className="bg-[var(--bg2)] p-4">
             <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-1">Custo</p>
@@ -287,7 +287,7 @@ export default function PLTable({ pl, costByProject }: Props) {
                       )}
                     </span>
                   </td>
-                  <td className="px-3 py-4 text-right text-sm text-[var(--tx2)]">{Math.round(p.hours)}h</td>
+                  <td className="px-3 py-4 text-right text-sm font-medium" style={{ color: '#FB923C' }}>{Math.round(p.hours)}h</td>
                   <td className="px-3 py-4 text-right text-sm font-medium" style={{ color: p.revenue > 0 ? '#22C55E' : undefined }}>
                     {p.revenue > 0 ? fmtBRL(p.revenue) : <span className="text-[var(--bd3)]">—</span>}
                   </td>
