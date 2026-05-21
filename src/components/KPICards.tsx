@@ -69,7 +69,7 @@ export default function KPICards({ data }: Props) {
         label="TOTAL INVESTIDO"
         value={fmt(data.totalCost)}
         sub={`${months} meses · ${data.collaborators.length} colaboradores`}
-        valueColor="#F87171"
+        valueColor="#22C55E"
       />
       <Card
         label="OVERHEAD SEM PROJETO"
