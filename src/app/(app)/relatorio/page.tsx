@@ -90,7 +90,6 @@ function RelatorioContent() {
       {/* No-print controls bar */}
       <div className="no-print sticky top-0 z-10 bg-[var(--bg)] border-b border-[var(--bd)] px-6 py-3 flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
-          <img src="/mainnet-logo.svg" alt="Mainnet" className="h-6 w-auto" style={{ filter: 'invert(1)' }} />
           <span className="text-sm font-semibold text-[var(--tx3)]">Relatório Mensal</span>
         </div>
         <div className="flex items-center gap-3">
