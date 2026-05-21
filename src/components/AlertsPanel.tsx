@@ -213,7 +213,7 @@ export default function AlertsPanel({ alerts }: Props) {
               </span>
             )}
           </div>
-          <span className="hidden sm:inline-flex px-2 py-0.5 border border-[var(--bd)] text-xs font-medium text-[var(--tx3)]">
+          <span className="hidden sm:inline-flex px-2 py-0.5 border text-xs font-medium" style={{ color: '#FBBF24', borderColor: '#FBBF2455' }}>
             Alerta: {threshold}%
           </span>
         </button>
