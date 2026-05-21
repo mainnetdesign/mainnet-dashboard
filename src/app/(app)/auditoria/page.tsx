@@ -453,7 +453,7 @@ export default function AuditoriaPage() {
                         <div key={r.name} className="px-5 py-3 hover:bg-[var(--bg4)] transition-colors">
                           <div className="flex items-center gap-4 mb-1.5">
                             <p className="text-sm font-medium text-[var(--tx)] flex-1 truncate">{r.name}</p>
-                            <span className="text-xs font-medium shrink-0" style={{ color: '#FBBF24' }}>{r.hours}h</span>
+                            <span className="text-xs font-medium shrink-0" style={{ color: '#94A3B8' }}>{r.hours}h</span>
                             <span className="text-xs font-medium shrink-0" style={{ color: '#22C55E' }}>{fmtBRL(r.revenue)}</span>
                             <span className="text-sm font-bold shrink-0" style={{ color: r.anomaly ? '#FB923C' : '#60A5FA' }}>R${r.rate}/h</span>
                             {r.anomaly && (
