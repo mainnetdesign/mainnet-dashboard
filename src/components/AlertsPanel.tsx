@@ -282,36 +282,25 @@ export default function AlertsPanel({ alerts }: Props) {
             {filteredAlerts.map((alert) => {
               const cfg = TYPE_CONFIG[alert.type]
               return (
-                <div
-                  key={alert.projectName + alert.type}
-                  className="p-4 border-l-2"
-                  style={{ background: cfg.color + '08', borderLeftColor: cfg.color }}
-                >
-                  <div className="flex items-start justify-between gap-2 mb-3">
-                    <p className="text-sm font-bold leading-snug" style={{ color: cfg.color }}>{alert.projectName}</p>
-                    <span className="shrink-0 text-xs font-semibold px-2 py-0.5 border" style={{ color: cfg.color, borderColor: cfg.color + '66' }}>
+                <div key={alert.projectName + alert.type} className="bg-[var(--bg3)] p-4">
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <p className="text-sm font-semibold text-[var(--tx)] leading-snug">{alert.projectName}</p>
+                    <span className="shrink-0 text-xs font-semibold px-2 py-0.5 border" style={{ color: cfg.color, borderColor: cfg.color + '55' }}>
                       {cfg.icon} {cfg.label}
                     </span>
                   </div>
-                  <div className="space-y-1 text-xs">
-                    <div className="flex items-center gap-2 text-[var(--tx3)]">
-                      <span className="w-14">Custo</span>
-                      <strong style={{ color: '#F87171' }}>{fmtBRL(alert.cost)}</strong>
-                      <span style={{ color: '#FB923C' }} className="ml-auto">{Math.round(alert.hours)}h</span>
-                    </div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[var(--tx3)]">
+                    <span>Custo: <strong style={{ color: '#F87171' }}>{fmtBRL(alert.cost)}</strong></span>
                     {alert.revenue > 0 && (
-                      <div className="flex items-center gap-2 text-[var(--tx3)]">
-                        <span className="w-14">Receita</span>
-                        <strong style={{ color: '#22C55E' }}>{fmtBRL(alert.revenue)}</strong>
-                      </div>
+                      <span>Receita: <strong style={{ color: '#22C55E' }}>{fmtBRL(alert.revenue)}</strong></span>
                     )}
-                    {alert.result < 0 && (
-                      <div className="flex items-center gap-2 text-[var(--tx3)]">
-                        <span className="w-14">Resultado</span>
-                        <strong style={{ color: '#F87171' }}>{fmtBRL(alert.result)}</strong>
-                      </div>
-                    )}
+                    <span style={{ color: '#FB923C' }}>{Math.round(alert.hours)}h</span>
                   </div>
+                  {alert.result < 0 && (
+                    <p className="mt-1 text-xs font-bold" style={{ color: '#F87171' }}>
+                      Resultado: {fmtBRL(alert.result)}
+                    </p>
+                  )}
                 </div>
               )
             })}
