@@ -90,7 +90,7 @@ function RelatorioContent() {
       {/* No-print controls bar */}
       <div className="no-print sticky top-0 z-10 bg-[var(--bg)] border-b border-[var(--bd)] px-6 py-3 flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
-          <span className="text-sm font-semibold text-[var(--tx3)]">Relatório Mensal</span>
+          <span className="text-sm font-bold text-[var(--tx)]">Relatório Mensal</span>
         </div>
         <div className="flex items-center gap-3">
           <label className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider">Mês</label>
