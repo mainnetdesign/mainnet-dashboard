@@ -461,7 +461,7 @@ export default function AuditoriaPage() {
                             )}
                           </div>
                           <div className="w-full h-1.5 bg-[var(--bd)] overflow-hidden">
-                            <div className="h-full" style={{ width: `${pct}%`, background: r.anomaly ? '#FBBF24' : 'var(--inv)' }} />
+                            <div className="h-full" style={{ width: `${pct}%`, background: r.anomaly ? '#FBBF24' : '#60A5FA' }} />
                           </div>
                         </div>
                       )
