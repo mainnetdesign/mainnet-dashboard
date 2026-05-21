@@ -491,7 +491,7 @@ export default function AuditoriaPage() {
                         {(showAllNoRevenue ? data.projectsWithNoRevenue : data.projectsWithNoRevenue.slice(0, 8)).map((p) => (
                           <div key={p.name} className="flex items-center justify-between px-5 py-2.5 hover:bg-[var(--bg4)] transition-colors">
                             <span className="text-sm text-[var(--tx2)] truncate">{p.name}</span>
-                            <span className="text-xs font-medium shrink-0 ml-2" style={{ color: '#FB923C' }}>{p.hours}h</span>
+                            <span className="text-xs font-medium shrink-0 ml-2" style={{ color: '#94A3B8' }}>{p.hours}h</span>
                           </div>
                         ))}
                         {data.projectsWithNoRevenue.length > 8 && (
