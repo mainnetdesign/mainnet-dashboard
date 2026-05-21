@@ -255,7 +255,7 @@ export default function AuditoriaPage() {
 
             {/* ── 1. Action summary ── */}
             {actions.length > 0 && (
-              <div className="p-5 border" style={{ background: '#FBBF2408', borderColor: '#FBBF2444' }}>
+              <div className="p-5 border" style={{ background: '#FBBF2420', borderColor: '#FBBF2466' }}>
                 <div className="flex items-center gap-2.5 mb-3">
                   <div className="w-6 h-6 flex items-center justify-center shrink-0" style={{ background: '#FBBF2422' }}>
                     <svg className="w-3.5 h-3.5" style={{ color: '#FBBF24' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -268,7 +268,7 @@ export default function AuditoriaPage() {
                 </div>
                 <ul className="space-y-1.5 ml-8">
                   {actions.map((a, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-[var(--tx2)]">
+                    <li key={i} className="flex items-start gap-2 text-sm font-bold text-[var(--tx)]">
                       <span className="mt-0.5 shrink-0" style={{ color: '#FBBF24' }}>·</span>{a}
                     </li>
                   ))}
