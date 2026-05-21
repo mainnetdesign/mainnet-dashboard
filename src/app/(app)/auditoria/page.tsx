@@ -634,7 +634,7 @@ export default function AuditoriaPage() {
                               ? <span className="font-mono text-xs bg-[var(--bd)] text-[var(--tx2)] px-1.5 py-0.5">{tx.extractedName}</span>
                               : <span className="text-[var(--bd3)] text-xs">—</span>}
                           </td>
-                          <td className="px-3 py-3 text-sm text-[var(--tx2)]">{tx.matchedProject ?? <span className="text-[var(--bd3)] text-xs">—</span>}</td>
+                          <td className="px-3 py-3 text-sm font-bold text-[var(--tx)]">{tx.matchedProject ?? <span className="font-normal text-[var(--bd3)] text-xs">—</span>}</td>
                           <td className="px-5 py-3 text-center"><Badge status={tx.status} /></td>
                         </tr>
                       ))}
