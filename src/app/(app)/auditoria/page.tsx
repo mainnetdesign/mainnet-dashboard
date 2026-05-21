@@ -446,31 +446,26 @@ export default function AuditoriaPage() {
                     )
                   })()}
                   <div className="divide-y divide-[var(--bd)]">
-                    {(() => {
-                      const ANOMALY_COLORS = ['#F87171', '#FBBF24', '#A78BFA', '#34D399', '#F472B6', '#60A5FA', '#FB923C']
-                      let anomalyIdx = 0
+                    {data.impliedRates.map((r) => {
                       const maxRate = Math.max(...data.impliedRates.map(x => x.rate))
-                      return data.impliedRates.map((r) => {
-                        const pct = maxRate > 0 ? (r.rate / maxRate) * 100 : 0
-                        const anomalyColor = r.anomaly ? ANOMALY_COLORS[anomalyIdx++ % ANOMALY_COLORS.length] : '#60A5FA'
-                        return (
-                          <div key={r.name} className="px-5 py-3 hover:bg-[var(--bg4)] transition-colors">
-                            <div className="flex items-center gap-4 mb-1.5">
-                              <p className="text-sm font-medium text-[var(--tx)] flex-1 truncate">{r.name}</p>
-                              <span className="text-xs font-medium shrink-0" style={{ color: '#A78BFA' }}>{r.hours}h</span>
-                              <span className="text-xs font-medium shrink-0" style={{ color: '#22C55E' }}>{fmtBRL(r.revenue)}</span>
-                              <span className="text-sm font-bold shrink-0" style={{ color: anomalyColor }}>R${r.rate}/h</span>
-                              {r.anomaly && (
-                                <span className="text-xs font-semibold px-1.5 py-0.5 shrink-0 border" style={{ color: anomalyColor, borderColor: anomalyColor + '66' }}>⚠ fora do padrão</span>
-                              )}
-                            </div>
-                            <div className="w-full h-1.5 bg-[var(--bd)] overflow-hidden">
-                              <div className="h-full" style={{ width: `${pct}%`, background: anomalyColor }} />
-                            </div>
+                      const pct = maxRate > 0 ? (r.rate / maxRate) * 100 : 0
+                      return (
+                        <div key={r.name} className="px-5 py-3 hover:bg-[var(--bg4)] transition-colors">
+                          <div className="flex items-center gap-4 mb-1.5">
+                            <p className="text-sm font-medium text-[var(--tx)] flex-1 truncate">{r.name}</p>
+                            <span className="text-xs font-medium shrink-0" style={{ color: '#FBBF24' }}>{r.hours}h</span>
+                            <span className="text-xs font-medium shrink-0" style={{ color: '#22C55E' }}>{fmtBRL(r.revenue)}</span>
+                            <span className="text-sm font-bold shrink-0" style={{ color: r.anomaly ? '#FB923C' : '#60A5FA' }}>R${r.rate}/h</span>
+                            {r.anomaly && (
+                              <span className="text-xs font-semibold px-1.5 py-0.5 shrink-0 border" style={{ color: '#FB923C', borderColor: '#FB923C66' }}>⚠ fora do padrão</span>
+                            )}
                           </div>
-                        )
-                      })
-                    })()}
+                          <div className="w-full h-1.5 bg-[var(--bd)] overflow-hidden">
+                            <div className="h-full" style={{ width: `${pct}%`, background: '#60A5FA' }} />
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
               </div>
