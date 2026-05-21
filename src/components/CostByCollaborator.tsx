@@ -42,7 +42,7 @@ export default function CostByCollaborator({ data }: Props) {
               <span className="text-sm font-semibold text-[var(--tx)]">{c.name}</span>
               <div className="text-right">
                 <span className="text-sm font-bold text-[var(--tx)]">{fmtBRL(c.totalCost)}</span>
-                <span className="text-xs font-medium ml-2" style={{ color: c.color }}>{c.percentOfTotal.toFixed(1)}%</span>
+                <span className="text-xs font-bold ml-2 text-[var(--tx3)]">{c.percentOfTotal.toFixed(1)}%</span>
               </div>
             </div>
 
