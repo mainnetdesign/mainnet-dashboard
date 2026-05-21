@@ -352,7 +352,9 @@ export default function Dashboard() {
                       <p className={`text-3xl font-bold leading-tight mb-1 ${net >= 0 ? 'text-[#22C55E]' : 'text-[#F87171]'}`}>
                         {net >= 0 ? '+' : ''}{fmtBRL(net)}
                       </p>
-                      <p className="text-sm text-[var(--tx2)]">{net >= 0 ? 'superávit' : 'déficit'}</p>
+                      <span className="inline-block px-2 py-0.5 text-xs font-bold border" style={net >= 0 ? { color: '#22C55E', borderColor: '#22C55E66', background: '#22C55E11' } : { color: '#F87171', borderColor: '#F8717166', background: '#F8717111' }}>
+                        {net >= 0 ? '↑ superávit' : '↓ déficit'}
+                      </span>
                     </>
                   )
                 })()}
