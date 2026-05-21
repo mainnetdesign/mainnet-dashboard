@@ -64,57 +64,73 @@ interface CollaboratorMetrics {
 
 // ─── sub-components ──────────────────────────────────────────────────────────
 
-function UtilizationBadge({ pct }: { pct: number }) {
+/** SVG ring gauge for utilization */
+function UtilizationRing({ pct }: { pct: number }) {
   const color = utilizationColor(pct)
+  const size = 64
+  const stroke = 5
+  const r = (size - stroke) / 2
+  const circ = 2 * Math.PI * r
+  const dash = Math.min(pct / 100, 1) * circ
+
   return (
-    <span
-      className="px-2 py-0.5 text-[11px] font-bold border"
-      style={{ color, borderColor: color + '55', background: color + '11' }}
-    >
-      {pct.toFixed(1)}%
-    </span>
+    <div className="relative shrink-0" style={{ width: size, height: size }}>
+      <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+        {/* track */}
+        <circle
+          cx={size / 2} cy={size / 2} r={r}
+          fill="none"
+          stroke="var(--bd)"
+          strokeWidth={stroke}
+        />
+        {/* fill */}
+        <circle
+          cx={size / 2} cy={size / 2} r={r}
+          fill="none"
+          stroke={color}
+          strokeWidth={stroke}
+          strokeDasharray={`${dash} ${circ}`}
+          strokeLinecap="butt"
+          style={{ transition: 'stroke-dasharray 0.6s ease' }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-[11px] font-bold leading-none" style={{ color }}>
+          {pct.toFixed(0)}%
+        </span>
+      </div>
+    </div>
   )
 }
 
-function StackedBar({
-  productive,
-  internal,
-  idle,
-  available,
+function SegmentedBar({
+  productive, internal, idle, available,
 }: {
-  productive: number
-  internal: number
-  idle: number
-  available: number
+  productive: number; internal: number; idle: number; available: number
 }) {
   if (available <= 0) return null
-  const pPct = Math.max(0, (productive / available) * 100)
-  const iPct = Math.max(0, (internal / available) * 100)
-  const idlePct = Math.max(0, (idle / available) * 100)
+  const pPct = Math.min((productive / available) * 100, 100)
+  const iPct = Math.min((internal / available) * 100, 100 - pPct)
+  const idlePct = Math.min((idle / available) * 100, 100 - pPct - iPct)
+  const GAP = 0.4 // percent gap between segments
 
   return (
-    <div className="h-5 flex w-full overflow-hidden border border-[var(--bd)]">
-      {pPct > 0 && (
-        <div
-          className="h-full transition-all"
-          style={{ width: `${pPct}%`, background: '#22C55E' }}
-          title={`Produtivas: ${productive.toFixed(1)}h`}
-        />
-      )}
-      {iPct > 0 && (
-        <div
-          className="h-full transition-all"
-          style={{ width: `${iPct}%`, background: '#FBBF24' }}
-          title={`Internas: ${internal.toFixed(1)}h`}
-        />
-      )}
-      {idlePct > 0 && (
-        <div
-          className="h-full transition-all"
-          style={{ width: `${idlePct}%`, background: '#9CA3AF' }}
-          title={`Ociosas: ${idle.toFixed(1)}h`}
-        />
-      )}
+    <div className="relative h-1.5 w-full flex gap-px overflow-hidden">
+      {/* productive */}
+      <div style={{ width: `${Math.max(0, pPct - GAP)}%`, background: '#22C55E', borderRadius: 2 }} />
+      {/* internal */}
+      <div style={{ width: `${Math.max(0, iPct - GAP)}%`, background: '#FBBF24', borderRadius: 2 }} />
+      {/* idle */}
+      <div style={{ width: `${Math.max(0, idlePct)}%`, background: '#D1D5DB', borderRadius: 2 }} />
+    </div>
+  )
+}
+
+function StatCell({ label, value, color }: { label: string; value: string; color?: string }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--tx3)]">{label}</span>
+      <span className="text-sm font-bold" style={{ color: color ?? 'var(--tx)' }}>{value}</span>
     </div>
   )
 }
@@ -144,56 +160,67 @@ function KPICard({
   )
 }
 
-function CollaboratorCard({ m }: { m: CollaboratorMetrics }) {
+function CollaboratorCard({ m, rank }: { m: CollaboratorMetrics; rank: number }) {
   const uColor = utilizationColor(m.utilizationRate)
 
   return (
-    <div className="bg-[var(--bg3)] border border-[var(--bd)] p-5">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
-        <div className="flex items-center gap-2.5">
-          <span
-            className="w-3 h-3 shrink-0"
-            style={{ background: m.color }}
-          />
-          <span className="font-bold text-[var(--tx)] text-base">{m.name}</span>
+    <div className="bg-[var(--bg3)] border border-[var(--bd)] p-6 flex flex-col gap-5">
+
+      {/* ── top row: rank + name + ring ── */}
+      <div className="flex items-center gap-4">
+        {/* rank number */}
+        <span className="text-[11px] font-bold text-[var(--tx3)] w-4 shrink-0 tabular-nums">#{rank}</span>
+
+        {/* color dot + name */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-0.5">
+            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: m.color }} />
+            <span className="font-bold text-[var(--tx)] text-base truncate">{m.name}</span>
+          </div>
+          <p className="text-[11px] text-[var(--tx3)] ml-4.5">
+            {m.totalHours.toFixed(0)}h registradas · {m.availableHours.toFixed(0)}h disponíveis
+          </p>
         </div>
-        <UtilizationBadge pct={m.utilizationRate} />
+
+        {/* ring gauge */}
+        <UtilizationRing pct={m.utilizationRate} />
       </div>
 
-      {/* Stacked bar */}
-      <div className="mb-3">
-        <StackedBar
+      {/* ── segmented bar ── */}
+      <div className="flex flex-col gap-2">
+        <SegmentedBar
           productive={m.productiveHours}
           internal={m.internalHours}
           idle={m.idleHours}
           available={m.availableHours}
         />
+        {/* bar labels */}
+        <div className="flex items-center gap-3 text-[10px] text-[var(--tx3)]">
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-sm inline-block shrink-0" style={{ background: '#22C55E' }} />
+            {m.productiveHours.toFixed(0)}h produtivas
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-sm inline-block shrink-0" style={{ background: '#FBBF24' }} />
+            {m.internalHours.toFixed(0)}h internas
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-sm inline-block shrink-0" style={{ background: '#D1D5DB' }} />
+            {m.idleHours.toFixed(0)}h ociosas
+          </span>
+        </div>
       </div>
 
-      {/* Stats row */}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--tx3)] mb-4">
-        <span style={{ color: '#22C55E' }}>{m.productiveHours.toFixed(1)}h produtivas</span>
-        <span>·</span>
-        <span style={{ color: '#FBBF24' }}>{m.internalHours.toFixed(1)}h internas</span>
-        <span>·</span>
-        <span style={{ color: '#9CA3AF' }}>{m.idleHours.toFixed(1)}h ociosas</span>
-        <span>·</span>
-        <span className="text-[var(--tx3)]">{m.availableHours.toFixed(0)}h disponíveis</span>
+      {/* ── divider ── */}
+      <div className="border-t border-[var(--bd)]" />
+
+      {/* ── stats grid ── */}
+      <div className="grid grid-cols-3 gap-4">
+        <StatCell label="Custo" value={fmtBRL(m.totalCost)} color="#F87171" />
+        <StatCell label="Taxa/h" value={`${fmtBRL(m.effectiveHourlyRate)}/h`} color="#60A5FA" />
+        <StatCell label="Ociosidade" value={`${(100 - m.utilizationRate).toFixed(1)}%`} color={m.idleHours > m.availableHours * 0.4 ? '#F87171' : '#9CA3AF'} />
       </div>
 
-      {/* Cost / rate */}
-      <div className="flex items-center gap-4 text-sm">
-        <span className="font-semibold" style={{ color: '#F87171' }}>
-          {fmtBRL(m.totalCost)}
-        </span>
-        <span className="text-[var(--tx3)]">·</span>
-        <span style={{ color: '#60A5FA' }}>
-          {fmtBRL(m.effectiveHourlyRate)}/h
-        </span>
-        <span className="text-[var(--tx3)]">·</span>
-        <span className="text-[var(--tx3)]">{m.totalHours.toFixed(1)}h registradas</span>
-      </div>
     </div>
   )
 }
@@ -423,8 +450,8 @@ export default function ColaboradoresPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-px border border-[var(--bd)]">
-                {sortedMetrics.map((m) => (
-                  <CollaboratorCard key={m.id} m={m} />
+                {sortedMetrics.map((m, i) => (
+                  <CollaboratorCard key={m.id} m={m} rank={i + 1} />
                 ))}
               </div>
             )}
