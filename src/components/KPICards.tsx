@@ -33,7 +33,7 @@ interface Props {
   data: DashboardData
 }
 
-function Card({ label, value, sub, largeText, delta, valueColor, subColor }: {
+function Card({ label, value, sub, largeText, delta, valueColor, subColor, subSize }: {
   label: string
   value: string
   sub: string
@@ -41,6 +41,7 @@ function Card({ label, value, sub, largeText, delta, valueColor, subColor }: {
   delta?: { current: number; previous: number }
   valueColor?: string
   subColor?: string
+  subSize?: string
 }) {
   return (
     <div className="bg-[var(--bg3)] p-5 border border-[var(--bd)]">
@@ -54,7 +55,7 @@ function Card({ label, value, sub, largeText, delta, valueColor, subColor }: {
         </p>
         {delta && <DeltaBadge current={delta.current} previous={delta.previous} />}
       </div>
-      <p className="text-sm" style={{ color: subColor ?? 'var(--tx2)' }}>{sub}</p>
+      <p className={`font-semibold ${subSize ?? 'text-sm'}`} style={{ color: subColor ?? 'var(--tx2)' }}>{sub}</p>
     </div>
   )
 }
@@ -84,6 +85,7 @@ export default function KPICards({ data }: Props) {
         sub={fmt(data.mostExpensiveProject.cost)}
         largeText
         subColor="#22C55E"
+        subSize="text-xl"
       />
       <Card
         label="RECEITA RASTREADA"
