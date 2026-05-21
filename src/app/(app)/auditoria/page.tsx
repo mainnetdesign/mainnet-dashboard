@@ -150,6 +150,7 @@ export default function AuditoriaPage() {
   const [search, setSearch] = useState('')
   const [showAllNoRevenue, setShowAllNoRevenue] = useState(false)
   const [expandSuggestions, setExpandSuggestions] = useState(false)
+  const [openDupGroups, setOpenDupGroups] = useState<Set<number>>(new Set([0]))
   const { theme } = useTheme()
   const STATUS_CFG = useStatusCfg()
 
@@ -408,25 +409,42 @@ export default function AuditoriaPage() {
               <div>
                 <SectionHeader label="Possíveis duplicatas" title="Mesmo valor e nome no mesmo mês" count={data.duplicateGroups.length} />
                 <div className="space-y-3">
-                  {data.duplicateGroups.map((group, gi) => (
-                    <div key={gi} className="bg-[var(--bg3)] border border-[var(--bd)] overflow-hidden">
-                      <div className="px-5 py-3 bg-[var(--bg)] border-b border-[var(--bd)] flex items-center justify-between">
-                        <p className="text-xs font-semibold text-[var(--tx2)]">
-                          {group.transactions.length} transações · {group.month} · <span style={{ color: '#22C55E' }}>{fmtBRL(group.value)}</span> cada
-                        </p>
-                        <span className="text-xs text-[var(--tx3)]">Verifique no Notion</span>
-                      </div>
-                      <div className="divide-y divide-[var(--bd)]">
-                        {group.transactions.map((tx) => (
-                          <div key={tx.id} className="flex items-center gap-4 px-5 py-2.5">
-                            <p className="flex-1 text-sm text-[var(--tx2)] truncate">{tx.name}</p>
-                            <span className="text-xs text-[var(--tx3)] shrink-0">{fmtDate(tx.paymentDate)}</span>
-                            <Badge status={tx.status as TxStatus} />
+                  {data.duplicateGroups.map((group, gi) => {
+                    const isOpen = openDupGroups.has(gi)
+                    return (
+                      <div key={gi} className="bg-[var(--bg3)] border border-[var(--bd)] overflow-hidden">
+                        <button
+                          onClick={() => setOpenDupGroups((prev) => {
+                            const next = new Set(prev)
+                            if (next.has(gi)) next.delete(gi); else next.add(gi)
+                            return next
+                          })}
+                          className="w-full px-5 py-3 bg-[var(--bg)] flex items-center justify-between hover:bg-[var(--bg4)] transition-colors text-left"
+                        >
+                          <p className="text-xs font-semibold text-[var(--tx2)]">
+                            {group.transactions.length} transações · {group.month} · <span style={{ color: '#22C55E' }}>{fmtBRL(group.value)}</span> cada
+                          </p>
+                          <div className="flex items-center gap-3 shrink-0">
+                            <span className="text-xs text-[var(--tx3)]">Verifique no Notion</span>
+                            <svg className={`w-3.5 h-3.5 text-[var(--tx3)] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                            </svg>
                           </div>
-                        ))}
+                        </button>
+                        {isOpen && (
+                          <div className="divide-y divide-[var(--bd)] border-t border-[var(--bd)]">
+                            {group.transactions.map((tx) => (
+                              <div key={tx.id} className="flex items-center gap-4 px-5 py-2.5">
+                                <p className="flex-1 text-sm text-[var(--tx2)] truncate">{tx.name}</p>
+                                <span className="text-xs text-[var(--tx3)] shrink-0">{fmtDate(tx.paymentDate)}</span>
+                                <Badge status={tx.status as TxStatus} />
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             )}
