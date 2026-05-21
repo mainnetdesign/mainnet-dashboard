@@ -508,7 +508,7 @@ export default function AuditoriaPage() {
                       <div className="divide-y divide-[var(--bd)]">
                         {(showAllNoRevenue ? data.projectsWithNoRevenue : data.projectsWithNoRevenue.slice(0, 8)).map((p) => (
                           <div key={p.name} className="flex items-center justify-between px-5 py-2.5 hover:bg-[var(--bg4)] transition-colors">
-                            <span className="text-sm text-[var(--tx2)] truncate">{p.name}</span>
+                            <span className="text-sm font-bold text-[var(--tx)] truncate">{p.name}</span>
                             <span className="text-xs font-medium shrink-0 ml-2" style={{ color: '#60A5FA' }}>{p.hours}h</span>
                           </div>
                         ))}
