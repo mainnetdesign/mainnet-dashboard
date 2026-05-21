@@ -549,13 +549,12 @@ export default function AuditoriaPage() {
                         <span className="text-xs text-[var(--tx3)] self-center">Projetos próximos:</span>
                         {s.suggestions.map((sg) => {
                           const score = Math.round(sg.score * 100)
-                          const scoreColor = score >= 70 ? '#22C55E' : score >= 40 ? '#FBBF24' : '#FB923C'
                           return (
                             <span key={sg.project}
                               className="flex items-center gap-1.5 text-xs border px-2.5 py-1 font-medium"
                               style={{ borderColor: '#60A5FA44', color: '#60A5FA' }}>
                               {sg.project}
-                              <span style={{ color: scoreColor }}>{score}%</span>
+                              <span style={{ color: '#FB923C' }}>{score}%</span>
                             </span>
                           )
                         })}
