@@ -101,16 +101,19 @@ export default function Sidebar() {
       {/* ── Desktop sidebar ── */}
       <aside className="hidden lg:flex w-56 shrink-0 flex-col h-screen bg-[var(--bg)] border-r border-[var(--bd)] sticky top-0">
         {/* Logo */}
-        <div className="px-5 py-5 border-b border-[var(--bd)] flex items-center justify-between">
-          <Image
-            src="/mainnet-logo.svg"
-            alt="Mainnet Design"
-            width={110}
-            height={30}
-            unoptimized
-            priority
-            className="dark:invert"
-          />
+        <div className="px-5 py-4 border-b border-[var(--bd)] flex items-center justify-between">
+          <div className="flex flex-col gap-0.5">
+            <Image
+              src="/mainnet-logo.svg"
+              alt="Mainnet Design"
+              width={110}
+              height={30}
+              unoptimized
+              priority
+              className="dark:invert"
+            />
+            <p className="text-[10px] font-semibold text-[var(--tx3)] uppercase tracking-widest">Estúdio de Design</p>
+          </div>
           <ThemeToggle />
         </div>
 
