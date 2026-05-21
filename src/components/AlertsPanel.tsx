@@ -293,11 +293,11 @@ export default function AlertsPanel({ alerts }: Props) {
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-3 text-xs text-[var(--tx3)]">
-                    <span>Custo: <strong style={{ color: '#F87171' }}>{fmtBRL(alert.cost)}</strong></span>
+                    <span>Custo: <strong className="text-[var(--tx2)]">{fmtBRL(alert.cost)}</strong></span>
                     {alert.revenue > 0 && (
                       <span>Receita: <strong style={{ color: '#22C55E' }}>{fmtBRL(alert.revenue)}</strong></span>
                     )}
-                    <span>{Math.round(alert.hours)}h</span>
+                    <span style={{ color: '#FB923C' }}>{Math.round(alert.hours)}h</span>
                   </div>
                   {alert.result < 0 && (
                     <p className="mt-1.5 text-xs font-semibold" style={{ color: '#F87171' }}>
