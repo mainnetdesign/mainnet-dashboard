@@ -87,7 +87,7 @@ function StrategicAnalysis({ pl, monthly }: { pl: ProjectPL[]; monthly: MonthlyD
       <summary className="flex items-center justify-between px-6 py-4 bg-[var(--bg3)] border border-[var(--bd)] cursor-pointer list-none select-none hover:bg-[var(--bg4)] transition-colors">
         <div className="flex items-center gap-3">
           <span className="text-base font-bold text-[var(--tx)]">Análise Estratégica</span>
-          <span className="px-2 py-0.5 border border-[var(--bd2)] text-xs font-medium text-[var(--tx3)]">
+          <span className="px-2 py-0.5 border text-xs font-medium" style={{ color: '#60A5FA', borderColor: '#60A5FA55' }}>
             IA · contexto
           </span>
         </div>
