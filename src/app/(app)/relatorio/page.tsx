@@ -249,7 +249,7 @@ function RelatorioContent() {
                         </div>
                         <div className="flex items-center gap-6 text-sm">
                           <span className="text-[var(--tx2)]">{fmtHours(c.totalHours)}</span>
-                          <span className="font-semibold text-[var(--tx)] w-24 text-right">{fmtBRL(c.totalCost)}</span>
+                          <span className="font-semibold w-24 text-right" style={{ color: '#F87171' }}>{fmtBRL(c.totalCost)}</span>
                           <span className="text-xs text-[var(--tx3)] w-10 text-right">{c.percentOfTotal.toFixed(1)}%</span>
                         </div>
                       </div>
@@ -258,7 +258,7 @@ function RelatorioContent() {
                     <span className="text-[11px] font-bold text-[var(--tx3)] uppercase tracking-wider">Total</span>
                     <div className="flex items-center gap-6 text-sm">
                       <span className="text-[var(--tx2)]">{fmtHours(data.collaborators.reduce((s, c) => s + c.totalHours, 0))}</span>
-                      <span className="font-bold text-[var(--tx)] w-24 text-right">{fmtBRL(totalCost)}</span>
+                      <span className="font-bold w-24 text-right" style={{ color: '#F87171' }}>{fmtBRL(totalCost)}</span>
                       <span className="text-xs text-[var(--tx3)] w-10 text-right" />
                     </div>
                   </div>

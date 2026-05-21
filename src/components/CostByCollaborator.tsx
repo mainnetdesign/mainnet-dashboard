@@ -41,7 +41,7 @@ export default function CostByCollaborator({ data }: Props) {
             <div className="flex items-baseline justify-between mb-1">
               <span className="text-sm font-semibold text-[var(--tx)]">{c.name}</span>
               <div className="text-right">
-                <span className="text-sm font-bold text-[var(--tx)]">{fmtBRL(c.totalCost)}</span>
+                <span className="text-sm font-bold" style={{ color: '#F87171' }}>{fmtBRL(c.totalCost)}</span>
                 <span className="text-xs text-[var(--tx3)] ml-2">{c.percentOfTotal.toFixed(1)}%</span>
               </div>
             </div>
@@ -59,7 +59,7 @@ export default function CostByCollaborator({ data }: Props) {
 
         <div className="border-t border-[var(--bd)] pt-4 flex justify-between">
           <span className="text-sm font-semibold text-[var(--tx2)]">Total geral</span>
-          <span className="text-sm font-bold text-[var(--tx)]">{fmtBRL(data.totalCostAllCollaborators)}</span>
+          <span className="text-sm font-bold" style={{ color: '#F87171' }}>{fmtBRL(data.totalCostAllCollaborators)}</span>
         </div>
       </div>
     </div>
