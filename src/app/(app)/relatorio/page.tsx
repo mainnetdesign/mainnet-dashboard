@@ -217,10 +217,10 @@ function RelatorioContent() {
                   <tfoot>
                     <tr className="border-t border-[var(--bd)] bg-[var(--bg)]">
                       <td className="px-5 py-3 text-[11px] font-bold text-[var(--tx3)] uppercase tracking-wider">Total</td>
-                      <td className="px-5 py-3 text-right text-[11px] font-bold" style={{ color: '#FB923C' }}>{fmtHours(clientPl.reduce((s, p) => s + p.hours, 0))}</td>
-                      <td className="px-5 py-3 text-right text-[11px] font-bold" style={{ color: '#22C55E' }}>{fmtBRL(totalRevenue)}</td>
-                      <td className="px-5 py-3 text-right text-[11px] font-bold" style={{ color: '#F87171' }}>{fmtBRL(totalCost)}</td>
-                      <td className="px-5 py-3 text-right text-[11px] font-bold" style={{ color: totalRevenue > 0 ? (((totalRevenue - totalCost) / totalRevenue) * 100 >= 40 ? '#22C55E' : ((totalRevenue - totalCost) / totalRevenue) * 100 >= 20 ? '#FBBF24' : '#F87171') : 'var(--tx3)' }}>
+                      <td className="px-5 py-3 text-right text-sm font-bold" style={{ color: '#FB923C' }}>{fmtHours(clientPl.reduce((s, p) => s + p.hours, 0))}</td>
+                      <td className="px-5 py-3 text-right text-sm font-bold" style={{ color: '#22C55E' }}>{fmtBRL(totalRevenue)}</td>
+                      <td className="px-5 py-3 text-right text-sm font-bold" style={{ color: '#F87171' }}>{fmtBRL(totalCost)}</td>
+                      <td className="px-5 py-3 text-right text-sm font-bold" style={{ color: totalRevenue > 0 ? (((totalRevenue - totalCost) / totalRevenue) * 100 >= 40 ? '#22C55E' : ((totalRevenue - totalCost) / totalRevenue) * 100 >= 20 ? '#FBBF24' : '#F87171') : 'var(--tx3)' }}>
                         {totalRevenue > 0 ? fmtPct(((totalRevenue - totalCost) / totalRevenue) * 100) : '—'}
                       </td>
                     </tr>
