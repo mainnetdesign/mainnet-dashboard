@@ -35,7 +35,7 @@ const CustomTooltip = ({
         <div key={p.name} className="flex items-center gap-2 mb-1">
           <span className="w-2 h-2 rounded-full shrink-0" style={{ background: p.color }} />
           <span className="text-[var(--tx2)] flex-1">{p.name}</span>
-          <span className="font-semibold text-[var(--tx)]">R${p.value}/h</span>
+          <span className="font-semibold" style={{ color: '#60A5FA' }}>R${p.value}/h</span>
         </div>
       ))}
     </div>

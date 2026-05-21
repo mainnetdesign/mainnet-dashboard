@@ -47,7 +47,7 @@ const CustomTooltip = ({
         <div key={p.name} className="flex items-center gap-2 mb-1">
           <span className="w-2 h-2 rounded-full" style={{ background: p.color }} />
           <span className="text-[var(--tx2)]">{p.name}:</span>
-          <span className="font-semibold ml-auto pl-4 text-[var(--tx)]">
+          <span className="font-semibold ml-auto pl-4" style={{ color: p.color }}>
             {p.value >= 0 ? '' : '-'}{fmtBRL(Math.abs(p.value))}
           </span>
         </div>

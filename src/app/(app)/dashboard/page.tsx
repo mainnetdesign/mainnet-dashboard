@@ -34,9 +34,9 @@ function InternalProjectsSection({ pl, costByProject }: { pl: ProjectPL[]; costB
             {pl.length}
           </span>
           <span className="hidden sm:flex items-center gap-3 text-xs text-[var(--tx3)]">
-            <span>{Math.round(totalHours)}h registradas</span>
+            <span style={{ color: '#FB923C' }}>{Math.round(totalHours)}h registradas</span>
             <span>·</span>
-            <span>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalCost)} em custo</span>
+            <span><span style={{ color: '#F87171' }}>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalCost)}</span> em custo</span>
           </span>
         </div>
         <svg
@@ -179,7 +179,7 @@ function StrategicAnalysis({ pl, monthly }: { pl: ProjectPL[]; monthly: MonthlyD
                 </p>
                 {nextPredicted && (
                   <p className="text-xs text-[var(--tx3)] mt-0.5">
-                    Próx. período: {fmtBRL(nextPredicted.predictedRevenue)} ({nextPredicted.label})
+                    Próx. período: <span style={{ color: '#22C55E' }}>{fmtBRL(nextPredicted.predictedRevenue)}</span> ({nextPredicted.label})
                   </p>
                 )}
               </div>

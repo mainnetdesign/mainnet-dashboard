@@ -62,13 +62,13 @@ export default function CostByProjectChart({ data }: Props) {
               <div key={p.dataKey} className="flex items-center gap-2 mb-1">
                 <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: collab?.color }} />
                 <span className="text-[var(--tx2)]">{collab?.name}:</span>
-                <span className="font-medium text-[var(--tx)] ml-auto">{fmtBRL(p.value)}</span>
+                <span className="font-medium ml-auto" style={{ color: '#F87171' }}>{fmtBRL(p.value)}</span>
               </div>
             )
           })}
-        <div className="border-t border-[var(--bd)] mt-2 pt-2 flex justify-between font-semibold text-[var(--tx)]">
-          <span>Total</span>
-          <span>{fmtBRL(total)}</span>
+        <div className="border-t border-[var(--bd)] mt-2 pt-2 flex justify-between font-semibold">
+          <span className="text-[var(--tx)]">Total</span>
+          <span style={{ color: '#F87171' }}>{fmtBRL(total)}</span>
         </div>
       </div>
     )

@@ -76,9 +76,9 @@ export default function PriceSimulator({ collaborators }: Props) {
                       className="w-20 bg-[var(--bg2)] border border-[var(--bd)] px-2 py-1.5 text-sm text-center text-[var(--tx)] focus:outline-none focus:border-[var(--bd3)]"
                     />
                     <span className="text-xs text-[var(--tx3)]">h</span>
-                    <span className="text-xs text-[var(--tx3)] ml-auto">× {fmtBRL(c.effectiveHourlyRate)}/h</span>
+                    <span className="text-xs ml-auto" style={{ color: '#60A5FA' }}>× {fmtBRL(c.effectiveHourlyRate)}/h</span>
                     {(hours[c.id] ?? 0) > 0 && (
-                      <span className="text-sm font-semibold text-[var(--tx)] w-24 text-right">
+                      <span className="text-sm font-semibold w-24 text-right" style={{ color: '#F87171' }}>
                         {fmtBRL((hours[c.id] ?? 0) * c.effectiveHourlyRate)}
                       </span>
                     )}
@@ -113,11 +113,11 @@ export default function PriceSimulator({ collaborators }: Props) {
               <div className="bg-[var(--bg2)] border border-[var(--bd)] p-5 space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-[var(--tx2)]">Total de horas</span>
-                  <span className="text-sm font-semibold text-[var(--tx)]">{totalHours}h</span>
+                  <span className="text-sm font-semibold" style={{ color: '#FB923C' }}>{totalHours}h</span>
                 </div>
                 <div className="flex justify-between items-center border-t border-[var(--bd)] pt-3">
                   <span className="text-sm text-[var(--tx2)]">Custo total</span>
-                  <span className="text-sm font-semibold text-[var(--tx)]">{fmtBRL(totalCost)}</span>
+                  <span className="text-sm font-semibold" style={{ color: '#F87171' }}>{fmtBRL(totalCost)}</span>
                 </div>
               </div>
 
@@ -127,7 +127,7 @@ export default function PriceSimulator({ collaborators }: Props) {
                     <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-1">
                       Preço mínimo ({targetMargin}% margem)
                     </p>
-                    <p className="text-3xl font-bold text-[var(--tx)]">{fmtBRL(minPrice)}</p>
+                    <p className="text-3xl font-bold" style={{ color: '#22C55E' }}>{fmtBRL(minPrice)}</p>
                     <p className="text-xs mt-1" style={{ color: '#22C55E' }}>Lucro: {fmtBRL(minPrice - totalCost)}</p>
                   </div>
 
@@ -135,7 +135,7 @@ export default function PriceSimulator({ collaborators }: Props) {
                     <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-1">
                       Preço sugerido (50% margem)
                     </p>
-                    <p className="text-3xl font-bold text-[var(--tx)]">{fmtBRL(suggestedPrice)}</p>
+                    <p className="text-3xl font-bold" style={{ color: '#22C55E' }}>{fmtBRL(suggestedPrice)}</p>
                     <p className="text-xs mt-1" style={{ color: '#22C55E' }}>Lucro: {fmtBRL(suggestedPrice - totalCost)}</p>
                   </div>
                 </>

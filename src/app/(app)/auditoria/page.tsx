@@ -388,7 +388,7 @@ export default function AuditoriaPage() {
                           <p className="text-sm font-medium text-[var(--tx)] truncate">{tx.name}</p>
                           <p className="text-xs text-[var(--tx3)] mt-0.5">Previsto para {fmtDate(tx.paymentDate)}</p>
                         </div>
-                        <span className="text-sm font-bold text-[var(--tx)] shrink-0">{fmtBRL(tx.value)}</span>
+                        <span className="text-sm font-bold shrink-0" style={{ color: '#22C55E' }}>{fmtBRL(tx.value)}</span>
                         <span className="text-xs font-semibold px-2 py-0.5 shrink-0 border" style={{ color: '#FBBF24', borderColor: '#FBBF2466' }}>
                           {tx.daysOverdue}d atraso
                         </span>
@@ -397,7 +397,7 @@ export default function AuditoriaPage() {
                   </div>
                   <div className="px-5 py-3 bg-[var(--bg)] border-t border-[var(--bd)] flex justify-between text-xs text-[var(--tx3)] font-medium">
                     <span>{data.overdueNotRealized.length} recebimentos pendentes</span>
-                    <span>{fmtBRL(data.overdueNotRealized.reduce((s, t) => s + t.value, 0))}</span>
+                    <span style={{ color: '#22C55E' }}>{fmtBRL(data.overdueNotRealized.reduce((s, t) => s + t.value, 0))}</span>
                   </div>
                 </div>
               </div>
@@ -440,7 +440,7 @@ export default function AuditoriaPage() {
                     const avg = Math.round(data.impliedRates.reduce((s, r) => s + r.rate, 0) / data.impliedRates.length)
                     return (
                       <div className="px-5 py-3 bg-[var(--bg)] border-b border-[var(--bd)] flex items-center justify-between text-xs text-[var(--tx3)]">
-                        <span>Taxa média: <strong className="text-[var(--tx2)]">R${avg}/h</strong></span>
+                        <span>Taxa média: <strong style={{ color: '#60A5FA' }}>R${avg}/h</strong></span>
                         <span>anomalia = fora de 25–250% da média</span>
                       </div>
                     )
@@ -491,7 +491,7 @@ export default function AuditoriaPage() {
                         {(showAllNoRevenue ? data.projectsWithNoRevenue : data.projectsWithNoRevenue.slice(0, 8)).map((p) => (
                           <div key={p.name} className="flex items-center justify-between px-5 py-2.5 hover:bg-[var(--bg4)] transition-colors">
                             <span className="text-sm text-[var(--tx2)] truncate">{p.name}</span>
-                            <span className="text-xs font-medium text-[var(--tx3)] shrink-0 ml-2">{p.hours}h</span>
+                            <span className="text-xs font-medium shrink-0 ml-2" style={{ color: '#FB923C' }}>{p.hours}h</span>
                           </div>
                         ))}
                         {data.projectsWithNoRevenue.length > 8 && (
@@ -518,7 +518,7 @@ export default function AuditoriaPage() {
                         {data.revenueProjectsNoHours.map((p) => (
                           <div key={p.name} className="flex items-center justify-between px-5 py-2.5 hover:bg-[var(--bg4)] transition-colors">
                             <span className="text-sm text-[var(--tx2)] truncate">{p.name}</span>
-                            <span className="text-xs font-semibold text-[var(--tx)] shrink-0 ml-2">{fmtBRL(p.revenue)}</span>
+                            <span className="text-xs font-semibold shrink-0 ml-2" style={{ color: '#22C55E' }}>{fmtBRL(p.revenue)}</span>
                           </div>
                         ))}
                       </div>
@@ -641,7 +641,7 @@ export default function AuditoriaPage() {
                 {visibleTx.length > 0 && (
                   <div className="px-5 py-3 border-t border-[var(--bd)] flex items-center justify-between text-xs text-[var(--tx3)]">
                     <span>{visibleTx.length} transações</span>
-                    <span className="font-semibold text-[var(--tx2)]">{fmtBRL(visibleTx.reduce((s, tx) => s + tx.value, 0))}</span>
+                    <span className="font-semibold" style={{ color: '#22C55E' }}>{fmtBRL(visibleTx.reduce((s, tx) => s + tx.value, 0))}</span>
                   </div>
                 )}
               </div>

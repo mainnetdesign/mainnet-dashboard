@@ -53,7 +53,7 @@ export default function CostByCollaborator({ data }: Props) {
               />
             </div>
 
-            <p className="text-xs text-[var(--tx3)]">{fmtRate(c.effectiveHourlyRate)}</p>
+            <p className="text-xs" style={{ color: '#60A5FA' }}>{fmtRate(c.effectiveHourlyRate)}</p>
           </div>
         ))}
 

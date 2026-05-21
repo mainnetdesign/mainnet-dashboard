@@ -136,8 +136,8 @@ function ProjectDrawer({
                         <span className="text-sm font-medium text-[var(--tx)]">{data.name}</span>
                       </div>
                       <div className="text-right">
-                        <span className="text-sm font-semibold text-[var(--tx)]">{fmtBRL(data.cost)}</span>
-                        <span className="text-xs text-[var(--tx3)] ml-2">{Math.round(data.hours)}h</span>
+                        <span className="text-sm font-semibold" style={{ color: '#F87171' }}>{fmtBRL(data.cost)}</span>
+                        <span className="text-xs ml-2" style={{ color: '#FB923C' }}>{Math.round(data.hours)}h</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
