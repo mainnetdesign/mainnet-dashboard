@@ -141,7 +141,7 @@ function StrategicAnalysis({ pl, monthly }: { pl: ProjectPL[]; monthly: MonthlyD
               })}
               {totalRev > 0 && (
                 <p className="text-xs text-[var(--tx3)] pt-1">
-                  Total: {fmtBRL(totalRev)} · {clientPl.length} projeto{clientPl.length !== 1 ? 's' : ''} com receita
+                  Total: <span style={{ color: '#22C55E' }}>{fmtBRL(totalRev)}</span> · {clientPl.length} projeto{clientPl.length !== 1 ? 's' : ''} com receita
                 </p>
               )}
             </div>

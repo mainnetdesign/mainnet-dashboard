@@ -87,7 +87,7 @@ function SectionHeader({ label, title, count }: { label: string; title: string; 
       <div className="flex-1 h-px bg-[var(--bd)]" />
       <h2 className="text-sm font-bold text-[var(--tx)] whitespace-nowrap">{title}</h2>
       {count !== undefined && (
-        <span className="text-xs font-semibold text-[var(--tx3)] border border-[var(--bd2)] px-2 py-0.5">{count}</span>
+        <span className="text-xs font-semibold border px-2 py-0.5" style={{ color: '#60A5FA', borderColor: '#60A5FA44' }}>{count}</span>
       )}
     </div>
   )
@@ -412,7 +412,7 @@ export default function AuditoriaPage() {
                     <div key={gi} className="bg-[var(--bg3)] border border-[var(--bd)] overflow-hidden">
                       <div className="px-5 py-3 bg-[var(--bg)] border-b border-[var(--bd)] flex items-center justify-between">
                         <p className="text-xs font-semibold text-[var(--tx2)]">
-                          {group.transactions.length} transações · {group.month} · {fmtBRL(group.value)} cada
+                          {group.transactions.length} transações · {group.month} · <span style={{ color: '#22C55E' }}>{fmtBRL(group.value)}</span> cada
                         </p>
                         <span className="text-xs text-[var(--tx3)]">Verifique no Notion</span>
                       </div>
@@ -547,13 +547,18 @@ export default function AuditoriaPage() {
                       </div>
                       <div className="flex flex-wrap gap-2">
                         <span className="text-xs text-[var(--tx3)] self-center">Projetos próximos:</span>
-                        {s.suggestions.map((sg) => (
-                          <span key={sg.project}
-                            className="flex items-center gap-1.5 text-xs border border-[var(--bd2)] text-[var(--tx2)] px-2.5 py-1 font-medium">
-                            {sg.project}
-                            <span className="text-[var(--tx3)]">{Math.round(sg.score * 100)}%</span>
-                          </span>
-                        ))}
+                        {s.suggestions.map((sg) => {
+                          const score = Math.round(sg.score * 100)
+                          const scoreColor = score >= 70 ? '#22C55E' : score >= 40 ? '#FBBF24' : '#FB923C'
+                          return (
+                            <span key={sg.project}
+                              className="flex items-center gap-1.5 text-xs border px-2.5 py-1 font-medium"
+                              style={{ borderColor: '#60A5FA44', color: '#60A5FA' }}>
+                              {sg.project}
+                              <span style={{ color: scoreColor }}>{score}%</span>
+                            </span>
+                          )
+                        })}
                       </div>
                     </div>
                   ))}
