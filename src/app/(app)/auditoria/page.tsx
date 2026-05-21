@@ -625,7 +625,7 @@ export default function AuditoriaPage() {
                       {visibleTx.map((tx) => (
                         <tr key={tx.id} className="hover:bg-[var(--bg4)] transition-colors">
                           <td className="px-5 py-3 text-[var(--tx3)] whitespace-nowrap text-xs">{fmtDate(tx.paymentDate)}</td>
-                          <td className="px-5 py-3 font-medium text-[var(--tx)] max-w-[240px]">
+                          <td className="px-5 py-3 font-bold text-[var(--tx)] max-w-[240px]">
                             <span className="truncate block" title={tx.name}>{tx.name}</span>
                           </td>
                           <td className="px-3 py-3 text-right font-semibold whitespace-nowrap" style={{ color: '#22C55E' }}>{fmtBRL(tx.value)}</td>
