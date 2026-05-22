@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useTheme } from 'next-themes'
 import {
-  PieChart, Pie, Cell, Tooltip as RTooltip, ResponsiveContainer, Legend,
+  PieChart, Pie, Cell, Label, Tooltip as RTooltip, ResponsiveContainer,
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
 } from 'recharts'
 
@@ -297,28 +297,30 @@ export default function AuditoriaPage() {
 
               {matchPct !== null && (
                 <div className="bg-[var(--bg3)] p-5 border border-[var(--bd)]">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-semibold text-[var(--tx)]">Cobertura de vínculo</p>
-                    <p className="text-sm font-bold text-[var(--tx)]">{matchPct}%</p>
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-sm font-bold text-[var(--tx)]">Cobertura de vínculo</p>
+                    <p className="text-2xl font-bold" style={{ color: matchPct >= 70 ? '#22C55E' : matchPct >= 40 ? '#FBBF24' : '#F87171' }}>{matchPct}%</p>
                   </div>
-                  <div className="w-full h-2 bg-[var(--bd)] overflow-hidden flex">
-                    {(() => {
-                      const total = data.summary.matchedCount + data.summary.unmatchedCount + data.summary.ignoredCount
-                      const mPct = total > 0 ? (data.summary.matchedCount / total) * 100 : 0
-                      const iPct = total > 0 ? (data.summary.ignoredCount / total) * 100 : 0
-                      const uPct = total > 0 ? (data.summary.unmatchedCount / total) * 100 : 0
-                      return (<>
-                        <div className="h-full transition-all duration-700" style={{ width: `${mPct}%`, background: '#22C55E' }} />
-                        <div className="h-full transition-all duration-700" style={{ width: `${iPct}%`, background: '#9CA3AF' }} />
-                        <div className="h-full transition-all duration-700" style={{ width: `${uPct}%`, background: '#F87171' }} />
-                      </>)
-                    })()}
-                  </div>
-                  <div className="flex justify-between mt-1.5 text-xs">
-                    <span style={{ color: '#22C55E' }} className="font-medium">{data.summary.matchedCount} vinculadas</span>
-                    <span style={{ color: '#9CA3AF' }}>{data.summary.ignoredCount} ignoradas</span>
-                    <span style={{ color: '#F87171' }} className="font-medium">{data.summary.unmatchedCount} sem vínculo</span>
-                  </div>
+                  {(() => {
+                    const total = data.summary.matchedCount + data.summary.unmatchedCount + data.summary.ignoredCount
+                    const mPct = total > 0 ? (data.summary.matchedCount / total) * 100 : 0
+                    const iPct = total > 0 ? (data.summary.ignoredCount / total) * 100 : 0
+                    const uPct = total > 0 ? (data.summary.unmatchedCount / total) * 100 : 0
+                    return (
+                      <>
+                        <div className="w-full flex gap-0.5 mb-3" style={{ height: 10 }}>
+                          <div className="transition-all duration-700" style={{ width: `${mPct}%`, background: '#22C55E', borderRadius: 4 }} title={`Vinculadas: ${data.summary.matchedCount}`} />
+                          <div className="transition-all duration-700" style={{ width: `${iPct}%`, background: '#9CA3AF', borderRadius: 4 }} title={`Ignoradas: ${data.summary.ignoredCount}`} />
+                          <div className="transition-all duration-700" style={{ width: `${uPct}%`, background: '#F87171', borderRadius: 4 }} title={`Sem vínculo: ${data.summary.unmatchedCount}`} />
+                        </div>
+                        <div className="flex gap-5 text-xs">
+                          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#22C55E' }} /><span style={{ color: '#22C55E' }} className="font-semibold">{data.summary.matchedCount}</span><span className="text-[var(--tx3)]">vinculadas</span></span>
+                          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#9CA3AF' }} /><span className="font-semibold text-[var(--tx2)]">{data.summary.ignoredCount}</span><span className="text-[var(--tx3)]">ignoradas</span></span>
+                          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#F87171' }} /><span style={{ color: '#F87171' }} className="font-semibold">{data.summary.unmatchedCount}</span><span className="text-[var(--tx3)]">sem vínculo</span></span>
+                        </div>
+                      </>
+                    )
+                  })()}
                 </div>
               )}
             </div>
@@ -327,53 +329,102 @@ export default function AuditoriaPage() {
             <div>
               <SectionHeader label="Análise visual" title="Distribuição e tendência mensal" />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-px border border-[var(--bd)]">
+
+                {/* Donut */}
                 <div className="bg-[var(--bg3)] p-6">
-                  <p className="text-sm font-bold text-[var(--tx)] mb-1">Status das transações</p>
-                  <p className="text-xs text-[var(--tx3)] mb-4">Distribuição por tipo no período</p>
-                  <ResponsiveContainer width="100%" height={220}>
-                    <PieChart>
-                      <Pie
-                        data={[
-                          { name: 'Vinculado',     value: data.summary.matchedCount,     color: STATUS_CFG.matched.color },
-                          { name: 'Sem vínculo',   value: data.summary.unmatchedCount,   color: STATUS_CFG.unmatched.color },
-                          { name: 'Ignorado',      value: data.summary.ignoredCount,     color: STATUS_CFG.ignored.color },
-                          { name: 'Não realizado', value: data.summary.notRealizedCount, color: STATUS_CFG['not-realized'].color },
-                        ].filter((d) => d.value > 0)}
-                        cx="50%" cy="50%" innerRadius={60} outerRadius={88} paddingAngle={3} dataKey="value"
-                      >
-                        {[
-                          { name: 'Vinculado',     value: data.summary.matchedCount,     color: STATUS_CFG.matched.color },
-                          { name: 'Sem vínculo',   value: data.summary.unmatchedCount,   color: STATUS_CFG.unmatched.color },
-                          { name: 'Ignorado',      value: data.summary.ignoredCount,     color: STATUS_CFG.ignored.color },
-                          { name: 'Não realizado', value: data.summary.notRealizedCount, color: STATUS_CFG['not-realized'].color },
-                        ].filter((d) => d.value > 0).map((entry) => <Cell key={entry.name} fill={entry.color} stroke="var(--bg3)" />)}
-                      </Pie>
-                      <RTooltip content={<PieTooltip />} />
-                      <Legend wrapperStyle={{ fontSize: 12, paddingTop: 12 }} formatter={(value) => <span style={{ color: theme === 'dark' ? '#999999' : '#555555' }}>{value}</span>} />
-                    </PieChart>
-                  </ResponsiveContainer>
+                  <p className="text-sm font-bold text-[var(--tx)] mb-0.5">Status das transações</p>
+                  <p className="text-xs text-[var(--tx3)] mb-5">Distribuição por tipo no período</p>
+                  {(() => {
+                    const pieData = [
+                      { name: 'Vinculado',     value: data.summary.matchedCount,     color: STATUS_CFG.matched.color },
+                      { name: 'Sem vínculo',   value: data.summary.unmatchedCount,   color: STATUS_CFG.unmatched.color },
+                      { name: 'Ignorado',      value: data.summary.ignoredCount,     color: STATUS_CFG.ignored.color },
+                      { name: 'Não realizado', value: data.summary.notRealizedCount, color: STATUS_CFG['not-realized'].color },
+                    ].filter(d => d.value > 0)
+                    const totalTx = pieData.reduce((s, d) => s + d.value, 0)
+                    return (
+                      <>
+                        <ResponsiveContainer width="100%" height={200}>
+                          <PieChart>
+                            <Pie
+                              data={pieData}
+                              cx="50%" cy="50%"
+                              innerRadius={62} outerRadius={88}
+                              paddingAngle={2}
+                              dataKey="value"
+                              strokeWidth={0}
+                            >
+                              {pieData.map((entry) => (
+                                <Cell key={entry.name} fill={entry.color} stroke="transparent" />
+                              ))}
+                              <Label
+                                content={({ viewBox }) => {
+                                  const vb = viewBox as { cx: number; cy: number }
+                                  return (
+                                    <g>
+                                      <text x={vb.cx} y={vb.cy - 8} textAnchor="middle" fill="var(--tx)" fontSize={26} fontWeight={700}>{totalTx}</text>
+                                      <text x={vb.cx} y={vb.cy + 12} textAnchor="middle" fill="var(--tx3)" fontSize={10} letterSpacing={1}>TRANSAÇÕES</text>
+                                    </g>
+                                  )
+                                }}
+                              />
+                            </Pie>
+                            <RTooltip content={<PieTooltip />} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                        {/* Custom legend */}
+                        <div className="grid grid-cols-2 gap-x-6 gap-y-2.5 mt-4">
+                          {pieData.map(item => (
+                            <div key={item.name} className="flex items-center gap-2 min-w-0">
+                              <span className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ background: item.color }} />
+                              <span className="text-xs text-[var(--tx3)] flex-1 truncate">{item.name}</span>
+                              <span className="text-xs font-bold tabular-nums ml-auto" style={{ color: item.color }}>{item.value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )
+                  })()}
                 </div>
 
+                {/* Bar chart */}
                 <div className="bg-[var(--bg3)] p-6">
-                  <p className="text-sm font-bold text-[var(--tx)] mb-1">Transações por mês</p>
-                  <p className="text-xs text-[var(--tx3)] mb-4">Vinculadas vs sem vínculo ao longo do tempo</p>
+                  <p className="text-sm font-bold text-[var(--tx)] mb-0.5">Transações por mês</p>
+                  <p className="text-xs text-[var(--tx3)] mb-5">Vinculadas vs sem vínculo ao longo do tempo</p>
                   {data.monthlyBreakdown.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={220}>
-                      <BarChart data={data.monthlyBreakdown} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#222222' : '#E8E8E8'} vertical={false} />
-                        <XAxis dataKey="label" tick={{ fontSize: 11, fill: theme === 'dark' ? '#666666' : '#888888' }} axisLine={false} tickLine={false} />
-                        <YAxis tick={{ fontSize: 11, fill: theme === 'dark' ? '#666666' : '#888888' }} axisLine={false} tickLine={false} />
-                        <RTooltip content={<BarTooltip />} />
-                        <Bar dataKey="matched"     name="Vinculado"     stackId="a" fill={STATUS_CFG.matched.color}        radius={[0,0,0,0]} />
-                        <Bar dataKey="unmatched"   name="Sem vínculo"   stackId="a" fill={STATUS_CFG.unmatched.color}      radius={[0,0,0,0]} />
-                        <Bar dataKey="ignored"     name="Ignorado"      stackId="a" fill={STATUS_CFG.ignored.color}        radius={[0,0,0,0]} />
-                        <Bar dataKey="notRealized" name="Não realizado" stackId="a" fill={STATUS_CFG['not-realized'].color} radius={[0,0,0,0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
+                    <>
+                      <ResponsiveContainer width="100%" height={200}>
+                        <BarChart data={data.monthlyBreakdown} margin={{ top: 2, right: 0, left: -28, bottom: 0 }} barCategoryGap="40%">
+                          <CartesianGrid strokeDasharray="2 4" stroke={theme === 'dark' ? '#1E1E1E' : '#EBEBEB'} vertical={false} />
+                          <XAxis dataKey="label" tick={{ fontSize: 10, fill: theme === 'dark' ? '#555' : '#AAA' }} axisLine={false} tickLine={false} />
+                          <YAxis tick={{ fontSize: 10, fill: theme === 'dark' ? '#555' : '#AAA' }} axisLine={false} tickLine={false} allowDecimals={false} />
+                          <RTooltip content={<BarTooltip />} cursor={{ fill: theme === 'dark' ? '#ffffff08' : '#00000006', radius: 2 }} />
+                          <Bar dataKey="matched"     name="Vinculado"     stackId="a" fill={STATUS_CFG.matched.color}         radius={[0,0,0,0]} />
+                          <Bar dataKey="unmatched"   name="Sem vínculo"   stackId="a" fill={STATUS_CFG.unmatched.color}       radius={[0,0,0,0]} />
+                          <Bar dataKey="ignored"     name="Ignorado"      stackId="a" fill={STATUS_CFG.ignored.color}         radius={[0,0,0,0]} />
+                          <Bar dataKey="notRealized" name="Não realizado" stackId="a" fill={STATUS_CFG['not-realized'].color} radius={[3,3,0,0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                      {/* Legend chips */}
+                      <div className="flex flex-wrap gap-3 mt-4">
+                        {[
+                          { label: 'Vinculado',     color: STATUS_CFG.matched.color },
+                          { label: 'Sem vínculo',   color: STATUS_CFG.unmatched.color },
+                          { label: 'Ignorado',      color: STATUS_CFG.ignored.color },
+                          { label: 'Não realizado', color: STATUS_CFG['not-realized'].color },
+                        ].map(item => (
+                          <span key={item.label} className="flex items-center gap-1.5 text-[11px] text-[var(--tx3)]">
+                            <span className="w-2.5 h-2.5 rounded-sm inline-block shrink-0" style={{ background: item.color }} />
+                            {item.label}
+                          </span>
+                        ))}
+                      </div>
+                    </>
                   ) : (
-                    <div className="flex items-center justify-center h-[220px] text-sm text-[var(--bd3)]">Sem dados suficientes</div>
+                    <div className="flex items-center justify-center h-[200px] text-sm text-[var(--bd3)]">Sem dados suficientes</div>
                   )}
                 </div>
+
               </div>
             </div>
 
