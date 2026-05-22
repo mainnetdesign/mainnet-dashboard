@@ -83,11 +83,28 @@ export async function GET(req: NextRequest) {
 
       if (!tx.realized) {
         status = 'not-realized'
-      } else if (extracted === null) {
-        status = 'ignored'
       } else {
-        matchedProject = fuzzyMatchDebug(extracted, clockifyProjects)
-        status = matchedProject ? 'matched' : 'unmatched'
+        // Priority 1: use the "Projetos" relation the user set in Notion directly
+        if (tx.linkedProjectNames.length > 0) {
+          for (const linkedName of tx.linkedProjectNames) {
+            // exact / contains match
+            matchedProject = fuzzyMatchDebug(linkedName, clockifyProjects)
+            if (matchedProject) break
+            // similarity fallback
+            const best = clockifyProjects
+              .map((p) => ({ p, score: wordSimilarity(linkedName, p) }))
+              .filter((x) => x.score > 0.15)
+              .sort((a, b) => b.score - a.score)[0]
+            if (best) { matchedProject = best.p; break }
+          }
+          status = matchedProject ? 'matched' : 'unmatched'
+        // Priority 2: fallback — extract project name from transaction title
+        } else if (extracted === null) {
+          status = 'ignored'
+        } else {
+          matchedProject = fuzzyMatchDebug(extracted, clockifyProjects)
+          status = matchedProject ? 'matched' : 'unmatched'
+        }
       }
 
       return {
@@ -97,7 +114,7 @@ export async function GET(req: NextRequest) {
         predictedValue: tx.predictedValue,
         realized: tx.realized,
         paymentDate: tx.paymentDate,
-        extractedName: extracted,
+        extractedName: tx.linkedProjectNames[0] ?? extracted,  // show linked name if available
         matchedProject,
         status,
       }

@@ -42,6 +42,7 @@ export interface NotionTransaction {
   predictedValue: number
   realized: boolean
   paymentDate: string | null
+  linkedProjectNames: string[]  // from Notion "Projetos" relation
 }
 
 export interface ProjectPL {
