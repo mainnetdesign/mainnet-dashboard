@@ -151,6 +151,7 @@ export default function AuditoriaPage() {
   const [showAllNoRevenue, setShowAllNoRevenue] = useState(false)
   const [expandSuggestions, setExpandSuggestions] = useState(false)
   const [openDupGroups, setOpenDupGroups] = useState<Set<number>>(new Set([0]))
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const { theme } = useTheme()
   const STATUS_CFG = useStatusCfg()
 
@@ -160,6 +161,7 @@ export default function AuditoriaPage() {
       const res = await fetch(`/api/auditoria?start=${s}&end=${e}`)
       if (!res.ok) { const err = await res.json(); throw new Error(err.error ?? 'Erro') }
       setData(await res.json())
+      setLastUpdated(new Date())
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro desconhecido')
     } finally { setLoading(false) }
@@ -201,7 +203,16 @@ export default function AuditoriaPage() {
         <div className="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between flex-wrap gap-4">
           <div>
             <span className="font-bold text-[var(--tx)] text-lg">Auditoria</span>
-            <p className="text-[11px] text-[var(--tx3)] leading-none mt-0.5 uppercase tracking-wider">Diagnóstico de transações · somente leitura</p>
+            {lastUpdated && (
+              <p className="text-[11px] text-[var(--tx3)] leading-none mt-0.5 uppercase tracking-wider">
+                Atualizado {(() => {
+                  const diff = Math.floor((Date.now() - lastUpdated.getTime()) / 60000)
+                  if (diff < 1) return 'agora mesmo'
+                  if (diff === 1) return 'há 1 minuto'
+                  return `há ${diff} minutos`
+                })()}
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <div className="flex items-center gap-1.5 border border-[var(--bd)] px-3 py-1.5 bg-[var(--bg3)]">
@@ -214,6 +225,17 @@ export default function AuditoriaPage() {
             <button onClick={() => fetchData(start, end)} disabled={loading}
               className="px-3 py-1.5 text-sm font-medium bg-[var(--inv)] text-[var(--inv-tx)] hover:opacity-80 disabled:opacity-40 transition-colors">
               {loading ? 'Carregando…' : 'Aplicar'}
+            </button>
+            <button
+              onClick={() => fetchData(start, end)}
+              disabled={loading}
+              title="Buscar dados atualizados do Notion"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-[var(--bd)] text-[var(--tx2)] hover:border-[var(--bd3)] hover:text-[var(--tx)] disabled:opacity-40 transition-colors"
+            >
+              <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Atualizar
             </button>
             {data && (
               <button onClick={() => exportCSV(data.periodTransactions)}
