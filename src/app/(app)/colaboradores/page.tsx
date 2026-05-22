@@ -67,8 +67,8 @@ interface CollaboratorMetrics {
 /** SVG ring gauge for utilization */
 function UtilizationRing({ pct }: { pct: number }) {
   const color = utilizationColor(pct)
-  const size = 64
-  const stroke = 5
+  const size = 80
+  const stroke = 6
   const r = (size - stroke) / 2
   const circ = 2 * Math.PI * r
   const dash = Math.min(pct / 100, 1) * circ
@@ -94,10 +94,11 @@ function UtilizationRing({ pct }: { pct: number }) {
           style={{ transition: 'stroke-dasharray 0.6s ease' }}
         />
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-[11px] font-bold leading-none" style={{ color }}>
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
+        <span className="text-sm font-bold leading-none" style={{ color }}>
           {pct.toFixed(0)}%
         </span>
+        <span className="text-[10px] text-[var(--tx3)] leading-none">util.</span>
       </div>
     </div>
   )
@@ -112,25 +113,21 @@ function SegmentedBar({
   const pPct = Math.min((productive / available) * 100, 100)
   const iPct = Math.min((internal / available) * 100, 100 - pPct)
   const idlePct = Math.min((idle / available) * 100, 100 - pPct - iPct)
-  const GAP = 0.4 // percent gap between segments
 
   return (
-    <div className="relative h-1.5 w-full flex gap-px overflow-hidden">
-      {/* productive */}
-      <div style={{ width: `${Math.max(0, pPct - GAP)}%`, background: '#22C55E', borderRadius: 2 }} />
-      {/* internal */}
-      <div style={{ width: `${Math.max(0, iPct - GAP)}%`, background: '#FBBF24', borderRadius: 2 }} />
-      {/* idle */}
-      <div style={{ width: `${Math.max(0, idlePct)}%`, background: '#D1D5DB', borderRadius: 2 }} />
+    <div className="flex w-full gap-0.5" style={{ height: 8 }}>
+      <div style={{ width: `${Math.max(0, pPct)}%`, background: '#22C55E', borderRadius: 3 }} title={`Produtivas: ${productive.toFixed(1)}h`} />
+      <div style={{ width: `${Math.max(0, iPct)}%`, background: '#FBBF24', borderRadius: 3 }} title={`Internas: ${internal.toFixed(1)}h`} />
+      <div style={{ width: `${Math.max(0, idlePct)}%`, background: '#D1D5DB', borderRadius: 3 }} title={`Ociosas: ${idle.toFixed(1)}h`} />
     </div>
   )
 }
 
 function StatCell({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
-    <div className="flex flex-col gap-0.5">
-      <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--tx3)]">{label}</span>
-      <span className="text-sm font-bold" style={{ color: color ?? 'var(--tx)' }}>{value}</span>
+    <div className="flex flex-col gap-1">
+      <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--tx3)]">{label}</span>
+      <span className="text-base font-bold" style={{ color: color ?? 'var(--tx)' }}>{value}</span>
     </div>
   )
 }
@@ -177,7 +174,7 @@ function CollaboratorCard({ m, rank }: { m: CollaboratorMetrics; rank: number })
             <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: m.color }} />
             <span className="font-bold text-[var(--tx)] text-base truncate">{m.name}</span>
           </div>
-          <p className="text-[11px] text-[var(--tx3)] ml-4.5">
+          <p className="text-xs text-[var(--tx3)] ml-4.5">
             {m.totalHours.toFixed(0)}h registradas · {m.availableHours.toFixed(0)}h disponíveis
           </p>
         </div>
@@ -195,18 +192,21 @@ function CollaboratorCard({ m, rank }: { m: CollaboratorMetrics; rank: number })
           available={m.availableHours}
         />
         {/* bar labels */}
-        <div className="flex items-center gap-3 text-[10px] text-[var(--tx3)]">
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-sm inline-block shrink-0" style={{ background: '#22C55E' }} />
-            {m.productiveHours.toFixed(0)}h produtivas
+        <div className="flex items-center gap-4 text-xs text-[var(--tx2)]">
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-sm inline-block shrink-0" style={{ background: '#22C55E' }} />
+            <span style={{ color: '#22C55E' }} className="font-semibold">{m.productiveHours.toFixed(0)}h</span>
+            <span className="text-[var(--tx3)]">produtivas</span>
           </span>
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-sm inline-block shrink-0" style={{ background: '#FBBF24' }} />
-            {m.internalHours.toFixed(0)}h internas
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-sm inline-block shrink-0" style={{ background: '#FBBF24' }} />
+            <span style={{ color: '#FBBF24' }} className="font-semibold">{m.internalHours.toFixed(0)}h</span>
+            <span className="text-[var(--tx3)]">internas</span>
           </span>
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-sm inline-block shrink-0" style={{ background: '#D1D5DB' }} />
-            {m.idleHours.toFixed(0)}h ociosas
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-sm inline-block shrink-0" style={{ background: '#D1D5DB' }} />
+            <span className="font-semibold text-[var(--tx2)]">{m.idleHours.toFixed(0)}h</span>
+            <span className="text-[var(--tx3)]">ociosas</span>
           </span>
         </div>
       </div>
