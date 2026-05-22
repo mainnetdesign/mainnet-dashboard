@@ -152,8 +152,34 @@ export default function AuditoriaPage() {
   const [expandSuggestions, setExpandSuggestions] = useState(false)
   const [openDupGroups, setOpenDupGroups] = useState<Set<number>>(new Set([0]))
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const [manualLinks, setManualLinks] = useState<Record<string, string>>({})
   const { theme } = useTheme()
   const STATUS_CFG = useStatusCfg()
+
+  // Load manual links from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('auditoria-manual-links')
+      if (saved) setManualLinks(JSON.parse(saved))
+    } catch { /* ignore */ }
+  }, [])
+
+  function handleManualLink(txId: string, projectName: string) {
+    setManualLinks(prev => {
+      const next = { ...prev, [txId]: projectName }
+      try { localStorage.setItem('auditoria-manual-links', JSON.stringify(next)) } catch { /* ignore */ }
+      return next
+    })
+  }
+
+  function handleRemoveLink(txId: string) {
+    setManualLinks(prev => {
+      const next = { ...prev }
+      delete next[txId]
+      try { localStorage.setItem('auditoria-manual-links', JSON.stringify(next)) } catch { /* ignore */ }
+      return next
+    })
+  }
 
   const fetchData = useCallback(async (s: string, e: string) => {
     setLoading(true); setError(null)
@@ -175,7 +201,14 @@ export default function AuditoriaPage() {
       : null
     : null
 
-  const visibleTx = (data?.periodTransactions ?? []).filter((tx) => {
+  // Apply manual links on top of API data
+  const effectivePeriodTx = (data?.periodTransactions ?? []).map(tx => {
+    const override = manualLinks[tx.id]
+    if (!override) return tx
+    return { ...tx, status: 'matched' as TxStatus, matchedProject: override }
+  })
+
+  const visibleTx = effectivePeriodTx.filter((tx) => {
     if (filterStatus !== 'all' && tx.status !== filterStatus) return false
     if (search.trim()) {
       const q = search.toLowerCase()
@@ -620,50 +653,69 @@ export default function AuditoriaPage() {
             )}
 
             {/* ── 8. Match suggestions ── */}
-            {data.suggestions.length > 0 && (
-              <div>
-                <SectionHeader label="Sugestões de vínculo" title="Projetos parecidos para transações sem vínculo" count={data.suggestions.length} />
-                <div className={`space-y-2 ${!expandSuggestions ? 'max-h-96 overflow-hidden relative' : ''}`}>
-                  {data.suggestions.map((s) => (
-                    <div key={s.txId} className="bg-[var(--bg3)] border border-[var(--bd)] px-5 py-4">
-                      <div className="flex items-start justify-between gap-4 mb-3">
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-[var(--tx)] truncate">{s.txName}</p>
-                          <p className="text-xs text-[var(--tx3)] mt-0.5">
-                            {fmtDate(s.paymentDate)} · <span style={{ color: '#22C55E' }}>{fmtBRL(s.txValue)}</span> · nome extraído:{' '}
-                            <span className="font-mono bg-[var(--bd)] px-1 text-[var(--tx2)]">{s.extractedName}</span>
-                          </p>
+            {(() => {
+              const pendingSuggestions = data.suggestions.filter(s => !manualLinks[s.txId])
+              if (pendingSuggestions.length === 0) return null
+              return (
+                <div>
+                  <SectionHeader label="Sugestões de vínculo" title="Projetos parecidos — clique para confirmar" count={pendingSuggestions.length} />
+                  <div className={`space-y-2 ${!expandSuggestions ? 'max-h-96 overflow-hidden relative' : ''}`}>
+                    {pendingSuggestions.map((s) => (
+                      <div key={s.txId} className="bg-[var(--bg3)] border border-[var(--bd)] px-5 py-4">
+                        <div className="flex items-start justify-between gap-4 mb-3">
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-[var(--tx)] truncate">{s.txName}</p>
+                            <p className="text-xs text-[var(--tx3)] mt-0.5">
+                              {fmtDate(s.paymentDate)} · <span style={{ color: '#22C55E' }}>{fmtBRL(s.txValue)}</span>
+                              {s.extractedName && <> · <span className="font-mono bg-[var(--bd)] px-1 text-[var(--tx2)]">{s.extractedName}</span></>}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <Badge status="unmatched" />
+                            <select
+                              value=""
+                              onChange={(e) => { if (e.target.value) handleManualLink(s.txId, e.target.value) }}
+                              className="text-xs border border-[var(--bd)] bg-[var(--bg3)] text-[var(--tx2)] px-2 py-1 outline-none focus:border-[#60A5FA] cursor-pointer"
+                            >
+                              <option value="">Outro projeto…</option>
+                              {data.clockifyProjects.map(p => <option key={p} value={p}>{p}</option>)}
+                            </select>
+                          </div>
                         </div>
-                        <Badge status="unmatched" />
+                        <div className="flex flex-wrap gap-2">
+                          <span className="text-xs text-[var(--tx3)] self-center">Clique para vincular:</span>
+                          {s.suggestions.map((sg) => {
+                            const score = Math.round(sg.score * 100)
+                            return (
+                              <button
+                                key={sg.project}
+                                onClick={() => handleManualLink(s.txId, sg.project)}
+                                className="flex items-center gap-1.5 text-xs border px-2.5 py-1 font-medium transition-all hover:bg-[#60A5FA15] active:scale-95"
+                                style={{ borderColor: '#60A5FA44', color: '#60A5FA' }}
+                                title={`Vincular a "${sg.project}"`}
+                              >
+                                {sg.project}
+                                <span style={{ color: '#FB923C' }}>{score}%</span>
+                                <span className="opacity-50 text-[10px]">✓</span>
+                              </button>
+                            )
+                          })}
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        <span className="text-xs text-[var(--tx3)] self-center">Projetos próximos:</span>
-                        {s.suggestions.map((sg) => {
-                          const score = Math.round(sg.score * 100)
-                          return (
-                            <span key={sg.project}
-                              className="flex items-center gap-1.5 text-xs border px-2.5 py-1 font-medium"
-                              style={{ borderColor: '#60A5FA44', color: '#60A5FA' }}>
-                              {sg.project}
-                              <span style={{ color: '#FB923C' }}>{score}%</span>
-                            </span>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  ))}
-                  {!expandSuggestions && data.suggestions.length > 3 && (
-                    <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[var(--bg)] to-transparent pointer-events-none" />
+                    ))}
+                    {!expandSuggestions && pendingSuggestions.length > 3 && (
+                      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[var(--bg)] to-transparent pointer-events-none" />
+                    )}
+                  </div>
+                  {pendingSuggestions.length > 3 && (
+                    <button onClick={() => setExpandSuggestions(v => !v)}
+                      className="mt-3 w-full text-xs font-medium text-[var(--tx3)] hover:text-[var(--tx)] py-2 border border-[var(--bd)] bg-[var(--bg3)] transition-colors hover:border-[var(--bd3)]">
+                      {expandSuggestions ? 'Ver menos' : `Ver todas as ${pendingSuggestions.length} sugestões`}
+                    </button>
                   )}
                 </div>
-                {data.suggestions.length > 3 && (
-                  <button onClick={() => setExpandSuggestions(v => !v)}
-                    className="mt-3 w-full text-xs font-medium text-[var(--tx3)] hover:text-[var(--tx)] py-2 border border-[var(--bd)] bg-[var(--bg3)] transition-colors hover:border-[var(--bd3)]">
-                    {expandSuggestions ? 'Ver menos' : `Ver todas as ${data.suggestions.length} sugestões`}
-                  </button>
-                )}
-              </div>
-            )}
+              )
+            })()}
 
             {/* ── 9. Transaction table ── */}
             <div>
@@ -673,7 +725,7 @@ export default function AuditoriaPage() {
                   <div className="flex gap-1 flex-wrap">
                     {(['all', 'matched', 'unmatched', 'ignored', 'not-realized'] as const).map((s) => {
                       const isAll = s === 'all'
-                      const count = isAll ? data.periodTransactions.length : data.periodTransactions.filter((tx) => tx.status === s).length
+                      const count = isAll ? effectivePeriodTx.length : effectivePeriodTx.filter((tx) => tx.status === s).length
                       const cfg = isAll ? null : STATUS_CFG[s]
                       return (
                         <button key={s} onClick={() => setFilterStatus(s)}
@@ -725,7 +777,28 @@ export default function AuditoriaPage() {
                               ? <span className="font-mono text-xs bg-[var(--bd)] text-[var(--tx2)] px-1.5 py-0.5">{tx.extractedName}</span>
                               : <span className="text-[var(--bd3)] text-xs">—</span>}
                           </td>
-                          <td className="px-3 py-3 text-sm font-bold text-[var(--tx)]">{tx.matchedProject ?? <span className="font-normal text-[var(--bd3)] text-xs">—</span>}</td>
+                          <td className="px-3 py-3 text-sm">
+                            {manualLinks[tx.id] ? (
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="font-bold text-[var(--tx)]">{manualLinks[tx.id]}</span>
+                                <span className="text-[10px] px-1 py-px border font-bold" style={{ color: '#60A5FA', borderColor: '#60A5FA44' }}>manual</span>
+                                <button onClick={() => handleRemoveLink(tx.id)} title="Remover vínculo" className="text-[var(--tx3)] hover:text-[#F87171] text-sm leading-none transition-colors">×</button>
+                              </div>
+                            ) : tx.matchedProject ? (
+                              <span className="font-bold text-[var(--tx)]">{tx.matchedProject}</span>
+                            ) : tx.status === 'unmatched' ? (
+                              <select
+                                value=""
+                                onChange={(e) => { if (e.target.value) handleManualLink(tx.id, e.target.value) }}
+                                className="text-xs border border-[var(--bd)] bg-[var(--bg3)] text-[var(--tx2)] px-2 py-1 outline-none focus:border-[#60A5FA] cursor-pointer max-w-[180px]"
+                              >
+                                <option value="">Vincular projeto…</option>
+                                {data.clockifyProjects.map(p => <option key={p} value={p}>{p}</option>)}
+                              </select>
+                            ) : (
+                              <span className="font-normal text-[var(--bd3)] text-xs">—</span>
+                            )}
+                          </td>
                           <td className="px-5 py-3 text-center"><Badge status={tx.status} /></td>
                         </tr>
                       ))}
