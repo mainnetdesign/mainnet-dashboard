@@ -394,7 +394,7 @@ export default function AuditoriaPage() {
                   {data.monthlyBreakdown.length > 0 ? (
                     <>
                       <ResponsiveContainer width="100%" height={200}>
-                        <BarChart data={data.monthlyBreakdown} margin={{ top: 2, right: 0, left: -28, bottom: 0 }} barCategoryGap="40%">
+                        <BarChart data={data.monthlyBreakdown} margin={{ top: 2, right: 0, left: -28, bottom: 0 }} barCategoryGap="25%">
                           <CartesianGrid strokeDasharray="2 4" stroke={theme === 'dark' ? '#1E1E1E' : '#EBEBEB'} vertical={false} />
                           <XAxis dataKey="label" tick={{ fontSize: 10, fill: theme === 'dark' ? '#555' : '#AAA' }} axisLine={false} tickLine={false} />
                           <YAxis tick={{ fontSize: 10, fill: theme === 'dark' ? '#555' : '#AAA' }} axisLine={false} tickLine={false} allowDecimals={false} />
