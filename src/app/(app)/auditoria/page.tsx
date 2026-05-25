@@ -195,18 +195,47 @@ export default function AuditoriaPage() {
 
   useEffect(() => { fetchData(DEFAULT_START, DEFAULT_END) }, []) // eslint-disable-line
 
-  const matchPct = data
-    ? data.summary.matchedCount + data.summary.unmatchedCount > 0
-      ? Math.round(data.summary.matchedCount / (data.summary.matchedCount + data.summary.unmatchedCount) * 100)
-      : null
-    : null
-
   // Apply manual links on top of API data
   const effectivePeriodTx = (data?.periodTransactions ?? []).map(tx => {
     const override = manualLinks[tx.id]
     if (!override) return tx
     return { ...tx, status: 'matched' as TxStatus, matchedProject: override }
   })
+
+  // Recompute summary from effective transactions (reflects manual links)
+  const effectiveSummary = {
+    totalRealizedRevenue: effectivePeriodTx.filter(tx => tx.realized).reduce((s, tx) => s + tx.value, 0),
+    totalMatchedRevenue:  effectivePeriodTx.filter(tx => tx.status === 'matched').reduce((s, tx) => s + tx.value, 0),
+    totalIgnoredRevenue:  effectivePeriodTx.filter(tx => tx.status === 'ignored').reduce((s, tx) => s + tx.value, 0),
+    totalUnmatchedRevenue: effectivePeriodTx.filter(tx => tx.status === 'unmatched').reduce((s, tx) => s + tx.value, 0),
+    matchedCount:     effectivePeriodTx.filter(tx => tx.status === 'matched').length,
+    unmatchedCount:   effectivePeriodTx.filter(tx => tx.status === 'unmatched').length,
+    ignoredCount:     effectivePeriodTx.filter(tx => tx.status === 'ignored').length,
+    notRealizedCount: effectivePeriodTx.filter(tx => tx.status === 'not-realized').length,
+  }
+
+  const matchPct = effectiveSummary.matchedCount + effectiveSummary.unmatchedCount > 0
+    ? Math.round(effectiveSummary.matchedCount / (effectiveSummary.matchedCount + effectiveSummary.unmatchedCount) * 100)
+    : null
+
+  // Recompute monthly breakdown from effective transactions
+  const effectiveMonthlyBreakdown = (() => {
+    const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']
+    const map: Record<string, { matched: number; unmatched: number; ignored: number; notRealized: number; matchedValue: number; unmatchedValue: number }> = {}
+    for (const tx of effectivePeriodTx) {
+      if (!tx.paymentDate) continue
+      const ym = tx.paymentDate.slice(0, 7)
+      if (!map[ym]) map[ym] = { matched: 0, unmatched: 0, ignored: 0, notRealized: 0, matchedValue: 0, unmatchedValue: 0 }
+      const key = tx.status === 'not-realized' ? 'notRealized' : tx.status as 'matched' | 'unmatched' | 'ignored'
+      map[ym][key]++
+      if (tx.status === 'matched')   map[ym].matchedValue += tx.value
+      if (tx.status === 'unmatched') map[ym].unmatchedValue += tx.value
+    }
+    return Object.entries(map).sort(([a], [b]) => a.localeCompare(b)).map(([ym, c]) => {
+      const [y, m] = ym.split('-')
+      return { ym, label: `${MONTHS[parseInt(m) - 1]} ${y.slice(2)}`, ...c, total: c.matched + c.unmatched + c.ignored + c.notRealized }
+    })
+  })()
 
   const visibleTx = effectivePeriodTx.filter((tx) => {
     if (filterStatus !== 'all' && tx.status !== filterStatus) return false
@@ -219,8 +248,8 @@ export default function AuditoriaPage() {
 
   const actions: string[] = []
   if (data) {
-    if (data.summary.unmatchedCount > 0)
-      actions.push(`${data.summary.unmatchedCount} transaç${data.summary.unmatchedCount > 1 ? 'ões' : 'ão'} sem vínculo (${fmtBRL(data.summary.totalUnmatchedRevenue)})`)
+    if (effectiveSummary.unmatchedCount > 0)
+      actions.push(`${effectiveSummary.unmatchedCount} transaç${effectiveSummary.unmatchedCount > 1 ? 'ões' : 'ão'} sem vínculo (${fmtBRL(effectiveSummary.totalUnmatchedRevenue)})`)
     if (data.duplicateGroups.length > 0)
       actions.push(`${data.duplicateGroups.length} grupo${data.duplicateGroups.length > 1 ? 's' : ''} de possíveis duplicatas`)
     if (data.overdueNotRealized.length > 0)
@@ -337,10 +366,10 @@ export default function AuditoriaPage() {
               <SectionHeader label="Visão geral" title="Resumo do período" />
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-px mb-4 border border-[var(--bd)]">
                 {[
-                  { label: 'Receita realizada',    value: fmtBRL(data.summary.totalRealizedRevenue),  sub: 'período selecionado',                                                                                    color: '#22C55E' },
-                  { label: 'Receita vinculada',     value: fmtBRL(data.summary.totalMatchedRevenue),   sub: `${data.summary.matchedCount} transações${matchPct !== null ? ` · ${matchPct}% cobertura` : ''}`,         color: '#22C55E' },
-                  { label: 'Sem vínculo',           value: fmtBRL(data.summary.totalUnmatchedRevenue), sub: `${data.summary.unmatchedCount} transações`,                                                              color: '#F87171' },
-                  { label: 'Ignoradas / Previstas', value: `${data.summary.ignoredCount + data.summary.notRealizedCount}`, sub: `${data.summary.ignoredCount} ignoradas · ${data.summary.notRealizedCount} previstas`, color: '#9CA3AF' },
+                  { label: 'Receita realizada',    value: fmtBRL(effectiveSummary.totalRealizedRevenue),  sub: 'período selecionado',                                                                                    color: '#22C55E' },
+                  { label: 'Receita vinculada',     value: fmtBRL(effectiveSummary.totalMatchedRevenue),   sub: `${effectiveSummary.matchedCount} transações${matchPct !== null ? ` · ${matchPct}% cobertura` : ''}`,         color: '#22C55E' },
+                  { label: 'Sem vínculo',           value: fmtBRL(effectiveSummary.totalUnmatchedRevenue), sub: `${effectiveSummary.unmatchedCount} transações`,                                                              color: '#F87171' },
+                  { label: 'Ignoradas / Previstas', value: `${effectiveSummary.ignoredCount + effectiveSummary.notRealizedCount}`, sub: `${effectiveSummary.ignoredCount} ignoradas · ${effectiveSummary.notRealizedCount} previstas`, color: '#9CA3AF' },
                 ].map((c) => (
                   <div key={c.label} className="bg-[var(--bg3)] p-5">
                     <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-2">{c.label}</p>
@@ -357,21 +386,21 @@ export default function AuditoriaPage() {
                     <p className="text-2xl font-bold" style={{ color: matchPct >= 70 ? '#22C55E' : matchPct >= 40 ? '#FBBF24' : '#F87171' }}>{matchPct}%</p>
                   </div>
                   {(() => {
-                    const total = data.summary.matchedCount + data.summary.unmatchedCount + data.summary.ignoredCount
-                    const mPct = total > 0 ? (data.summary.matchedCount / total) * 100 : 0
-                    const iPct = total > 0 ? (data.summary.ignoredCount / total) * 100 : 0
-                    const uPct = total > 0 ? (data.summary.unmatchedCount / total) * 100 : 0
+                    const total = effectiveSummary.matchedCount + effectiveSummary.unmatchedCount + effectiveSummary.ignoredCount
+                    const mPct = total > 0 ? (effectiveSummary.matchedCount / total) * 100 : 0
+                    const iPct = total > 0 ? (effectiveSummary.ignoredCount / total) * 100 : 0
+                    const uPct = total > 0 ? (effectiveSummary.unmatchedCount / total) * 100 : 0
                     return (
                       <>
                         <div className="w-full flex gap-0.5 mb-3" style={{ height: 10 }}>
-                          <div className="transition-all duration-700" style={{ width: `${mPct}%`, background: '#22C55E', borderRadius: 4 }} title={`Vinculadas: ${data.summary.matchedCount}`} />
-                          <div className="transition-all duration-700" style={{ width: `${iPct}%`, background: '#9CA3AF', borderRadius: 4 }} title={`Ignoradas: ${data.summary.ignoredCount}`} />
-                          <div className="transition-all duration-700" style={{ width: `${uPct}%`, background: '#F87171', borderRadius: 4 }} title={`Sem vínculo: ${data.summary.unmatchedCount}`} />
+                          <div className="transition-all duration-700" style={{ width: `${mPct}%`, background: '#22C55E', borderRadius: 4 }} title={`Vinculadas: ${effectiveSummary.matchedCount}`} />
+                          <div className="transition-all duration-700" style={{ width: `${iPct}%`, background: '#9CA3AF', borderRadius: 4 }} title={`Ignoradas: ${effectiveSummary.ignoredCount}`} />
+                          <div className="transition-all duration-700" style={{ width: `${uPct}%`, background: '#F87171', borderRadius: 4 }} title={`Sem vínculo: ${effectiveSummary.unmatchedCount}`} />
                         </div>
                         <div className="flex gap-5 text-xs">
-                          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#22C55E' }} /><span style={{ color: '#22C55E' }} className="font-semibold">{data.summary.matchedCount}</span><span className="text-[var(--tx3)]">vinculadas</span></span>
-                          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#9CA3AF' }} /><span className="font-semibold text-[var(--tx2)]">{data.summary.ignoredCount}</span><span className="text-[var(--tx3)]">ignoradas</span></span>
-                          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#F87171' }} /><span style={{ color: '#F87171' }} className="font-semibold">{data.summary.unmatchedCount}</span><span className="text-[var(--tx3)]">sem vínculo</span></span>
+                          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#22C55E' }} /><span style={{ color: '#22C55E' }} className="font-semibold">{effectiveSummary.matchedCount}</span><span className="text-[var(--tx3)]">vinculadas</span></span>
+                          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#9CA3AF' }} /><span className="font-semibold text-[var(--tx2)]">{effectiveSummary.ignoredCount}</span><span className="text-[var(--tx3)]">ignoradas</span></span>
+                          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#F87171' }} /><span style={{ color: '#F87171' }} className="font-semibold">{effectiveSummary.unmatchedCount}</span><span className="text-[var(--tx3)]">sem vínculo</span></span>
                         </div>
                       </>
                     )
@@ -391,10 +420,10 @@ export default function AuditoriaPage() {
                   <p className="text-xs text-[var(--tx3)] mb-5">Distribuição por tipo no período</p>
                   {(() => {
                     const pieData = [
-                      { name: 'Vinculado',     value: data.summary.matchedCount,     color: STATUS_CFG.matched.color },
-                      { name: 'Sem vínculo',   value: data.summary.unmatchedCount,   color: STATUS_CFG.unmatched.color },
-                      { name: 'Ignorado',      value: data.summary.ignoredCount,     color: STATUS_CFG.ignored.color },
-                      { name: 'Não realizado', value: data.summary.notRealizedCount, color: STATUS_CFG['not-realized'].color },
+                      { name: 'Vinculado',     value: effectiveSummary.matchedCount,     color: STATUS_CFG.matched.color },
+                      { name: 'Sem vínculo',   value: effectiveSummary.unmatchedCount,   color: STATUS_CFG.unmatched.color },
+                      { name: 'Ignorado',      value: effectiveSummary.ignoredCount,     color: STATUS_CFG.ignored.color },
+                      { name: 'Não realizado', value: effectiveSummary.notRealizedCount, color: STATUS_CFG['not-realized'].color },
                     ].filter(d => d.value > 0)
                     const totalTx = pieData.reduce((s, d) => s + d.value, 0)
                     return (
@@ -446,10 +475,10 @@ export default function AuditoriaPage() {
                 <div className="bg-[var(--bg3)] p-6">
                   <p className="text-sm font-bold text-[var(--tx)] mb-0.5">Transações por mês</p>
                   <p className="text-xs text-[var(--tx3)] mb-5">Vinculadas vs sem vínculo ao longo do tempo</p>
-                  {data.monthlyBreakdown.length > 0 ? (
+                  {effectiveMonthlyBreakdown.length > 0 ? (
                     <>
                       <ResponsiveContainer width="100%" height={200}>
-                        <BarChart data={data.monthlyBreakdown} margin={{ top: 2, right: 0, left: -28, bottom: 0 }} barCategoryGap="25%">
+                        <BarChart data={effectiveMonthlyBreakdown} margin={{ top: 2, right: 0, left: -28, bottom: 0 }} barCategoryGap="25%">
                           <CartesianGrid strokeDasharray="2 4" stroke={theme === 'dark' ? '#1E1E1E' : '#EBEBEB'} vertical={false} />
                           <XAxis dataKey="label" tick={{ fontSize: 10, fill: theme === 'dark' ? '#555' : '#AAA' }} axisLine={false} tickLine={false} />
                           <YAxis tick={{ fontSize: 10, fill: theme === 'dark' ? '#555' : '#AAA' }} axisLine={false} tickLine={false} allowDecimals={false} />
