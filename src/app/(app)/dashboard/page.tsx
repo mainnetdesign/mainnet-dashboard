@@ -7,6 +7,7 @@ import CostByCollaborator from '@/components/CostByCollaborator'
 import PLTable from '@/components/PLTable'
 import DateRangePicker from '@/components/DateRangePicker'
 import MonthlyChart from '@/components/MonthlyChart'
+import CashflowSection from '@/components/CashflowSection'
 import AlertsPanel from '@/components/AlertsPanel'
 import RateHistoryChart from '@/components/RateHistoryChart'
 import DashboardSkeleton from '@/components/DashboardSkeleton'
@@ -386,6 +387,7 @@ export default function Dashboard() {
               </div>
             )}
 
+            {data.monthly.length > 0 && <CashflowSection data={data.monthly} />}
             {data.monthly.length > 0 && <MonthlyChart data={data.monthly} />}
 
             <div className="flex items-center gap-3 mb-4 no-print flex-wrap">
