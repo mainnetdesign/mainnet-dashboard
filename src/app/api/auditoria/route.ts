@@ -226,13 +226,18 @@ export async function GET(req: NextRequest) {
       if (!a.paymentDate || seenDup.has(a.id)) continue
       const group: typeof auditTransactions = [a]
 
+      // Installment pattern: "1/2", "2/3", etc. — not a duplicate
+      const hasFraction = (n: string) => /\b\d+\/\d+\b/.test(n)
+
       for (let j = i + 1; j < auditTransactions.length; j++) {
         const b = auditTransactions[j]
         if (seenDup.has(b.id) || !b.paymentDate) continue
         const sameMonth = a.paymentDate.slice(0, 7) === b.paymentDate.slice(0, 7)
         const sameValue = a.value === b.value
         const sim = wordSimilarity(a.name, b.name)
-        if (sameMonth && sameValue && sim >= 0.45) group.push(b)
+        // Skip pairs where both names carry an installment fraction (1/2, 2/2…)
+        const bothInstallments = hasFraction(a.name) && hasFraction(b.name)
+        if (sameMonth && sameValue && sim >= 0.45 && !bothInstallments) group.push(b)
       }
 
       if (group.length > 1) {
