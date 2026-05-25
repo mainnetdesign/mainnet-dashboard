@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { fetchAllTimeEntries } from '@/lib/clockify'
 import { fetchAllTransactions } from '@/lib/notion'
-import { extractProjectName } from '@/config/projectMapping'
+import { extractProjectName, getKnownMapping } from '@/config/projectMapping'
 
 // ─── Matching ────────────────────────────────────────────────────────────────
 
@@ -77,7 +77,8 @@ export async function GET(req: NextRequest) {
 
     // Audit each transaction
     const auditTransactions = transactions.map((tx) => {
-      const extracted = extractProjectName(tx.name)
+      const knownMapping = getKnownMapping(tx.name)
+      const extracted    = extractProjectName(tx.name)
       let status: 'matched' | 'ignored' | 'unmatched' | 'not-realized'
       let matchedProject: string | null = null
 
@@ -85,7 +86,6 @@ export async function GET(req: NextRequest) {
         status = 'not-realized'
       } else {
         // Priority 1: user manually linked a Notion project → always "matched"
-        // Try to find the Clockify equivalent, but the link itself is authoritative
         if (tx.linkedProjectNames.length > 0) {
           for (const linkedName of tx.linkedProjectNames) {
             const direct = fuzzyMatchDebug(linkedName, clockifyProjects)
@@ -96,10 +96,21 @@ export async function GET(req: NextRequest) {
               .sort((a, b) => b.score - a.score)[0]
             if (best) { matchedProject = best.p; break }
           }
-          // Even without a Clockify match, the manual Notion link makes it "matched"
           if (!matchedProject) matchedProject = tx.linkedProjectNames[0]
           status = 'matched'
-        // Priority 2: no Notion link → extract project name from transaction title
+
+        // Priority 2: name found in NOTION_TO_CLOCKIFY config → always authoritative
+        } else if (knownMapping.found) {
+          if (knownMapping.value === null) {
+            status = 'ignored'
+          } else {
+            // Try to resolve to an actual Clockify project; fall back to mapped name
+            const clockifyMatch = fuzzyMatchDebug(knownMapping.value, clockifyProjects)
+            matchedProject = clockifyMatch ?? knownMapping.value
+            status = 'matched'
+          }
+
+        // Priority 3: fuzzy extraction from transaction title
         } else if (extracted === null) {
           status = 'ignored'
         } else {
@@ -115,7 +126,7 @@ export async function GET(req: NextRequest) {
         predictedValue: tx.predictedValue,
         realized: tx.realized,
         paymentDate: tx.paymentDate,
-        extractedName: tx.linkedProjectNames[0] ?? extracted,
+        extractedName: tx.linkedProjectNames[0] ?? knownMapping.value ?? extracted,
         matchedProject,
         status,
       }
