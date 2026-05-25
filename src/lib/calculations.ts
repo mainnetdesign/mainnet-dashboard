@@ -236,7 +236,9 @@ export function buildDashboardData(
   const totalHours = entries.reduce((s, e) => s + e.duration / 3600, 0)
   const overheadPercent = totalHours > 0 ? (overheadHours / totalHours) * 100 : 0
 
-  // Build P&L
+  // Build P&L — projects with Clockify hours
+  const clockifyProjectNamesSet = new Set(sortedProjects.map((p) => p.projectName))
+
   const pl: ProjectPL[] = sortedProjects.map((p) => {
     const rev = revenueMap.get(p.projectName)
     const revenue = rev?.revenue ?? 0
@@ -261,6 +263,24 @@ export function buildDashboardData(
       isInternal: INTERNAL_PROJECT_NAMES.has(p.projectName),
     }
   })
+
+  // Add revenue-only projects (matched in Notion but no Clockify hours)
+  for (const [projectName, rev] of revenueMap.entries()) {
+    if (clockifyProjectNamesSet.has(projectName)) continue // already in pl
+    const revenue = rev.revenue
+    pl.push({
+      clockifyProjectName: projectName,
+      clockifyProjectId: `orphan-${projectName}`,
+      hours: 0,
+      revenue,
+      cost: 0,
+      result: revenue,
+      margin: 100,
+      status: 'Lucro',
+      hasAttention: rev.hasPreTracking,
+      isInternal: false,
+    })
+  }
 
   // --- MONTHLY BREAKDOWN ---
   const MONTH_LABELS: Record<string, string> = {

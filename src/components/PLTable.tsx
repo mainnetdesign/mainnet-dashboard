@@ -280,12 +280,20 @@ export default function PLTable({ pl, costByProject }: Props) {
                   onClick={() => setSelected(p)}
                 >
                   <td className="px-6 py-4">
-                    <span className="text-sm font-semibold text-[var(--tx)]">
-                      {p.clockifyProjectName}
-                      {p.hasAttention && (
-                        <span className="ml-1.5 text-xs text-[var(--tx3)] font-normal">* atenção</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-[var(--tx)]">
+                        {p.clockifyProjectName}
+                        {p.hasAttention && (
+                          <span className="ml-1.5 text-xs text-[var(--tx3)] font-normal">* atenção</span>
+                        )}
+                      </span>
+                      {p.hours === 0 && p.revenue > 0 && (
+                        <span className="shrink-0 px-1.5 py-0.5 text-[10px] font-medium border"
+                          style={{ color: '#9CA3AF', borderColor: '#9CA3AF44', background: '#9CA3AF0D' }}>
+                          sem horas
+                        </span>
                       )}
-                    </span>
+                    </div>
                   </td>
                   <td className="px-3 py-4 text-right text-sm font-medium" style={{ color: '#FB923C' }}>{Math.round(p.hours)}h</td>
                   <td className="px-3 py-4 text-right text-sm font-medium" style={{ color: p.revenue > 0 ? '#22C55E' : undefined }}>
