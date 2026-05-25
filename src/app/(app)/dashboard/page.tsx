@@ -7,7 +7,7 @@ import CostByCollaborator from '@/components/CostByCollaborator'
 import PLTable from '@/components/PLTable'
 import DateRangePicker from '@/components/DateRangePicker'
 import MonthlyChart from '@/components/MonthlyChart'
-import CashflowSection from '@/components/CashflowSection'
+import Link from 'next/link'
 import AlertsPanel from '@/components/AlertsPanel'
 import RateHistoryChart from '@/components/RateHistoryChart'
 import DashboardSkeleton from '@/components/DashboardSkeleton'
@@ -387,7 +387,45 @@ export default function Dashboard() {
               </div>
             )}
 
-            {data.monthly.length > 0 && <CashflowSection data={data.monthly} />}
+            {/* Cashflow summary card → links to full Fluxo de Caixa page */}
+            {(() => {
+              const todayYM = new Date().toISOString().slice(0, 7)
+              const future = data.monthly.filter((m) => m.month > todayYM && m.predictedRevenue > 0)
+              const next = future[0]
+              const next3 = future.slice(0, 3).reduce((s, m) => s + m.predictedRevenue, 0)
+              const pastR = data.monthly.filter((m) => m.month <= todayYM)
+              const net = pastR.reduce((s, m) => s + m.revenue - m.cost, 0)
+              return (
+                <Link href="/fluxo" className="block mb-8 group">
+                  <div className="bg-[var(--bg3)] border border-[var(--bd)] px-6 py-5 flex items-center justify-between gap-6 hover:border-[var(--bd3)] transition-colors flex-wrap">
+                    <div className="flex items-center gap-6 flex-wrap">
+                      <div>
+                        <p className="text-xs text-[var(--tx3)] mb-1">Resultado acumulado</p>
+                        <p className="text-xl font-bold" style={{ color: net >= 0 ? '#22C55E' : '#F87171' }}>{fmtBRL(net)}</p>
+                      </div>
+                      {next3 > 0 && (
+                        <div>
+                          <p className="text-xs text-[var(--tx3)] mb-1">Previsto próx. 3 meses</p>
+                          <p className="text-xl font-bold" style={{ color: '#60A5FA' }}>{fmtBRL(next3)}</p>
+                        </div>
+                      )}
+                      {next && (
+                        <div>
+                          <p className="text-xs text-[var(--tx3)] mb-1">Próxima entrada</p>
+                          <p className="text-xl font-bold text-[var(--tx)]">{next.label}</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 text-xs font-semibold text-[var(--tx3)] group-hover:text-[var(--tx)] transition-colors shrink-0">
+                      Ver Fluxo de Caixa
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
+                  </div>
+                </Link>
+              )
+            })()}
             {data.monthly.length > 0 && <MonthlyChart data={data.monthly} />}
 
             <div className="flex items-center gap-3 mb-4 no-print flex-wrap">

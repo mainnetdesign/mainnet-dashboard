@@ -17,6 +17,16 @@ const NAV = [
     ),
   },
   {
+    href: '/fluxo',
+    label: 'Fluxo de Caixa',
+    icon: (
+      <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <path strokeLinecap="round" strokeLinejoin="round"
+          d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+      </svg>
+    ),
+  },
+  {
     href: '/auditoria',
     label: 'Auditoria',
     icon: (
