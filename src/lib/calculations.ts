@@ -1,7 +1,7 @@
 import { ClockifyEntry, ProjectCostData, CollaboratorSummary, ProjectPL, DashboardData, MonthlyData, ComparisonKPIs, AlertItem } from '@/types'
 import { COLLABORATORS, COLLABORATOR_MAP } from '@/config/collaborators'
 import { NotionTransaction } from '@/types'
-import { extractProjectName } from '@/config/projectMapping'
+import { extractProjectName, getKnownMapping } from '@/config/projectMapping'
 import { INTERNAL_PROJECT_NAMES } from '@/config/internalProjects'
 
 const LOW_MARGIN_THRESHOLD = 0.20 // below 20% margin = "Margem baixa"
@@ -149,12 +149,22 @@ export function matchRevenueToProjects(
   for (const tx of transactions) {
     if (!tx.realized) continue
 
-    const extracted = extractProjectName(tx.name)
-    if (!extracted) continue // unassigned revenue (platform, etc.)
+    const knownMapping = getKnownMapping(tx.name)
 
-    // Fuzzy match against Clockify project names
-    const matched = fuzzyMatch(extracted, clockifyProjectNames)
-    if (!matched) continue
+    // Known null mapping → unassigned platform revenue, skip
+    if (knownMapping.found && knownMapping.value === null) continue
+
+    let matched: string | null = null
+
+    if (knownMapping.found && knownMapping.value !== null) {
+      // Config mapping is authoritative — try Clockify first, fall back to mapped name
+      matched = fuzzyMatch(knownMapping.value, clockifyProjectNames) ?? knownMapping.value
+    } else {
+      const extracted = extractProjectName(tx.name)
+      if (!extracted) continue // couldn't extract a project name
+      matched = fuzzyMatch(extracted, clockifyProjectNames)
+      if (!matched) continue  // no Clockify project found
+    }
 
     if (!revenueMap.has(matched)) {
       revenueMap.set(matched, { revenue: 0, hasPreTracking: false })
