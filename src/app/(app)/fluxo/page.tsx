@@ -94,8 +94,9 @@ export default function FluxoPage() {
     setLoading(true); setError(null)
     try {
       const res = await fetch('/api/cashflow')
-      if (!res.ok) throw new Error(`Erro ${res.status}`)
-      setData(await res.json())
+      const json = await res.json()
+      if (!res.ok) throw new Error(json?.error ?? `Erro ${res.status}`)
+      setData(json)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Erro desconhecido')
     } finally {
