@@ -123,7 +123,7 @@ function CollaboratorDrawer({
   const rateAbove = rateDiff >= 0
 
   // Sparkline: monthly cost sorted chronologically
-  const monthlyCostMap = data.collaboratorMonthlyCosts[collab.id] ?? {}
+  const monthlyCostMap = (data.collaboratorMonthlyCosts ?? {})[collab.id] ?? {}
   const sparkMonths = Object.keys(monthlyCostMap).sort()
   const sparkValues = sparkMonths.map((m) => monthlyCostMap[m])
 

@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { DashboardData } from '@/types'
+import { DashboardData, ProjectPL, ProjectCostData, MonthlyData } from '@/types'
 import KPICards from '@/components/KPICards'
 import CostByProjectChart from '@/components/CostByProjectChart'
 import CostByCollaborator from '@/components/CostByCollaborator'
@@ -12,7 +12,6 @@ import AlertsPanel from '@/components/AlertsPanel'
 import RateHistoryChart from '@/components/RateHistoryChart'
 import DashboardSkeleton from '@/components/DashboardSkeleton'
 import PriceSimulator from '@/components/PriceSimulator'
-import { ProjectPL, ProjectCostData, MonthlyData } from '@/types'
 
 const AUTO_REFRESH_MS = 60 * 60 * 1000
 const DEFAULT_START = '2025-06-01'
