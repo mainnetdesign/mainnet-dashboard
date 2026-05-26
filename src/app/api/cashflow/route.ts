@@ -65,6 +65,11 @@ export async function GET(req: NextRequest) {
       paymentDate: string; daysOverdue: number; extractedName: string | null
     }> = []
 
+    const history: Array<{
+      id: string; name: string; value: number
+      paymentDate: string; extractedName: string | null
+    }> = []
+
     for (const tx of transactions) {
       if (!tx.paymentDate) continue
       const ym = tx.paymentDate.slice(0, 7)
@@ -77,6 +82,10 @@ export async function GET(req: NextRequest) {
 
       if (tx.realized) {
         monthlyRealized.set(ym, (monthlyRealized.get(ym) ?? 0) + tx.value)
+        history.push({
+          id: tx.id, name: tx.name, value: tx.value,
+          paymentDate: tx.paymentDate, extractedName: displayName,
+        })
       } else {
         // Upcoming = future payment date; overdue = past but not realized
         if (tx.paymentDate > todayStr) {
@@ -136,11 +145,13 @@ export async function GET(req: NextRequest) {
 
     upcoming.sort((a, b) => a.paymentDate.localeCompare(b.paymentDate))
     overdue.sort((a, b) => b.daysOverdue - a.daysOverdue)
+    history.sort((a, b) => b.paymentDate.localeCompare(a.paymentDate)) // newest first
 
     return NextResponse.json({
       monthly,
       upcoming,
       overdue,
+      history,
       summary: {
         totalRealized,
         totalCost,

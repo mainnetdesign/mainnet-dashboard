@@ -20,10 +20,16 @@ interface UpcomingEntry {
 
 interface OverdueEntry extends UpcomingEntry { daysOverdue: number }
 
+interface HistoryEntry {
+  id: string; name: string; value: number
+  paymentDate: string; extractedName: string | null
+}
+
 interface CashflowData {
   monthly: MonthRow[]
   upcoming: UpcomingEntry[]
   overdue: OverdueEntry[]
+  history: HistoryEntry[]
   summary: {
     totalRealized: number; totalCost: number; netBalance: number
     next3Forecast: number; avgMonthlyCost: number
@@ -43,6 +49,17 @@ function fmtBRL(v: number) {
 function fmtDate(d: string) {
   const [y, m, day] = d.split('-')
   return `${day}/${m}/${y}`
+}
+
+const MONTH_LABELS: Record<string, string> = {
+  '01': 'Janeiro', '02': 'Fevereiro', '03': 'Março', '04': 'Abril',
+  '05': 'Maio', '06': 'Junho', '07': 'Julho', '08': 'Agosto',
+  '09': 'Setembro', '10': 'Outubro', '11': 'Novembro', '12': 'Dezembro',
+}
+
+function fmtMonthLabel(ym: string) {
+  const [y, m] = ym.split('-')
+  return `${MONTH_LABELS[m] ?? m} ${y}`
 }
 
 function fmtK(v: number) {
@@ -134,7 +151,34 @@ export default function FluxoPage() {
     return { ...m, cumulative }
   })
 
-  const { summary, upcoming = [], overdue = [] } = data ?? {}
+  const [search, setSearch] = useState('')
+  const [monthFilter, setMonthFilter] = useState('')
+
+  const { summary, upcoming = [], overdue = [], history = [] } = data ?? {}
+
+  // Available months for filter
+  const historyMonths = [...new Set(history.map((h) => h.paymentDate.slice(0, 7)))].sort().reverse()
+
+  // Filtered + searched history
+  const filteredHistory = history.filter((tx) => {
+    if (monthFilter && !tx.paymentDate.startsWith(monthFilter)) return false
+    if (search) {
+      const q = search.toLowerCase()
+      return (
+        tx.name.toLowerCase().includes(q) ||
+        (tx.extractedName ?? '').toLowerCase().includes(q)
+      )
+    }
+    return true
+  })
+
+  // Group by month
+  const groupedHistory = filteredHistory.reduce<Record<string, HistoryEntry[]>>((acc, tx) => {
+    const ym = tx.paymentDate.slice(0, 7)
+    if (!acc[ym]) acc[ym] = []
+    acc[ym].push(tx)
+    return acc
+  }, {})
   const lastPastLabel = [...chartData].reverse().find((d) => !d.isFuture)?.label
 
   const net = summary?.netBalance ?? 0
@@ -517,6 +561,136 @@ export default function FluxoPage() {
         </div>
 
       </div>
+
+      {/* ── Histórico de pagamentos ── */}
+      <div className="mt-6 border border-[var(--bd)] bg-[var(--bg3)]">
+
+        {/* Header + filters */}
+        <div className="px-6 py-5 border-b border-[var(--bd)]">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <h2 className="text-sm font-bold text-[var(--tx)]">Histórico de pagamentos</h2>
+              {!loading && (
+                <p className="text-xs text-[var(--tx3)] mt-0.5">
+                  {filteredHistory.length} entrada{filteredHistory.length !== 1 ? 's' : ''} realizad{filteredHistory.length !== 1 ? 'as' : 'a'}
+                  {search || monthFilter ? ' (filtrado)' : ''}
+                </p>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Search */}
+              <div className="relative">
+                <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--tx3)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Buscar cliente…"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-8 pr-3 py-1.5 text-xs bg-[var(--bg)] border border-[var(--bd)] text-[var(--tx)] placeholder-[var(--tx3)] focus:outline-none focus:border-[var(--bd3)] w-40"
+                />
+              </div>
+
+              {/* Month filter */}
+              <select
+                value={monthFilter}
+                onChange={(e) => setMonthFilter(e.target.value)}
+                className="text-xs bg-[var(--bg)] border border-[var(--bd)] text-[var(--tx)] px-2.5 py-1.5 focus:outline-none focus:border-[var(--bd3)] cursor-pointer"
+              >
+                <option value="">Todos os meses</option>
+                {historyMonths.map((ym) => (
+                  <option key={ym} value={ym}>{fmtMonthLabel(ym)}</option>
+                ))}
+              </select>
+
+              {/* Clear filters */}
+              {(search || monthFilter) && (
+                <button
+                  onClick={() => { setSearch(''); setMonthFilter('') }}
+                  className="text-xs text-[var(--tx3)] hover:text-[var(--tx)] transition-colors px-2 py-1.5 border border-[var(--bd)] hover:border-[var(--bd3)]"
+                >
+                  Limpar
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        {loading ? (
+          <div className="divide-y divide-[var(--bd)]">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="px-6 py-4 flex items-center justify-between gap-4">
+                <div className="flex-1"><Skeleton className="h-3.5 w-48 mb-2" /><Skeleton className="h-2.5 w-24" /></div>
+                <Skeleton className="h-4 w-20" />
+              </div>
+            ))}
+          </div>
+        ) : filteredHistory.length === 0 ? (
+          <div className="px-6 py-12 text-center">
+            <svg className="w-7 h-7 mx-auto text-[var(--bd3)] mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <p className="text-sm text-[var(--tx3)]">Nenhum pagamento encontrado</p>
+          </div>
+        ) : (
+          <div>
+            {Object.entries(groupedHistory)
+              .sort(([a], [b]) => b.localeCompare(a))
+              .map(([ym, entries]) => {
+                const monthTotal = entries.reduce((s, e) => s + e.value, 0)
+                return (
+                  <div key={ym}>
+                    {/* Month header */}
+                    <div className="px-6 py-2.5 flex items-center justify-between bg-[var(--bg4)] border-y border-[var(--bd)]">
+                      <p className="text-[11px] font-bold text-[var(--tx3)] uppercase tracking-wider">
+                        {fmtMonthLabel(ym)}
+                      </p>
+                      <p className="text-[11px] font-bold" style={{ color: '#22C55E' }}>
+                        {fmtBRL(monthTotal)}
+                      </p>
+                    </div>
+
+                    {/* Entries */}
+                    <div className="divide-y divide-[var(--bd)]">
+                      {entries.map((tx) => (
+                        <div key={tx.id} className="px-6 py-3.5 flex items-center justify-between gap-4 hover:bg-[var(--bg4)] transition-colors">
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-semibold text-[var(--tx)] truncate">
+                              {tx.extractedName ?? tx.name}
+                            </p>
+                            {tx.extractedName && tx.extractedName !== tx.name && (
+                              <p className="text-xs text-[var(--tx3)] truncate mt-0.5">{tx.name}</p>
+                            )}
+                          </div>
+                          <div className="shrink-0 flex items-center gap-6">
+                            <p className="text-xs text-[var(--tx3)]">{fmtDate(tx.paymentDate)}</p>
+                            <p className="text-sm font-bold w-24 text-right" style={{ color: '#22C55E' }}>
+                              {fmtBRL(tx.value)}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+
+            {/* Grand total */}
+            <div className="px-6 py-4 flex items-center justify-between border-t border-[var(--bd)] bg-[var(--bg4)]">
+              <p className="text-xs font-bold text-[var(--tx3)] uppercase tracking-wider">
+                Total {search || monthFilter ? 'filtrado' : 'realizado'}
+              </p>
+              <p className="text-base font-bold" style={{ color: '#22C55E' }}>
+                {fmtBRL(filteredHistory.reduce((s, t) => s + t.value, 0))}
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
     </div>
   )
 }
