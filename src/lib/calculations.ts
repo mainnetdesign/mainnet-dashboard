@@ -215,6 +215,20 @@ export function buildDashboardData(
   const { projectCosts, overheadCost, overheadHours, userMonthHours } = calculateCosts(entries)
   const { summaries, total: totalCostAllCollaborators } = buildCollaboratorSummaries(entries, userMonthHours)
 
+  // Monthly cost per collaborator (for sparklines)
+  const collaboratorMonthlyCosts: Record<string, Record<string, number>> = {}
+  for (const entry of entries) {
+    const collab = COLLABORATOR_MAP.get(entry.userId)
+    if (!collab) continue
+    const hours = entry.duration / 3600
+    const totalH = userMonthHours.get(entry.userId)?.get(entry.month) ?? hours
+    const rate = collab.hourlyRate !== undefined ? collab.hourlyRate : (collab.monthlySalary ?? 0) / totalH
+    const cost = hours * rate
+    if (!collaboratorMonthlyCosts[entry.userId]) collaboratorMonthlyCosts[entry.userId] = {}
+    collaboratorMonthlyCosts[entry.userId][entry.month] =
+      (collaboratorMonthlyCosts[entry.userId][entry.month] ?? 0) + cost
+  }
+
   const clockifyProjectNames = Array.from(projectCosts.values()).map((p) => p.projectName)
   const revenueMap = matchRevenueToProjects(transactions, clockifyProjectNames)
 
@@ -399,6 +413,7 @@ export function buildDashboardData(
     costByProject: sortedProjects,
     collaborators: summaries,
     totalCostAllCollaborators,
+    collaboratorMonthlyCosts,
     pl,
     monthly,
     comparison,

@@ -95,6 +95,8 @@ export interface DashboardData {
   costByProject: ProjectCostData[]
   collaborators: CollaboratorSummary[]
   totalCostAllCollaborators: number
+  /** userId → { month (YYYY-MM) → cost } — for per-collaborator sparklines */
+  collaboratorMonthlyCosts: Record<string, Record<string, number>>
   pl: ProjectPL[]
   monthly: MonthlyData[]
   comparison: ComparisonKPIs | null
