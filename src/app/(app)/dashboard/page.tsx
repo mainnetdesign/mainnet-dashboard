@@ -12,6 +12,7 @@ import AlertsPanel from '@/components/AlertsPanel'
 import RateHistoryChart from '@/components/RateHistoryChart'
 import DashboardSkeleton from '@/components/DashboardSkeleton'
 import PriceSimulator from '@/components/PriceSimulator'
+import OperationalCosts from '@/components/OperationalCosts'
 
 const AUTO_REFRESH_MS = 60 * 60 * 1000
 const DEFAULT_END = new Date().toISOString().split('T')[0]
@@ -476,7 +477,15 @@ export default function Dashboard() {
 
             {data.monthly.length > 1 && <RateHistoryChart data={data.monthly} />}
             <PriceSimulator collaborators={data.collaborators} />
-            <PLTable pl={filteredData.pl.filter((p) => !p.isInternal)} costByProject={filteredData.costByProject} />
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-px mb-8 border border-[var(--bd)]">
+              <div className="lg:col-span-2 bg-[var(--bg3)]">
+                <PLTable pl={filteredData.pl.filter((p) => !p.isInternal)} costByProject={filteredData.costByProject} />
+              </div>
+              <div>
+                <OperationalCosts months={Math.max(1, Math.round((new Date(end).getTime() - new Date(start).getTime()) / (1000 * 60 * 60 * 24 * 30)))} />
+              </div>
+            </div>
             <InternalProjectsSection pl={data.pl.filter((p) => p.isInternal)} costByProject={data.costByProject} />
           </>
         )}
