@@ -14,8 +14,14 @@ import DashboardSkeleton from '@/components/DashboardSkeleton'
 import PriceSimulator from '@/components/PriceSimulator'
 
 const AUTO_REFRESH_MS = 60 * 60 * 1000
-const DEFAULT_START = '2025-06-01'
 const DEFAULT_END = new Date().toISOString().split('T')[0]
+// 6 months back — Clockify free plan limits historical range
+const DEFAULT_START = (() => {
+  const d = new Date()
+  d.setMonth(d.getMonth() - 6)
+  d.setDate(1)
+  return d.toISOString().split('T')[0]
+})()
 
 function InternalProjectsSection({ pl, costByProject }: { pl: ProjectPL[]; costByProject: ProjectCostData[] }) {
   const [open, setOpen] = useState(false)
@@ -465,7 +471,7 @@ export default function Dashboard() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-px mb-8 border border-[var(--bd)]">
               <div className="lg:col-span-2"><CostByProjectChart data={filteredData} /></div>
-              <div><CostByCollaborator data={data} /></div>
+              <div><CostByCollaborator data={data} onRatesChanged={() => fetchData(startRef.current, endRef.current, true)} /></div>
             </div>
 
             {data.monthly.length > 1 && <RateHistoryChart data={data.monthly} />}

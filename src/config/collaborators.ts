@@ -1,4 +1,5 @@
 import { Collaborator } from '@/types'
+export type { Collaborator }
 
 export const COLLABORATORS: Collaborator[] = [
   {

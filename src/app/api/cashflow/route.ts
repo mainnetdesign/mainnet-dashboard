@@ -18,8 +18,9 @@ function monthLabel(ym: string) {
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = req.nextUrl
-    // Use same default as dashboard so Clockify fetch is fast
-    const start = searchParams.get('start') ?? '2025-06-01'
+    // 6 months back — matches dashboard default and Clockify plan limit
+    const sixMonthsAgo = (() => { const d = new Date(); d.setMonth(d.getMonth() - 6); d.setDate(1); return d.toISOString().split('T')[0] })()
+    const start = searchParams.get('start') ?? sixMonthsAgo
     const end   = searchParams.get('end')   ?? new Date().toISOString().split('T')[0]
     const todayStr = new Date().toISOString().split('T')[0]
     const todayYM  = todayStr.slice(0, 7)

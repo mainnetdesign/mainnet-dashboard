@@ -55,7 +55,8 @@ function monthLabel(ym: string): string {
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = req.nextUrl
-    const start = searchParams.get('start') ?? '2025-06-01'
+    const sixMonthsAgo = (() => { const d = new Date(); d.setMonth(d.getMonth() - 6); d.setDate(1); return d.toISOString().split('T')[0] })()
+    const start = searchParams.get('start') ?? sixMonthsAgo
     const end = searchParams.get('end') ?? new Date().toISOString().split('T')[0]
 
     const [entries, transactions] = await Promise.all([

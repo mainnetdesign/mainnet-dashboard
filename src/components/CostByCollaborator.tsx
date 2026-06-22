@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { DashboardData, CollaboratorSummary } from '@/types'
+import RatesEditor from './RatesEditor'
 
 function fmtBRL(v: number) {
   return new Intl.NumberFormat('pt-BR', {
@@ -16,33 +17,47 @@ function fmtRate(v: number) {
   }).format(v) + '/h'
 }
 
-// ─── Inline SVG sparkline ─────────────────────────────────────────────────────
+// ─── Full-width sparkline ────────────────────────────────────────────────────
 
-function Sparkline({ values, color }: { values: number[]; color: string }) {
+function SparklineFull({ values, color }: { values: number[]; color: string }) {
   if (values.length < 2) return null
   const max = Math.max(...values)
   const min = Math.min(...values)
   const range = max - min || 1
-  const W = 120, H = 32, pad = 2
+  const W = 320, H = 52, pX = 2, pY = 4
   const pts = values.map((v, i) => {
-    const x = pad + (i / (values.length - 1)) * (W - pad * 2)
-    const y = pad + (1 - (v - min) / range) * (H - pad * 2)
-    return `${x},${y}`
+    const x = pX + (i / (values.length - 1)) * (W - pX * 2)
+    const y = pY + (1 - (v - min) / range) * (H - pY * 2)
+    return `${x.toFixed(1)},${y.toFixed(1)}`
   })
   const polyline = pts.join(' ')
-  // Area fill path
-  const area = `M${pts[0]} L${pts.join(' L')} L${W - pad},${H - pad} L${pad},${H - pad} Z`
+  const area = `M${pts[0]} L${pts.join(' L')} L${(W - pX).toFixed(1)},${H} L${pX},${H} Z`
+  const [lx, ly] = pts[pts.length - 1].split(',')
+  const gradId = `sg-${color.replace('#', '')}`
   return (
-    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="overflow-visible">
-      <path d={area} fill={color} fillOpacity={0.08} />
-      <polyline points={polyline} fill="none" stroke={color} strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" />
-      {/* Last point dot */}
-      <circle
-        cx={parseFloat(pts[pts.length - 1].split(',')[0])}
-        cy={parseFloat(pts[pts.length - 1].split(',')[1])}
-        r={2.5} fill={color}
-      />
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="w-full" style={{ height: 52 }}>
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.22" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={area} fill={`url(#${gradId})`} />
+      <polyline points={polyline} fill="none" stroke={color} strokeWidth="1.5"
+        strokeLinejoin="round" strokeLinecap="round" />
+      <circle cx={lx} cy={ly} r="3" fill={color} />
     </svg>
+  )
+}
+
+// ─── Section label with extending rule ──────────────────────────────────────
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-3 mb-5">
+      <p className="text-[10px] font-bold text-[var(--tx3)] uppercase tracking-[0.12em] shrink-0">{children}</p>
+      <div className="flex-1 h-px bg-[var(--bd)]" />
+    </div>
   )
 }
 
@@ -83,7 +98,6 @@ function CollaboratorDrawer({
     revenue: number; result: number
   }
 
-  // Projects this collaborator worked on
   const projects: ProjectRow[] = data.costByProject
     .flatMap((p) => {
       const contrib = p.costByCollaborator[collab.id]
@@ -102,19 +116,15 @@ function CollaboratorDrawer({
     })
     .sort((a, b) => b.cost - a.cost)
 
-  // Productive vs internal breakdown
   const productiveHours = projects.filter((p) => !p.isInternal).reduce((s, p) => s + p.hours, 0)
   const internalHours   = projects.filter((p) =>  p.isInternal).reduce((s, p) => s + p.hours, 0)
   const totalH          = collab.totalHours || 1
 
-  // Revenue attribution (only non-internal with revenue > 0)
   const revenueProjects = projects.filter((p) => !p.isInternal && p.revenue > 0)
   const totalRevenue    = revenueProjects.reduce((s, p) => s + p.revenue, 0)
-  // Share: collaborator's cost on those projects vs their total revenue
   const costOnRevenue   = revenueProjects.reduce((s, p) => s + p.cost, 0)
   const netAttribution  = totalRevenue - costOnRevenue
 
-  // Team average rate (excluding this collaborator)
   const others = data.collaborators.filter((c) => c.id !== collab.id && c.totalHours > 0)
   const avgRate = others.length > 0
     ? others.reduce((s, c) => s + c.effectiveHourlyRate, 0) / others.length
@@ -122,39 +132,62 @@ function CollaboratorDrawer({
   const rateDiff = avgRate > 0 ? ((collab.effectiveHourlyRate - avgRate) / avgRate) * 100 : 0
   const rateAbove = rateDiff >= 0
 
-  // Sparkline: monthly cost sorted chronologically
   const monthlyCostMap = (data.collaboratorMonthlyCosts ?? {})[collab.id] ?? {}
   const sparkMonths = Object.keys(monthlyCostMap).sort()
   const sparkValues = sparkMonths.map((m) => monthlyCostMap[m])
 
-  const topProject = projects[0]
+  // Initials from name
+  const initials = collab.name
+    .split(' ')
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase()
 
   return (
     <>
       {/* Backdrop */}
       <div
         className="fixed inset-0 z-40 transition-opacity duration-300"
-        style={{ background: 'rgba(0,0,0,0.45)', opacity: visible ? 1 : 0, backdropFilter: 'blur(2px)' }}
+        style={{
+          background: 'rgba(0,0,0,0.5)',
+          opacity: visible ? 1 : 0,
+          backdropFilter: 'blur(3px)',
+        }}
         onClick={close}
       />
 
       {/* Panel */}
       <aside
-        className="fixed top-0 right-0 z-50 h-full w-full max-w-md bg-[var(--bg)] border-l border-[var(--bd)] shadow-2xl overflow-y-auto flex flex-col transition-transform duration-300 ease-out"
-        style={{ transform: visible ? 'translateX(0)' : 'translateX(100%)' }}
+        className="fixed top-0 right-0 z-50 h-full w-full max-w-[420px] bg-[var(--bg)] shadow-2xl overflow-y-auto flex flex-col transition-transform duration-300 ease-out"
+        style={{
+          transform: visible ? 'translateX(0)' : 'translateX(100%)',
+          borderLeft: '1px solid var(--bd)',
+        }}
       >
+        {/* Accent strip */}
+        <div className="h-[3px] shrink-0" style={{ background: collab.color }} />
+
         {/* ── Header ── */}
-        <div className="px-6 py-5 border-b border-[var(--bd)] flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
-            <span className="w-3 h-3 rounded-full shrink-0" style={{ background: collab.color }} />
+        <div className="px-7 pt-6 pb-5 flex items-start justify-between shrink-0">
+          <div className="flex items-center gap-4">
+            {/* Avatar circle */}
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+              style={{ background: collab.color + '22', color: collab.color, border: `1.5px solid ${collab.color}44` }}
+            >
+              {initials}
+            </div>
             <div>
-              <h2 className="text-base font-bold text-[var(--tx)]">{collab.name}</h2>
-              <p className="text-xs text-[var(--tx3)] mt-0.5">{projects.length} projeto{projects.length !== 1 ? 's' : ''} no período</p>
+              <h2 className="text-base font-bold text-[var(--tx)] leading-tight">{collab.name}</h2>
+              <p className="text-xs text-[var(--tx3)] mt-0.5">
+                {projects.length} projeto{projects.length !== 1 ? 's' : ''} no período
+              </p>
             </div>
           </div>
           <button
             onClick={close}
-            className="w-8 h-8 flex items-center justify-center text-[var(--tx3)] hover:text-[var(--tx)] border border-[var(--bd)] hover:border-[var(--bd3)] transition-colors"
+            className="w-7 h-7 flex items-center justify-center text-[var(--tx3)] hover:text-[var(--tx)] transition-colors mt-0.5"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -162,135 +195,25 @@ function CollaboratorDrawer({
           </button>
         </div>
 
-        {/* ── KPI strip ── */}
-        <div className="grid grid-cols-3 divide-x divide-[var(--bd)] border-b border-[var(--bd)] shrink-0">
-          {[
-            { label: 'Custo total',  value: fmtBRL(collab.totalCost),              color: 'var(--tx)' },
-            { label: 'Horas totais', value: `${Math.round(collab.totalHours)}h`,   color: '#FB923C' },
-            { label: 'Taxa efetiva', value: fmtRate(collab.effectiveHourlyRate),    color: '#60A5FA' },
-          ].map((k) => (
-            <div key={k.label} className="px-4 py-5 text-center">
-              <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-2">{k.label}</p>
-              <p className="text-lg font-bold" style={{ color: k.color }}>{k.value}</p>
+        {/* ── Hero: big cost ── */}
+        <div className="px-7 pb-6 shrink-0">
+          <div className="flex items-end justify-between">
+            <div>
+              <p className="text-[10px] text-[var(--tx3)] uppercase tracking-wider mb-1.5">Custo total</p>
+              <p className="text-[2.4rem] font-black text-[var(--tx)] leading-none tracking-tight">
+                {fmtBRL(collab.totalCost)}
+              </p>
             </div>
-          ))}
-        </div>
-
-        {/* ── Comparação com média + sparkline ── */}
-        <div className="grid grid-cols-2 divide-x divide-[var(--bd)] border-b border-[var(--bd)] shrink-0">
-
-          {/* Vs team average */}
-          <div className="px-5 py-4">
-            <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-2">
-              Vs média do time
-            </p>
-            <div className="flex items-center gap-2">
-              <span
-                className="text-lg font-bold"
-                style={{ color: rateAbove ? '#F87171' : '#22C55E' }}
-              >
-                {rateAbove ? '▲' : '▼'} {Math.abs(rateDiff).toFixed(1)}%
-              </span>
+            <div className="text-right pb-1">
+              <p className="text-[10px] text-[var(--tx3)] uppercase tracking-wider mb-1.5">Do total</p>
+              <p className="text-2xl font-bold leading-none" style={{ color: collab.color }}>
+                {collab.percentOfTotal.toFixed(1)}%
+              </p>
             </div>
-            <p className="text-[11px] text-[var(--tx3)] mt-1">
-              Média: {fmtRate(avgRate)}
-            </p>
           </div>
 
-          {/* Sparkline */}
-          <div className="px-5 py-4">
-            <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-2">
-              Custo mensal
-            </p>
-            {sparkValues.length >= 2 ? (
-              <>
-                <Sparkline values={sparkValues} color={collab.color} />
-                <p className="text-[11px] text-[var(--tx3)] mt-1">
-                  {sparkMonths[0]?.slice(0,7)} → {sparkMonths[sparkMonths.length-1]?.slice(0,7)}
-                </p>
-              </>
-            ) : (
-              <p className="text-xs text-[var(--tx3)]">Dados insuficientes</p>
-            )}
-          </div>
-        </div>
-
-        {/* ── Breakdown produtivo vs interno ── */}
-        <div className="px-6 py-4 border-b border-[var(--bd)] shrink-0">
-          <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-3">
-            Distribuição de horas
-          </p>
-          {/* Segmented bar */}
-          <div className="flex h-2 gap-0.5 rounded-full overflow-hidden mb-3">
-            <div style={{ width: `${(productiveHours / totalH) * 100}%`, background: '#22C55E', minWidth: productiveHours > 0 ? 2 : 0 }} />
-            <div style={{ width: `${(internalHours   / totalH) * 100}%`, background: '#FBBF24', minWidth: internalHours > 0 ? 2 : 0 }} />
-          </div>
-          <div className="flex gap-5 text-xs">
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-sm" style={{ background: '#22C55E' }} />
-              <span className="text-[var(--tx2)]">
-                <span className="font-bold">{Math.round(productiveHours)}h</span>
-                <span className="text-[var(--tx3)] ml-1">cliente</span>
-              </span>
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-sm" style={{ background: '#FBBF24' }} />
-              <span className="text-[var(--tx2)]">
-                <span className="font-bold">{Math.round(internalHours)}h</span>
-                <span className="text-[var(--tx3)] ml-1">interno</span>
-              </span>
-            </span>
-            <span className="text-[var(--tx3)] ml-auto">
-              {productiveHours > 0 ? `${((productiveHours / totalH) * 100).toFixed(0)}% produtivo` : 'sem horas de cliente'}
-            </span>
-          </div>
-        </div>
-
-        {/* ── Receita gerada vs custo ── */}
-        {revenueProjects.length > 0 && (
-          <div className="px-6 py-4 border-b border-[var(--bd)] shrink-0">
-            <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-3">
-              Receita gerada vs custo
-            </p>
-            <div className="flex items-end justify-between gap-4">
-              <div>
-                <p className="text-[11px] text-[var(--tx3)] mb-1">Receita dos projetos</p>
-                <p className="text-base font-bold" style={{ color: '#22C55E' }}>{fmtBRL(totalRevenue)}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-[11px] text-[var(--tx3)] mb-1">Custo dele</p>
-                <p className="text-base font-bold" style={{ color: '#F87171' }}>{fmtBRL(costOnRevenue)}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-[11px] text-[var(--tx3)] mb-1">Resultado líquido</p>
-                <p className="text-base font-bold" style={{ color: netAttribution >= 0 ? '#22C55E' : '#F87171' }}>
-                  {netAttribution >= 0 ? '+' : ''}{fmtBRL(netAttribution)}
-                </p>
-              </div>
-            </div>
-            {/* Mini bar: cost share of revenue */}
-            <div className="mt-3 h-1.5 bg-[var(--bd)] rounded-full overflow-hidden">
-              <div
-                className="h-full rounded-full"
-                style={{
-                  width: `${Math.min(100, totalRevenue > 0 ? (costOnRevenue / totalRevenue) * 100 : 0)}%`,
-                  background: '#F87171',
-                }}
-              />
-            </div>
-            <p className="text-[11px] text-[var(--tx3)] mt-1">
-              Custo representa {totalRevenue > 0 ? ((costOnRevenue / totalRevenue) * 100).toFixed(1) : 0}% da receita
-            </p>
-          </div>
-        )}
-
-        {/* ── Participação no custo total ── */}
-        <div className="px-6 py-4 border-b border-[var(--bd)] shrink-0">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider">Participação no custo total</p>
-            <p className="text-sm font-bold text-[var(--tx)]">{collab.percentOfTotal.toFixed(1)}%</p>
-          </div>
-          <div className="h-1.5 bg-[var(--bd)] rounded-full overflow-hidden">
+          {/* Participation bar */}
+          <div className="mt-4 h-[3px] bg-[var(--bd)] rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-700"
               style={{ width: `${collab.percentOfTotal}%`, background: collab.color }}
@@ -298,24 +221,160 @@ function CollaboratorDrawer({
           </div>
         </div>
 
+        {/* ── Secondary stats ── */}
+        <div className="px-7 pb-6 flex gap-7 shrink-0">
+          <div>
+            <p className="text-[10px] text-[var(--tx3)] uppercase tracking-wider mb-1.5">Horas</p>
+            <p className="text-xl font-bold leading-none" style={{ color: '#FB923C' }}>
+              {Math.round(collab.totalHours)}h
+            </p>
+          </div>
+          <div>
+            <p className="text-[10px] text-[var(--tx3)] uppercase tracking-wider mb-1.5">Taxa efetiva</p>
+            <p className="text-xl font-bold leading-none" style={{ color: '#60A5FA' }}>
+              {fmtRate(collab.effectiveHourlyRate)}
+            </p>
+          </div>
+          <div className="ml-auto text-right">
+            <p className="text-[10px] text-[var(--tx3)] uppercase tracking-wider mb-1.5">Vs time</p>
+            <p className="text-xl font-bold leading-none" style={{ color: rateAbove ? '#F87171' : '#22C55E' }}>
+              {rateAbove ? '▲' : '▼'} {Math.abs(rateDiff).toFixed(1)}%
+            </p>
+            <p className="text-[10px] text-[var(--tx3)] mt-1">média {fmtRate(avgRate)}</p>
+          </div>
+        </div>
+
+        <div className="mx-7 border-t border-[var(--bd)] shrink-0" />
+
+        {/* ── Evolução mensal (sparkline) ── */}
+        {sparkValues.length >= 2 && (
+          <div className="px-7 py-6 shrink-0">
+            <div className="flex items-center justify-between mb-3">
+              <SectionLabel>Evolução mensal</SectionLabel>
+              <p className="text-[10px] text-[var(--tx3)] -mt-5">
+                {sparkMonths[0]?.slice(0, 7)} → {sparkMonths[sparkMonths.length - 1]?.slice(0, 7)}
+              </p>
+            </div>
+            <SparklineFull values={sparkValues} color={collab.color} />
+            <div className="flex justify-between mt-2">
+              <span className="text-[10px] text-[var(--tx3)]">{fmtBRL(Math.min(...sparkValues))}</span>
+              <span className="text-[10px] text-[var(--tx3)]">{fmtBRL(Math.max(...sparkValues))}</span>
+            </div>
+          </div>
+        )}
+
+        {sparkValues.length >= 2 && <div className="mx-7 border-t border-[var(--bd)] shrink-0" />}
+
+        {/* ── Distribuição de horas ── */}
+        <div className="px-7 py-6 shrink-0">
+          <SectionLabel>Distribuição de horas</SectionLabel>
+
+          {/* Segmented bar */}
+          <div className="flex h-2 rounded-full overflow-hidden gap-0.5 mb-4">
+            <div
+              style={{
+                width: `${(productiveHours / totalH) * 100}%`,
+                background: '#22C55E',
+                minWidth: productiveHours > 0 ? 3 : 0,
+              }}
+            />
+            <div
+              style={{
+                width: `${(internalHours / totalH) * 100}%`,
+                background: '#FBBF24',
+                minWidth: internalHours > 0 ? 3 : 0,
+              }}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex gap-5 text-xs">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-sm shrink-0" style={{ background: '#22C55E' }} />
+                <span className="font-bold text-[var(--tx)]">{Math.round(productiveHours)}h</span>
+                <span className="text-[var(--tx3)]">cliente</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-sm shrink-0" style={{ background: '#FBBF24' }} />
+                <span className="font-bold text-[var(--tx)]">{Math.round(internalHours)}h</span>
+                <span className="text-[var(--tx3)]">interno</span>
+              </span>
+            </div>
+            <span className="text-[10px] text-[var(--tx3)]">
+              {productiveHours > 0
+                ? `${((productiveHours / totalH) * 100).toFixed(0)}% produtivo`
+                : 'sem horas de cliente'}
+            </span>
+          </div>
+        </div>
+
+        {/* ── Receita vs custo ── */}
+        {revenueProjects.length > 0 && (
+          <>
+            <div className="mx-7 border-t border-[var(--bd)] shrink-0" />
+            <div className="px-7 py-6 shrink-0">
+              <SectionLabel>Receita gerada vs custo</SectionLabel>
+
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                <div>
+                  <p className="text-[10px] text-[var(--tx3)] mb-1.5">Receita</p>
+                  <p className="text-lg font-bold leading-none" style={{ color: '#22C55E' }}>
+                    {fmtBRL(totalRevenue)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-[var(--tx3)] mb-1.5">Custo dele</p>
+                  <p className="text-lg font-bold leading-none" style={{ color: '#F87171' }}>
+                    {fmtBRL(costOnRevenue)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-[var(--tx3)] mb-1.5">Resultado</p>
+                  <p className="text-lg font-bold leading-none" style={{ color: netAttribution >= 0 ? '#22C55E' : '#F87171' }}>
+                    {netAttribution >= 0 ? '+' : ''}{fmtBRL(netAttribution)}
+                  </p>
+                </div>
+              </div>
+
+              {/* Cost-share bar */}
+              <div className="h-1.5 bg-[var(--bd)] rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${Math.min(100, totalRevenue > 0 ? (costOnRevenue / totalRevenue) * 100 : 0)}%`,
+                    background: '#F87171',
+                  }}
+                />
+              </div>
+              <p className="text-[10px] text-[var(--tx3)] mt-2">
+                Custo representa {totalRevenue > 0 ? ((costOnRevenue / totalRevenue) * 100).toFixed(1) : 0}% da receita
+              </p>
+            </div>
+          </>
+        )}
+
         {/* ── Projetos ── */}
+        <div className="mx-7 border-t border-[var(--bd)] shrink-0" />
         <div className="flex-1 overflow-y-auto">
-          <div className="px-6 pt-5 pb-2">
-            <p className="text-[11px] font-bold text-[var(--tx3)] uppercase tracking-wider">Projetos trabalhados</p>
+          <div className="px-7 pt-6 pb-2">
+            <SectionLabel>Projetos trabalhados ({projects.length})</SectionLabel>
           </div>
 
           {projects.length === 0 ? (
-            <p className="px-6 py-10 text-center text-sm text-[var(--tx3)]">Nenhum projeto encontrado</p>
+            <p className="px-7 py-10 text-center text-sm text-[var(--tx3)]">Nenhum projeto encontrado</p>
           ) : (
-            <div className="divide-y divide-[var(--bd)]">
+            <div className="px-7 space-y-5 pb-8">
               {projects.map((p) => (
-                <div key={p.name} className="px-6 py-4 hover:bg-[var(--bg3)] transition-colors">
-                  <div className="flex items-start justify-between gap-3 mb-1.5">
+                <div key={p.name}>
+                  {/* Name row */}
+                  <div className="flex items-center justify-between gap-3 mb-1.5">
                     <div className="flex items-center gap-2 min-w-0">
                       <p className="text-sm font-semibold text-[var(--tx)] truncate">{p.name}</p>
                       {p.isInternal && (
-                        <span className="shrink-0 text-[10px] px-1.5 py-0.5 font-semibold border"
-                          style={{ color: '#FBBF24', borderColor: '#FBBF2433', background: '#FBBF2410' }}>
+                        <span
+                          className="shrink-0 text-[9px] px-1.5 py-0.5 font-bold uppercase tracking-wide"
+                          style={{ color: '#FBBF24', background: '#FBBF2412', border: '1px solid #FBBF2430' }}
+                        >
                           interno
                         </span>
                       )}
@@ -324,39 +383,34 @@ function CollaboratorDrawer({
                       {fmtBRL(p.cost)}
                     </p>
                   </div>
-                  <div className="flex items-center justify-between text-xs text-[var(--tx3)] mb-2">
+
+                  {/* Sub-row */}
+                  <div className="flex items-center justify-between text-[11px] mb-2">
                     <span style={{ color: '#FB923C' }}>{Math.round(p.hours * 10) / 10}h</span>
-                    <span>{p.hours > 0 ? fmtRate(p.cost / p.hours) + ' efetivo' : '—'}</span>
+                    <span className="text-[var(--tx3)]">
+                      {p.hours > 0 ? fmtRate(p.cost / p.hours) : '—'}
+                    </span>
+                    <span className="text-[var(--tx3)]">
+                      {p.pctOfHours.toFixed(1)}% das horas
+                    </span>
                   </div>
-                  <div className="h-1 bg-[var(--bd)] rounded-full overflow-hidden">
-                    <div className="h-full rounded-full" style={{
-                      width: `${Math.min(100, p.pctOfHours)}%`,
-                      background: p.isInternal ? '#FBBF24' : collab.color,
-                      opacity: 0.6,
-                    }} />
+
+                  {/* Progress bar */}
+                  <div className="h-[2px] bg-[var(--bd)] rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        width: `${Math.min(100, p.pctOfHours)}%`,
+                        background: p.isInternal ? '#FBBF24' : collab.color,
+                        opacity: 0.7,
+                      }}
+                    />
                   </div>
-                  <p className="text-[10px] text-[var(--tx3)] mt-1">
-                    {p.pctOfHours.toFixed(1)}% das horas · {p.pctOfCost.toFixed(1)}% do custo
-                  </p>
                 </div>
               ))}
             </div>
           )}
-          <div className="h-8" />
         </div>
-
-        {/* ── Footer ── */}
-        {topProject && (
-          <div className="px-6 py-4 border-t border-[var(--bd)] shrink-0 bg-[var(--bg3)]">
-            <p className="text-[11px] text-[var(--tx3)] uppercase tracking-wider mb-1">Projeto com mais horas</p>
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-[var(--tx)]">{topProject.name}</p>
-              <p className="text-xs font-bold" style={{ color: '#FB923C' }}>
-                {Math.round(topProject.hours)}h · {topProject.pctOfHours.toFixed(0)}%
-              </p>
-            </div>
-          </div>
-        )}
       </aside>
     </>
   )
@@ -364,8 +418,9 @@ function CollaboratorDrawer({
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function CostByCollaborator({ data }: Props) {
+export default function CostByCollaborator({ data, onRatesChanged }: Props & { onRatesChanged?: () => void }) {
   const [selected, setSelected] = useState<CollaboratorSummary | null>(null)
+  const [editingRates, setEditingRates] = useState(false)
 
   const totalMonths = (() => {
     const s = new Date(data.period.start)
@@ -376,7 +431,20 @@ export default function CostByCollaborator({ data }: Props) {
   return (
     <>
       <div className="bg-[var(--bg3)] p-6 border border-[var(--bd)]">
-        <h2 className="text-base font-bold text-[var(--tx)] mb-1">Custo por colaborador</h2>
+        <div className="flex items-start justify-between mb-1">
+          <h2 className="text-base font-bold text-[var(--tx)]">Custo por colaborador</h2>
+          <button
+            onClick={() => setEditingRates(true)}
+            className="flex items-center gap-1.5 text-xs text-[var(--tx3)] hover:text-[var(--tx)] transition-colors"
+            title="Editar taxas e salários"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Editar taxas
+          </button>
+        </div>
         <p className="text-sm text-[var(--tx2)] mb-6">Total no período de {totalMonths} meses</p>
 
         <div className="space-y-5">
@@ -414,6 +482,13 @@ export default function CostByCollaborator({ data }: Props) {
 
       {selected && (
         <CollaboratorDrawer collab={selected} data={data} onClose={() => setSelected(null)} />
+      )}
+
+      {editingRates && (
+        <RatesEditor
+          onClose={() => setEditingRates(false)}
+          onSaved={() => { setEditingRates(false); onRatesChanged?.() }}
+        />
       )}
     </>
   )

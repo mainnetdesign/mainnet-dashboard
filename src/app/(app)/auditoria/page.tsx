@@ -136,8 +136,11 @@ function BarTooltip({ active, payload, label }: { active?: boolean; payload?: Ar
   )
 }
 
-const DEFAULT_START = '2025-06-01'
 const DEFAULT_END = new Date().toISOString().split('T')[0]
+const DEFAULT_START = (() => {
+  const d = new Date(); d.setMonth(d.getMonth() - 6); d.setDate(1)
+  return d.toISOString().split('T')[0]
+})()
 type FilterStatus = 'all' | TxStatus
 
 export default function AuditoriaPage() {

@@ -5,8 +5,11 @@ import DashboardSkeleton from '@/components/DashboardSkeleton'
 import { DashboardData } from '@/types'
 
 const AUTO_REFRESH_MS = 60 * 60 * 1000
-const DEFAULT_START = '2025-06-01'
 const DEFAULT_END = new Date().toISOString().split('T')[0]
+const DEFAULT_START = (() => {
+  const d = new Date(); d.setMonth(d.getMonth() - 6); d.setDate(1)
+  return d.toISOString().split('T')[0]
+})()
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 

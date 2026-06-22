@@ -3,21 +3,21 @@
 
 /* ── Light mode (default) ── */
 :root {
-  --bg:    #FFFFFF;
-  --bg2:   #F5F5F5;
-  --bg3:   #EFEFEF;
-  --bg4:   #E8E8E8;
-  --tx:    #000000;
-  --tx2:   #555555;
-  --tx3:   #888888;
-  --bd:    #DDDDDD;
-  --bd2:   #CCCCCC;
-  --bd3:   #BBBBBB;
-  --inv:   #000000;
+  --bg:    #F1F2F4;
+  --bg2:   #E8E9EC;
+  --bg3:   #FFFFFF;
+  --bg4:   #F7F8FA;
+  --tx:    #111827;
+  --tx2:   #374151;
+  --tx3:   #6B7280;
+  --bd:    #E5E7EB;
+  --bd2:   #D1D5DB;
+  --bd3:   #9CA3AF;
+  --inv:   #111827;
   --inv-tx:#FFFFFF;
 
-  --background: #FFFFFF;
-  --foreground: #000000;
+  --background: #F1F2F4;
+  --foreground: #111827;
 }
 
 /* ── Dark mode ── */

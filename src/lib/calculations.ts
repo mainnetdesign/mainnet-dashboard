@@ -1,18 +1,34 @@
 import { ClockifyEntry, ProjectCostData, CollaboratorSummary, ProjectPL, DashboardData, MonthlyData, ComparisonKPIs, AlertItem } from '@/types'
-import { COLLABORATORS, COLLABORATOR_MAP } from '@/config/collaborators'
+import { COLLABORATORS, COLLABORATOR_MAP, Collaborator } from '@/config/collaborators'
 import { NotionTransaction } from '@/types'
 import { extractProjectName, getKnownMapping } from '@/config/projectMapping'
 import { INTERNAL_PROJECT_NAMES } from '@/config/internalProjects'
+import fs from 'fs'
+import path from 'path'
 
-const LOW_MARGIN_THRESHOLD = 0.20 // below 20% margin = "Margem baixa"
+const LOW_MARGIN_THRESHOLD = 0.20
+
+export type RateOverrides = Record<string, { monthlySalary?: number; hourlyRate?: number }>
+
+export function readRateOverrides(): RateOverrides {
+  try {
+    const p = path.join(process.cwd(), 'src/config/rates-override.json')
+    return JSON.parse(fs.readFileSync(p, 'utf-8'))
+  } catch { return {} }
+}
+
+function applyOverride(collab: Collaborator, overrides: RateOverrides): Collaborator {
+  const o = overrides[collab.id]
+  return o ? { ...collab, ...o } : collab
+}
 
 // --- COST CALCULATIONS ---
 
-export function calculateCosts(entries: ClockifyEntry[]): {
+export function calculateCosts(entries: ClockifyEntry[], rateOverrides: RateOverrides = {}): {
   projectCosts: Map<string, ProjectCostData>
   overheadCost: number
   overheadHours: number
-  userMonthHours: Map<string, Map<string, number>> // userId → month → total hours
+  userMonthHours: Map<string, Map<string, number>>
 } {
   // Step 1: Build userMonthHours (total hours per user per month across all entries)
   const userMonthHours = new Map<string, Map<string, number>>()
@@ -33,24 +49,22 @@ export function calculateCosts(entries: ClockifyEntry[]): {
   let overheadHours = 0
 
   for (const entry of entries) {
-    const collab = COLLABORATOR_MAP.get(entry.userId)
-    if (!collab) continue
+    const raw = COLLABORATOR_MAP.get(entry.userId)
+    if (!raw) continue
+    const collab = applyOverride(raw, rateOverrides)
 
     const hours = entry.duration / 3600
 
-    // Determine hourly rate
     let rate: number
     if (collab.hourlyRate !== undefined) {
       rate = collab.hourlyRate
     } else {
-      // Dynamic: salary / total hours that month
       const totalHoursThisMonth = userMonthHours.get(entry.userId)?.get(entry.month) ?? hours
       rate = (collab.monthlySalary ?? 0) / totalHoursThisMonth
     }
 
     const cost = hours * rate
 
-    // Overhead (no project)
     if (!entry.projectId) {
       overheadCost += cost
       overheadHours += hours
@@ -93,13 +107,15 @@ export function calculateCosts(entries: ClockifyEntry[]): {
 
 export function buildCollaboratorSummaries(
   entries: ClockifyEntry[],
-  userMonthHours: Map<string, Map<string, number>>
+  userMonthHours: Map<string, Map<string, number>>,
+  rateOverrides: RateOverrides = {}
 ): { summaries: CollaboratorSummary[]; total: number } {
   const totals = new Map<string, { totalCost: number; totalHours: number }>()
 
   for (const entry of entries) {
-    const collab = COLLABORATOR_MAP.get(entry.userId)
-    if (!collab) continue
+    const raw = COLLABORATOR_MAP.get(entry.userId)
+    if (!raw) continue
+    const collab = applyOverride(raw, rateOverrides)
 
     const hours = entry.duration / 3600
     let rate: number
@@ -212,14 +228,16 @@ export function buildDashboardData(
   startDate: string,
   endDate: string
 ): DashboardData {
-  const { projectCosts, overheadCost, overheadHours, userMonthHours } = calculateCosts(entries)
-  const { summaries, total: totalCostAllCollaborators } = buildCollaboratorSummaries(entries, userMonthHours)
+  const rateOverrides = readRateOverrides()
+  const { projectCosts, overheadCost, overheadHours, userMonthHours } = calculateCosts(entries, rateOverrides)
+  const { summaries, total: totalCostAllCollaborators } = buildCollaboratorSummaries(entries, userMonthHours, rateOverrides)
 
   // Monthly cost per collaborator (for sparklines)
   const collaboratorMonthlyCosts: Record<string, Record<string, number>> = {}
   for (const entry of entries) {
-    const collab = COLLABORATOR_MAP.get(entry.userId)
-    if (!collab) continue
+    const raw = COLLABORATOR_MAP.get(entry.userId)
+    if (!raw) continue
+    const collab = applyOverride(raw, rateOverrides)
     const hours = entry.duration / 3600
     const totalH = userMonthHours.get(entry.userId)?.get(entry.month) ?? hours
     const rate = collab.hourlyRate !== undefined ? collab.hourlyRate : (collab.monthlySalary ?? 0) / totalH
@@ -306,8 +324,9 @@ export function buildDashboardData(
   // Cost per month from entries
   const monthlyCost = new Map<string, number>()
   for (const entry of entries) {
-    const collab = COLLABORATOR_MAP.get(entry.userId)
-    if (!collab) continue
+    const rawC = COLLABORATOR_MAP.get(entry.userId)
+    if (!rawC) continue
+    const collab = applyOverride(rawC, rateOverrides)
     const hours = entry.duration / 3600
     let rate: number
     if (collab.hourlyRate !== undefined) {
