@@ -483,7 +483,7 @@ export default function Dashboard() {
                 <PLTable pl={filteredData.pl.filter((p) => !p.isInternal)} costByProject={filteredData.costByProject} />
               </div>
               <div>
-                <OperationalCosts months={Math.max(1, Math.round((new Date(end).getTime() - new Date(start).getTime()) / (1000 * 60 * 60 * 24 * 30)))} />
+                <OperationalCosts months={Math.max(1, (new Date(end).getFullYear() - new Date(start).getFullYear()) * 12 + new Date(end).getMonth() - new Date(start).getMonth())} />
               </div>
             </div>
             <InternalProjectsSection pl={data.pl.filter((p) => p.isInternal)} costByProject={data.costByProject} />

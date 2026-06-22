@@ -5,6 +5,7 @@ import {
   ResponsiveContainer, CartesianGrid, ReferenceLine, Cell, Area,
 } from 'recharts'
 import { useTheme } from 'next-themes'
+import OperationalCosts from '@/components/OperationalCosts'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -419,6 +420,11 @@ export default function FluxoPage() {
             </ResponsiveContainer>
           )}
         </div>
+      </div>
+
+      {/* ── Custos Operacionais ── */}
+      <div className="mb-8">
+        <OperationalCosts months={Math.max(1, data?.monthly.filter(m => !m.isFuture).length ?? 1)} />
       </div>
 
       {/* ── Upcoming + Overdue ── */}
