@@ -1,6 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { COLLABORATORS } from '@/config/collaborators'
+import * as Button from '@/components/ui/button'
+import * as Input from '@/components/ui/input'
 
 interface RateOverride {
   monthlySalary?: number
@@ -90,8 +92,8 @@ export default function RatesEditor({ onClose, onSaved }: Props) {
         {/* Header */}
         <div className="px-7 pt-6 pb-5 flex items-start justify-between shrink-0 border-b border-[var(--bd)]">
           <div>
-            <h2 className="text-base font-bold text-[var(--tx)]">Taxas & Salários</h2>
-            <p className="text-xs text-[var(--tx3)] mt-0.5">Edite os valores — os custos são recalculados ao salvar</p>
+            <h2 className="text-title-h6 text-[var(--tx)]">Taxas & Salários</h2>
+            <p className="text-paragraph-xs text-[var(--tx3)] mt-0.5">Edite os valores — os custos são recalculados ao salvar</p>
           </div>
           <button onClick={handleClose} className="w-7 h-7 flex items-center justify-center text-[var(--tx3)] hover:text-[var(--tx)] transition-colors">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -118,32 +120,33 @@ export default function RatesEditor({ onClose, onSaved }: Props) {
                       {c.name.slice(0, 2).toUpperCase()}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-[var(--tx)]">{c.name}</p>
-                      <p className="text-[10px] text-[var(--tx3)]">{isHourly ? 'Taxa fixa/hora' : 'Salário mensal'}</p>
+                      <p className="text-label-sm text-[var(--tx)]">{c.name}</p>
+                      <p className="text-paragraph-xs text-[var(--tx3)]">{isHourly ? 'Taxa fixa/hora' : 'Salário mensal'}</p>
                     </div>
                   </div>
                   {changed && (
-                    <span className="text-[10px] px-2 py-0.5 font-medium" style={{ background: '#6366F122', color: '#6366F1', border: '1px solid #6366F144' }}>
+                    <span className="text-label-2xs px-2 py-0.5" style={{ background: '#6366F122', color: '#6366F1', border: '1px solid #6366F144' }}>
                       alterado
                     </span>
                   )}
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-[var(--tx3)] shrink-0">R$</span>
-                  <input
-                    type="number"
-                    min={0}
-                    step={isHourly ? 1 : 50}
-                    value={current}
-                    onChange={(e) => setValue(c.id, field, parseFloat(e.target.value) || 0)}
-                    className="flex-1 px-3 py-2 text-sm bg-[var(--bg)] border border-[var(--bd)] text-[var(--tx)] focus:outline-none focus:border-[var(--bd3)] transition-colors"
-                  />
-                  <span className="text-xs text-[var(--tx3)] shrink-0">{isHourly ? '/h' : '/mês'}</span>
-                </div>
+                <Input.Root size="medium">
+                  <Input.Affix>R$</Input.Affix>
+                  <Input.Wrapper>
+                    <Input.Input
+                      type="number"
+                      min={0}
+                      step={isHourly ? 1 : 50}
+                      value={current}
+                      onChange={(e) => setValue(c.id, field, parseFloat(e.target.value) || 0)}
+                    />
+                  </Input.Wrapper>
+                  <Input.Affix>{isHourly ? '/h' : '/mês'}</Input.Affix>
+                </Input.Root>
 
                 {changed && original !== undefined && (
-                  <p className="text-[10px] text-[var(--tx3)] mt-1">
+                  <p className="text-paragraph-xs text-[var(--tx3)] mt-1">
                     Original: {fmtBRL(original)}{isHourly ? '/h' : '/mês'}
                     <button
                       className="ml-2 underline hover:text-[var(--tx2)]"
@@ -166,19 +169,12 @@ export default function RatesEditor({ onClose, onSaved }: Props) {
 
         {/* Footer */}
         <div className="px-7 py-5 border-t border-[var(--bd)] shrink-0 flex gap-3">
-          <button
-            onClick={handleClose}
-            className="flex-1 py-2 text-sm border border-[var(--bd)] text-[var(--tx2)] hover:border-[var(--bd3)] hover:text-[var(--tx)] transition-colors"
-          >
+          <Button.Root variant="neutral" mode="stroke" size="medium" className="flex-1" onClick={handleClose}>
             Cancelar
-          </button>
-          <button
-            onClick={save}
-            disabled={saving}
-            className="flex-1 py-2 text-sm font-medium bg-[var(--inv)] text-[var(--inv-tx)] hover:opacity-80 transition-opacity disabled:opacity-50"
-          >
+          </Button.Root>
+          <Button.Root variant="primary" mode="filled" size="medium" className="flex-1" onClick={save} disabled={saving}>
             {saving ? 'Salvando...' : 'Salvar e recalcular'}
-          </button>
+          </Button.Root>
         </div>
       </aside>
     </>

@@ -102,7 +102,7 @@ export default function Sidebar() {
             key={item.href}
             href={item.href}
             onClick={() => setMobileOpen(false)}
-            className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${
+            className={`flex items-center gap-3 px-3 py-2.5 text-label-sm transition-all ${
               active
                 ? 'bg-[var(--inv)] text-[var(--inv-tx)]'
                 : 'text-[var(--tx2)] hover:bg-[var(--bg3)] hover:text-[var(--tx)]'
@@ -132,7 +132,7 @@ export default function Sidebar() {
               priority
               className="dark:invert"
             />
-            <p className="text-[10px] font-semibold text-[var(--tx3)] uppercase tracking-widest">Estúdio de Design</p>
+            <p className="text-label-2xs text-[var(--tx3)] uppercase tracking-widest">Estúdio de Design</p>
           </div>
           <ThemeToggle />
         </div>
@@ -141,7 +141,7 @@ export default function Sidebar() {
 
         {/* Footer */}
         <div className="px-5 py-4 border-t border-[var(--bd)]">
-          <p className="text-[10px] text-[var(--tx3)] leading-relaxed uppercase tracking-wider">Somente leitura · dados ao vivo</p>
+          <p className="text-paragraph-xs text-[var(--tx3)] uppercase tracking-wider">Somente leitura · dados ao vivo</p>
         </div>
       </aside>
 

@@ -99,10 +99,10 @@ function UtilizationRing({ pct }: { pct: number }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
-        <span className="text-sm font-bold leading-none" style={{ color }}>
+        <span className="text-label-sm" style={{ color }}>
           {pct.toFixed(0)}%
         </span>
-        <span className="text-[10px] text-[var(--tx3)] leading-none">util.</span>
+        <span className="text-paragraph-xs">util.</span>
       </div>
     </div>
   )
@@ -130,8 +130,8 @@ function SegmentedBar({
 function StatCell({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--tx3)]">{label}</span>
-      <span className="text-base font-bold" style={{ color: color ?? 'var(--tx)' }}>{value}</span>
+      <span className="text-label-2xs">{label}</span>
+      <span className="text-label-md" style={{ color: color ?? 'var(--tx)' }}>{value}</span>
     </div>
   )
 }
@@ -149,14 +149,14 @@ function KPICard({
 }) {
   return (
     <div className="bg-[var(--bg3)] border border-[var(--bd)] p-5">
-      <p className="text-[11px] font-semibold text-[var(--tx3)] uppercase tracking-wider mb-2">{label}</p>
+      <p className="text-label-2xs mb-2">{label}</p>
       <p
-        className="text-3xl font-bold leading-tight mb-1"
+        className="text-title-h4 mb-1"
         style={valueColor ? { color: valueColor } : undefined}
       >
         {value}
       </p>
-      {sub && <p className="text-sm text-[var(--tx2)]">{sub}</p>}
+      {sub && <p className="text-paragraph-sm">{sub}</p>}
     </div>
   )
 }
@@ -170,15 +170,15 @@ function CollaboratorCard({ m, rank }: { m: CollaboratorMetrics; rank: number })
       {/* ── top row: rank + name + ring ── */}
       <div className="flex items-center gap-4">
         {/* rank number */}
-        <span className="text-[11px] font-bold text-[var(--tx3)] w-4 shrink-0 tabular-nums">#{rank}</span>
+        <span className="text-label-2xs w-4 shrink-0 tabular-nums">#{rank}</span>
 
         {/* color dot + name */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
             <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: m.color }} />
-            <span className="font-bold text-[var(--tx)] text-base truncate">{m.name}</span>
+            <span className="text-label-md truncate">{m.name}</span>
           </div>
-          <p className="text-xs text-[var(--tx3)] ml-4.5">
+          <p className="text-paragraph-xs ml-4.5">
             {m.totalHours.toFixed(0)}h registradas · {m.availableHours.toFixed(0)}h disponíveis
           </p>
         </div>
@@ -196,21 +196,21 @@ function CollaboratorCard({ m, rank }: { m: CollaboratorMetrics; rank: number })
           available={m.availableHours}
         />
         {/* bar labels */}
-        <div className="flex items-center gap-4 text-xs text-[var(--tx2)]">
+        <div className="flex items-center gap-4 text-paragraph-xs">
           <span className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-sm inline-block shrink-0" style={{ background: '#22C55E' }} />
             <span style={{ color: '#22C55E' }} className="font-semibold">{m.productiveHours.toFixed(0)}h</span>
-            <span className="text-[var(--tx3)]">produtivas</span>
+            <span>produtivas</span>
           </span>
           <span className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-sm inline-block shrink-0" style={{ background: '#FBBF24' }} />
             <span style={{ color: '#FBBF24' }} className="font-semibold">{m.internalHours.toFixed(0)}h</span>
-            <span className="text-[var(--tx3)]">internas</span>
+            <span>internas</span>
           </span>
           <span className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-sm inline-block shrink-0" style={{ background: '#D1D5DB' }} />
-            <span className="font-semibold text-[var(--tx2)]">{m.idleHours.toFixed(0)}h</span>
-            <span className="text-[var(--tx3)]">ociosas</span>
+            <span className="font-semibold">{m.idleHours.toFixed(0)}h</span>
+            <span>ociosas</span>
           </span>
         </div>
       </div>
@@ -353,9 +353,9 @@ export default function ColaboradoresPage() {
       <header className="bg-[var(--bg)] border-b border-[var(--bd)] sticky top-0 z-10">
         <div className="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between flex-wrap gap-4">
           <div>
-            <span className="font-bold text-[var(--tx)] text-lg">Colaboradores</span>
+            <span className="text-title-h6">Colaboradores</span>
             {lastUpdated && (
-              <p className="text-[11px] text-[var(--tx3)] leading-none mt-0.5 uppercase tracking-wider">
+              <p className="text-paragraph-xs mt-0.5">
                 Atualizado {formatLastUpdated(lastUpdated)}
               </p>
             )}
@@ -364,7 +364,7 @@ export default function ColaboradoresPage() {
             <DateRangePicker start={start} end={end} onChange={handleRangeChange} />
             <button
               onClick={() => setEditingRates(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-[var(--bd)] text-[var(--tx2)] hover:border-[var(--bd3)] hover:text-[var(--tx)] transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-[var(--bd)] hover:border-[var(--bd3)] hover:text-[var(--tx)] transition-colors"
               title="Editar taxas e salários"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -376,7 +376,7 @@ export default function ColaboradoresPage() {
             <button
               onClick={() => fetchData(start, end, true)}
               disabled={loading}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-[var(--bd)] text-[var(--tx2)] hover:border-[var(--bd3)] hover:text-[var(--tx)] disabled:opacity-40 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-[var(--bd)] hover:border-[var(--bd3)] hover:text-[var(--tx)] disabled:opacity-40 transition-colors"
               title="Atualizar dados (ignora cache)"
             >
               <svg
@@ -403,8 +403,8 @@ export default function ColaboradoresPage() {
 
         {!loading && error && (
           <div className="bg-[var(--bg3)] border border-[var(--bd)] p-6 text-center">
-            <p className="text-[var(--tx)] font-semibold mb-1">Erro ao carregar dados</p>
-            <p className="text-[var(--tx2)] text-sm">{error}</p>
+            <p className="text-label-md mb-1">Erro ao carregar dados</p>
+            <p className="text-paragraph-sm">{error}</p>
             <button
               onClick={() => fetchData(start, end)}
               className="mt-4 px-4 py-2 bg-[var(--inv)] text-[var(--inv-tx)] text-sm hover:opacity-80 transition-opacity"
@@ -440,10 +440,10 @@ export default function ColaboradoresPage() {
 
             {/* ── period info + legend ── */}
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-              <p className="text-xs text-[var(--tx3)] uppercase tracking-wider font-semibold">
+              <p className="text-label-xs">
                 {workingDays} dias úteis · {availableHoursPerPerson}h disponíveis/pessoa
               </p>
-              <div className="flex items-center gap-4 text-xs text-[var(--tx3)]">
+              <div className="flex items-center gap-4 text-paragraph-xs">
                 <span className="flex items-center gap-1.5">
                   <span className="w-3 h-3 inline-block shrink-0" style={{ background: '#22C55E' }} />
                   Produtivas
@@ -462,7 +462,7 @@ export default function ColaboradoresPage() {
             {/* ── collaborator cards ── */}
             {sortedMetrics.length === 0 ? (
               <div className="bg-[var(--bg3)] border border-[var(--bd)] p-10 text-center">
-                <p className="text-[var(--tx3)] text-sm">Nenhum colaborador encontrado no período.</p>
+                <p className="text-paragraph-sm">Nenhum colaborador encontrado no período.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-px border border-[var(--bd)]">
