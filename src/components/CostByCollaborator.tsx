@@ -55,8 +55,8 @@ function SparklineFull({ values, color }: { values: number[]; color: string }) {
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-3 mb-5">
-      <p className="text-[10px] font-bold text-[var(--tx3)] uppercase tracking-[0.12em] shrink-0">{children}</p>
-      <div className="flex-1 h-px bg-[var(--bd)]" />
+      <p className="text-label-2xs shrink-0">{children}</p>
+      <div className="flex-1 h-px bg-stroke-soft-200" />
     </div>
   )
 }
@@ -159,10 +159,10 @@ function CollaboratorDrawer({
 
       {/* Panel */}
       <aside
-        className="fixed top-0 right-0 z-50 h-full w-full max-w-[420px] bg-[var(--bg)] shadow-2xl overflow-y-auto flex flex-col transition-transform duration-300 ease-out"
+        className="fixed top-0 right-0 z-50 h-full w-full max-w-[420px] bg-bg-weak-50 shadow-2xl overflow-y-auto flex flex-col transition-transform duration-300 ease-out"
         style={{
           transform: visible ? 'translateX(0)' : 'translateX(100%)',
-          borderLeft: '1px solid var(--bd)',
+          borderLeft: '1px solid var(--color-stroke-soft-200)',
         }}
       >
         {/* Accent strip */}
@@ -173,21 +173,21 @@ function CollaboratorDrawer({
           <div className="flex items-center gap-4">
             {/* Avatar circle */}
             <div
-              className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+              className="w-10 h-10 rounded-full flex items-center justify-center text-label-xs shrink-0"
               style={{ background: collab.color + '22', color: collab.color, border: `1.5px solid ${collab.color}44` }}
             >
               {initials}
             </div>
             <div>
-              <h2 className="text-base font-bold text-[var(--tx)] leading-tight">{collab.name}</h2>
-              <p className="text-xs text-[var(--tx3)] mt-0.5">
+              <h2 className="text-label-md">{collab.name}</h2>
+              <p className="text-paragraph-xs mt-0.5">
                 {projects.length} projeto{projects.length !== 1 ? 's' : ''} no período
               </p>
             </div>
           </div>
           <button
             onClick={close}
-            className="w-7 h-7 flex items-center justify-center text-[var(--tx3)] hover:text-[var(--tx)] transition-colors mt-0.5"
+            className="w-7 h-7 flex items-center justify-center text-text-soft-400 hover:text-text-strong-950 transition-colors mt-0.5"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -199,21 +199,21 @@ function CollaboratorDrawer({
         <div className="px-7 pb-6 shrink-0">
           <div className="flex items-end justify-between">
             <div>
-              <p className="text-[10px] text-[var(--tx3)] uppercase tracking-wider mb-1.5">Custo total</p>
-              <p className="text-[2.4rem] font-black text-[var(--tx)] leading-none tracking-tight">
+              <p className="text-paragraph-xs mb-1.5">Custo total</p>
+              <p className="text-[2.4rem]">
                 {fmtBRL(collab.totalCost)}
               </p>
             </div>
             <div className="text-right pb-1">
-              <p className="text-[10px] text-[var(--tx3)] uppercase tracking-wider mb-1.5">Do total</p>
-              <p className="text-2xl font-bold leading-none" style={{ color: collab.color }}>
+              <p className="text-paragraph-xs mb-1.5">Do total</p>
+              <p className="text-title-h5" style={{ color: collab.color }}>
                 {collab.percentOfTotal.toFixed(1)}%
               </p>
             </div>
           </div>
 
           {/* Participation bar */}
-          <div className="mt-4 h-[3px] bg-[var(--bd)] rounded-full overflow-hidden">
+          <div className="mt-4 h-[3px] bg-stroke-soft-200 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-700"
               style={{ width: `${collab.percentOfTotal}%`, background: collab.color }}
@@ -224,46 +224,46 @@ function CollaboratorDrawer({
         {/* ── Secondary stats ── */}
         <div className="px-7 pb-6 flex gap-7 shrink-0">
           <div>
-            <p className="text-[10px] text-[var(--tx3)] uppercase tracking-wider mb-1.5">Horas</p>
-            <p className="text-xl font-bold leading-none" style={{ color: '#FB923C' }}>
+            <p className="text-paragraph-xs mb-1.5">Horas</p>
+            <p className="text-title-h6" style={{ color: '#fa7319' }}>
               {Math.round(collab.totalHours)}h
             </p>
           </div>
           <div>
-            <p className="text-[10px] text-[var(--tx3)] uppercase tracking-wider mb-1.5">Taxa efetiva</p>
-            <p className="text-xl font-bold leading-none" style={{ color: '#60A5FA' }}>
+            <p className="text-paragraph-xs mb-1.5">Taxa efetiva</p>
+            <p className="text-title-h6" style={{ color: '#335cff' }}>
               {fmtRate(collab.effectiveHourlyRate)}
             </p>
           </div>
           <div className="ml-auto text-right">
-            <p className="text-[10px] text-[var(--tx3)] uppercase tracking-wider mb-1.5">Vs time</p>
-            <p className="text-xl font-bold leading-none" style={{ color: rateAbove ? '#F87171' : '#22C55E' }}>
+            <p className="text-paragraph-xs mb-1.5">Vs time</p>
+            <p className="text-title-h6" style={{ color: rateAbove ? '#fb3748' : '#1fc16b' }}>
               {rateAbove ? '▲' : '▼'} {Math.abs(rateDiff).toFixed(1)}%
             </p>
-            <p className="text-[10px] text-[var(--tx3)] mt-1">média {fmtRate(avgRate)}</p>
+            <p className="text-paragraph-xs mt-1">média {fmtRate(avgRate)}</p>
           </div>
         </div>
 
-        <div className="mx-7 border-t border-[var(--bd)] shrink-0" />
+        <div className="mx-7 border-t border-stroke-soft-200 shrink-0" />
 
         {/* ── Evolução mensal (sparkline) ── */}
         {sparkValues.length >= 2 && (
           <div className="px-7 py-6 shrink-0">
             <div className="flex items-center justify-between mb-3">
               <SectionLabel>Evolução mensal</SectionLabel>
-              <p className="text-[10px] text-[var(--tx3)] -mt-5">
+              <p className="text-paragraph-xs -mt-5">
                 {sparkMonths[0]?.slice(0, 7)} → {sparkMonths[sparkMonths.length - 1]?.slice(0, 7)}
               </p>
             </div>
             <SparklineFull values={sparkValues} color={collab.color} />
             <div className="flex justify-between mt-2">
-              <span className="text-[10px] text-[var(--tx3)]">{fmtBRL(Math.min(...sparkValues))}</span>
-              <span className="text-[10px] text-[var(--tx3)]">{fmtBRL(Math.max(...sparkValues))}</span>
+              <span className="text-paragraph-xs">{fmtBRL(Math.min(...sparkValues))}</span>
+              <span className="text-paragraph-xs">{fmtBRL(Math.max(...sparkValues))}</span>
             </div>
           </div>
         )}
 
-        {sparkValues.length >= 2 && <div className="mx-7 border-t border-[var(--bd)] shrink-0" />}
+        {sparkValues.length >= 2 && <div className="mx-7 border-t border-stroke-soft-200 shrink-0" />}
 
         {/* ── Distribuição de horas ── */}
         <div className="px-7 py-6 shrink-0">
@@ -274,33 +274,33 @@ function CollaboratorDrawer({
             <div
               style={{
                 width: `${(productiveHours / totalH) * 100}%`,
-                background: '#22C55E',
+                background: '#1fc16b',
                 minWidth: productiveHours > 0 ? 3 : 0,
               }}
             />
             <div
               style={{
                 width: `${(internalHours / totalH) * 100}%`,
-                background: '#FBBF24',
+                background: '#f6b51e',
                 minWidth: internalHours > 0 ? 3 : 0,
               }}
             />
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="flex gap-5 text-xs">
+            <div className="flex gap-5 text-paragraph-xs">
               <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-sm shrink-0" style={{ background: '#22C55E' }} />
-                <span className="font-bold text-[var(--tx)]">{Math.round(productiveHours)}h</span>
-                <span className="text-[var(--tx3)]">cliente</span>
+                <span className="w-2 h-2 rounded-sm shrink-0" style={{ background: '#1fc16b' }} />
+                <span >{Math.round(productiveHours)}h</span>
+                <span >cliente</span>
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-sm shrink-0" style={{ background: '#FBBF24' }} />
-                <span className="font-bold text-[var(--tx)]">{Math.round(internalHours)}h</span>
-                <span className="text-[var(--tx3)]">interno</span>
+                <span className="w-2 h-2 rounded-sm shrink-0" style={{ background: '#f6b51e' }} />
+                <span >{Math.round(internalHours)}h</span>
+                <span >interno</span>
               </span>
             </div>
-            <span className="text-[10px] text-[var(--tx3)]">
+            <span className="text-paragraph-xs">
               {productiveHours > 0
                 ? `${((productiveHours / totalH) * 100).toFixed(0)}% produtivo`
                 : 'sem horas de cliente'}
@@ -311,42 +311,42 @@ function CollaboratorDrawer({
         {/* ── Receita vs custo ── */}
         {revenueProjects.length > 0 && (
           <>
-            <div className="mx-7 border-t border-[var(--bd)] shrink-0" />
+            <div className="mx-7 border-t border-stroke-soft-200 shrink-0" />
             <div className="px-7 py-6 shrink-0">
               <SectionLabel>Receita gerada vs custo</SectionLabel>
 
               <div className="grid grid-cols-3 gap-4 mb-4">
                 <div>
-                  <p className="text-[10px] text-[var(--tx3)] mb-1.5">Receita</p>
-                  <p className="text-lg font-bold leading-none" style={{ color: '#22C55E' }}>
+                  <p className="text-paragraph-xs mb-1.5">Receita</p>
+                  <p className="text-title-h6" style={{ color: '#1fc16b' }}>
                     {fmtBRL(totalRevenue)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] text-[var(--tx3)] mb-1.5">Custo dele</p>
-                  <p className="text-lg font-bold leading-none" style={{ color: '#F87171' }}>
+                  <p className="text-paragraph-xs mb-1.5">Custo dele</p>
+                  <p className="text-title-h6" style={{ color: '#fb3748' }}>
                     {fmtBRL(costOnRevenue)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] text-[var(--tx3)] mb-1.5">Resultado</p>
-                  <p className="text-lg font-bold leading-none" style={{ color: netAttribution >= 0 ? '#22C55E' : '#F87171' }}>
+                  <p className="text-paragraph-xs mb-1.5">Resultado</p>
+                  <p className="text-title-h6" style={{ color: netAttribution >= 0 ? '#1fc16b' : '#fb3748' }}>
                     {netAttribution >= 0 ? '+' : ''}{fmtBRL(netAttribution)}
                   </p>
                 </div>
               </div>
 
               {/* Cost-share bar */}
-              <div className="h-1.5 bg-[var(--bd)] rounded-full overflow-hidden">
+              <div className="h-1.5 bg-stroke-soft-200 rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full"
                   style={{
                     width: `${Math.min(100, totalRevenue > 0 ? (costOnRevenue / totalRevenue) * 100 : 0)}%`,
-                    background: '#F87171',
+                    background: '#fb3748',
                   }}
                 />
               </div>
-              <p className="text-[10px] text-[var(--tx3)] mt-2">
+              <p className="text-paragraph-xs mt-2">
                 Custo representa {totalRevenue > 0 ? ((costOnRevenue / totalRevenue) * 100).toFixed(1) : 0}% da receita
               </p>
             </div>
@@ -354,14 +354,14 @@ function CollaboratorDrawer({
         )}
 
         {/* ── Projetos ── */}
-        <div className="mx-7 border-t border-[var(--bd)] shrink-0" />
+        <div className="mx-7 border-t border-stroke-soft-200 shrink-0" />
         <div className="flex-1 overflow-y-auto">
           <div className="px-7 pt-6 pb-2">
             <SectionLabel>Projetos trabalhados ({projects.length})</SectionLabel>
           </div>
 
           {projects.length === 0 ? (
-            <p className="px-7 py-10 text-center text-sm text-[var(--tx3)]">Nenhum projeto encontrado</p>
+            <p className="px-7 py-10 text-center text-paragraph-sm">Nenhum projeto encontrado</p>
           ) : (
             <div className="px-7 space-y-5 pb-8">
               {projects.map((p) => (
@@ -369,39 +369,39 @@ function CollaboratorDrawer({
                   {/* Name row */}
                   <div className="flex items-center justify-between gap-3 mb-1.5">
                     <div className="flex items-center gap-2 min-w-0">
-                      <p className="text-sm font-semibold text-[var(--tx)] truncate">{p.name}</p>
+                      <p className="text-label-sm truncate">{p.name}</p>
                       {p.isInternal && (
                         <span
-                          className="shrink-0 text-[9px] px-1.5 py-0.5 font-bold uppercase tracking-wide"
-                          style={{ color: '#FBBF24', background: '#FBBF2412', border: '1px solid #FBBF2430' }}
+                          className="shrink-0 text-label-2xs px-1.5 py-0.5"
+                          style={{ color: '#f6b51e', background: '#f6b51e12', border: '1px solid #f6b51e30' }}
                         >
                           interno
                         </span>
                       )}
                     </div>
-                    <p className="text-sm font-bold shrink-0" style={{ color: collab.color }}>
+                    <p className="text-label-sm shrink-0" style={{ color: collab.color }}>
                       {fmtBRL(p.cost)}
                     </p>
                   </div>
 
                   {/* Sub-row */}
-                  <div className="flex items-center justify-between text-[11px] mb-2">
-                    <span style={{ color: '#FB923C' }}>{Math.round(p.hours * 10) / 10}h</span>
-                    <span className="text-[var(--tx3)]">
+                  <div className="flex items-center justify-between text-paragraph-xs mb-2">
+                    <span style={{ color: '#fa7319' }}>{Math.round(p.hours * 10) / 10}h</span>
+                    <span >
                       {p.hours > 0 ? fmtRate(p.cost / p.hours) : '—'}
                     </span>
-                    <span className="text-[var(--tx3)]">
+                    <span >
                       {p.pctOfHours.toFixed(1)}% das horas
                     </span>
                   </div>
 
                   {/* Progress bar */}
-                  <div className="h-[2px] bg-[var(--bd)] rounded-full overflow-hidden">
+                  <div className="h-[2px] bg-stroke-soft-200 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full"
                       style={{
                         width: `${Math.min(100, p.pctOfHours)}%`,
-                        background: p.isInternal ? '#FBBF24' : collab.color,
+                        background: p.isInternal ? '#f6b51e' : collab.color,
                         opacity: 0.7,
                       }}
                     />
@@ -430,12 +430,12 @@ export default function CostByCollaborator({ data, onRatesChanged }: Props & { o
 
   return (
     <>
-      <div className="bg-[var(--bg3)] p-6 border border-[var(--bd)]">
+      <div className="bg-bg-white-0 p-6 border border-stroke-soft-200">
         <div className="flex items-start justify-between mb-1">
-          <h2 className="text-base font-bold text-[var(--tx)]">Custo por colaborador</h2>
+          <h2 className="text-label-md">Custo por colaborador</h2>
           <button
             onClick={() => setEditingRates(true)}
-            className="flex items-center gap-1.5 text-xs text-[var(--tx3)] hover:text-[var(--tx)] transition-colors"
+            className="flex items-center gap-1.5 text-xs text-text-soft-400 hover:text-text-strong-950 transition-colors"
             title="Editar taxas e salários"
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -445,7 +445,7 @@ export default function CostByCollaborator({ data, onRatesChanged }: Props & { o
             Editar taxas
           </button>
         </div>
-        <p className="text-sm text-[var(--tx2)] mb-6">Total no período de {totalMonths} meses</p>
+        <p className="text-paragraph-sm mb-6">Total no período de {totalMonths} meses</p>
 
         <div className="space-y-5">
           {data.collaborators.map((c) => (
@@ -454,28 +454,28 @@ export default function CostByCollaborator({ data, onRatesChanged }: Props & { o
                 <button
                   onClick={() => setSelected(c)}
                   className="text-sm font-semibold text-left transition-colors hover:underline underline-offset-2"
-                  style={{ color: 'var(--tx)' }}
+                  style={{ color: 'var(--color-text-strong-950)' }}
                   onMouseEnter={(e) => (e.currentTarget.style.color = c.color)}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--tx)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-strong-950)')}
                 >
                   {c.name}
                 </button>
                 <div className="text-right">
-                  <span className="text-sm font-bold text-[var(--tx)]">{fmtBRL(c.totalCost)}</span>
-                  <span className="text-xs font-bold ml-2 text-[var(--tx3)]">{c.percentOfTotal.toFixed(1)}%</span>
+                  <span className="text-label-sm">{fmtBRL(c.totalCost)}</span>
+                  <span className="text-label-xs ml-2">{c.percentOfTotal.toFixed(1)}%</span>
                 </div>
               </div>
-              <div className="relative h-1.5 bg-[var(--bd)] mb-1">
+              <div className="relative h-1.5 bg-stroke-soft-200 mb-1">
                 <div className="absolute left-0 top-0 h-full transition-all"
                   style={{ width: `${c.percentOfTotal}%`, background: c.color }} />
               </div>
-              <p className="text-xs" style={{ color: '#60A5FA' }}>{fmtRate(c.effectiveHourlyRate)}</p>
+              <p className="text-paragraph-xs" style={{ color: '#335cff' }}>{fmtRate(c.effectiveHourlyRate)}</p>
             </div>
           ))}
 
-          <div className="border-t border-[var(--bd)] pt-4 flex justify-between">
-            <span className="text-sm font-semibold text-[var(--tx2)]">Total geral</span>
-            <span className="text-sm font-bold text-[var(--tx)]">{fmtBRL(data.totalCostAllCollaborators)}</span>
+          <div className="border-t border-stroke-soft-200 pt-4 flex justify-between">
+            <span className="text-label-sm">Total geral</span>
+            <span className="text-label-sm">{fmtBRL(data.totalCostAllCollaborators)}</span>
           </div>
         </div>
       </div>

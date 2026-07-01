@@ -29,16 +29,16 @@ const CustomTooltip = ({
 }) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-[var(--bg3)] border border-[var(--bd)] p-3 text-sm min-w-[180px]">
-      <p className="font-semibold text-[var(--tx)] mb-2">{label}</p>
+    <div className="bg-bg-white-0 border border-stroke-soft-200 p-3 text-paragraph-sm min-w-[180px]">
+      <p className="mb-2">{label}</p>
       {payload.map((p) => (
         p.value !== 0 && (
           <div key={p.dataKey} className="flex items-center justify-between gap-4 mb-1">
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full shrink-0" style={{ background: p.color }} />
-              <span className="text-[var(--tx3)] text-xs">{p.name}</span>
+              <span className="text-paragraph-xs">{p.name}</span>
             </div>
-            <span className="font-semibold text-xs" style={{ color: p.color }}>
+            <span className="text-label-xs" style={{ color: p.color }}>
               {fmtBRL(Math.abs(p.value))}
             </span>
           </div>
@@ -92,25 +92,25 @@ export default function CashflowSection({ data }: Props) {
     {
       label: 'Resultado acumulado',
       value: fmtBRL(netBalance),
-      color: netBalance >= 0 ? '#22C55E' : '#F87171',
+      color: netBalance >= 0 ? '#1fc16b' : '#fb3748',
       sub: `${fmtBRL(totalRealized)} receita · ${fmtBRL(totalCost)} custo`,
     },
     {
       label: 'Próxima entrada prevista',
       value: nextMonthEntry ? fmtBRL(nextMonthEntry.predictedRevenue) : '—',
-      color: '#60A5FA',
+      color: '#335cff',
       sub: nextMonthEntry ? nextMonthEntry.label : 'Nenhum agendamento',
     },
     {
       label: 'Previsão próximos 3 meses',
       value: next3Forecast > 0 ? fmtBRL(next3Forecast) : '—',
-      color: '#FBBF24',
+      color: '#f6b51e',
       sub: futureMonths.slice(0, 3).map((m) => m.label).join(' · ') || 'Sem previsão',
     },
     {
       label: 'Custo projetado (média 3m)',
       value: avgCost > 0 ? fmtBRL(avgCost) : '—',
-      color: '#F87171',
+      color: '#fb3748',
       sub: 'por mês estimado',
     },
   ]
@@ -118,27 +118,27 @@ export default function CashflowSection({ data }: Props) {
   if (chartData.length === 0) return null
 
   return (
-    <div className="bg-[var(--bg3)] border border-[var(--bd)] mb-8">
+    <div className="bg-bg-white-0 border border-stroke-soft-200 mb-8">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-[var(--bd)]">
+      <div className="px-6 py-4 border-b border-stroke-soft-200">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-base font-bold text-[var(--tx)]">Fluxo de Caixa</h2>
-            <p className="text-sm text-[var(--tx3)] mt-0.5">
+            <h2 className="text-label-md">Fluxo de Caixa</h2>
+            <p className="text-paragraph-sm mt-0.5">
               Realizado vs previsto · barras escuras = confirmado · barras claras = agendado
             </p>
           </div>
-          <div className="flex items-center gap-4 text-xs text-[var(--tx3)]">
+          <div className="flex items-center gap-4 text-paragraph-xs">
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm" style={{ background: '#22C55E' }} />
+              <span className="w-3 h-3 rounded-sm" style={{ background: '#1fc16b' }} />
               Realizado
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm border" style={{ background: '#22C55E22', borderColor: '#22C55E66' }} />
+              <span className="w-3 h-3 rounded-sm border" style={{ background: '#1fc16b22', borderColor: '#1fc16b66' }} />
               Previsto
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-1.5" style={{ background: '#F87171' }} />
+              <span className="w-3 h-1.5" style={{ background: '#fb3748' }} />
               Custo
             </span>
           </div>
@@ -146,12 +146,12 @@ export default function CashflowSection({ data }: Props) {
       </div>
 
       {/* KPI row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-[var(--bd)] border-b border-[var(--bd)]">
+      <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-[var(--color-stroke-soft-200)] border-b border-stroke-soft-200">
         {kpis.map((k) => (
           <div key={k.label} className="px-6 py-4">
-            <p className="text-xs text-[var(--tx3)] mb-1">{k.label}</p>
-            <p className="text-xl font-bold" style={{ color: k.color }}>{k.value}</p>
-            <p className="text-[11px] text-[var(--tx3)] mt-1 truncate">{k.sub}</p>
+            <p className="text-paragraph-xs mb-1">{k.label}</p>
+            <p className="text-title-h6" style={{ color: k.color }}>{k.value}</p>
+            <p className="text-paragraph-xs mt-1 truncate">{k.sub}</p>
           </div>
         ))}
       </div>
@@ -191,14 +191,14 @@ export default function CashflowSection({ data }: Props) {
             {/* Realized revenue — solid green */}
             <Bar dataKey="realized" name="Receita realizada" maxBarSize={40} radius={[3, 3, 0, 0]}>
               {chartData.map((d, i) => (
-                <Cell key={i} fill="#22C55E" fillOpacity={d.isFuture ? 0 : 1} />
+                <Cell key={i} fill="#1fc16b" fillOpacity={d.isFuture ? 0 : 1} />
               ))}
             </Bar>
 
             {/* Forecast revenue — light green */}
             <Bar dataKey="forecast" name="Receita prevista" maxBarSize={40} radius={[3, 3, 0, 0]}>
               {chartData.map((d, i) => (
-                <Cell key={i} fill="#22C55E" fillOpacity={0.25} stroke="#22C55E" strokeWidth={1} strokeDasharray="4 2" />
+                <Cell key={i} fill="#1fc16b" fillOpacity={0.25} stroke="#1fc16b" strokeWidth={1} strokeDasharray="4 2" />
               ))}
             </Bar>
 
@@ -206,17 +206,17 @@ export default function CashflowSection({ data }: Props) {
             <Line
               dataKey="cost"
               name="Custo"
-              stroke="#F87171"
+              stroke="#fb3748"
               strokeWidth={2}
               strokeDasharray="0"
               dot={false}
-              activeDot={{ r: 4, fill: '#F87171', strokeWidth: 0 }}
+              activeDot={{ r: 4, fill: '#fb3748', strokeWidth: 0 }}
             />
           </ComposedChart>
         </ResponsiveContainer>
 
         {futureMonths.length === 0 && (
-          <p className="text-center text-xs text-[var(--tx3)] mt-2">
+          <p className="text-center text-paragraph-xs mt-2">
             Nenhuma receita futura agendada no Notion. Lançamentos com data futura aparecerão aqui.
           </p>
         )}

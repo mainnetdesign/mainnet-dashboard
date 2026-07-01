@@ -29,13 +29,13 @@ const CustomTooltip = ({
   if (!active || !payload?.length) return null
   const sorted = [...payload].sort((a, b) => b.value - a.value)
   return (
-    <div className="bg-[var(--bg3)] border border-[var(--bd)] p-3 text-sm min-w-[180px]">
-      <p className="font-semibold text-[var(--tx)] mb-2">{label}</p>
+    <div className="bg-bg-white-0 border border-stroke-soft-200 p-3 text-paragraph-sm min-w-[180px]">
+      <p className="mb-2">{label}</p>
       {sorted.map((p) => (
         <div key={p.name} className="flex items-center gap-2 mb-1">
           <span className="w-2 h-2 rounded-full shrink-0" style={{ background: p.color }} />
-          <span className="text-[var(--tx2)] flex-1">{p.name}</span>
-          <span className="font-semibold" style={{ color: '#60A5FA' }}>R${p.value}/h</span>
+          <span className="flex-1">{p.name}</span>
+          <span className="font-semibold" style={{ color: '#335cff' }}>R${p.value}/h</span>
         </div>
       ))}
     </div>
@@ -68,9 +68,9 @@ export default function RateHistoryChart({ data }: Props) {
   if (activeCollabs.length === 0) return null
 
   return (
-    <div className="bg-[var(--bg3)] p-6 border border-[var(--bd)] mb-8">
-      <h2 className="text-base font-bold text-[var(--tx)] mb-1">Histórico de custo/hora</h2>
-      <p className="text-sm text-[var(--tx2)] mb-6">Taxa efetiva R$/h por colaborador ao longo dos meses</p>
+    <div className="bg-bg-white-0 p-6 border border-stroke-soft-200 mb-8">
+      <h2 className="text-label-md mb-1">Histórico de custo/hora</h2>
+      <p className="text-paragraph-sm mb-6">Taxa efetiva R$/h por colaborador ao longo dos meses</p>
       <ResponsiveContainer width="100%" height={280}>
         <ComposedChart data={chartData} margin={{ top: 4, right: 20, left: 0, bottom: 0 }}>
           <defs>

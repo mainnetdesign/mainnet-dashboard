@@ -566,6 +566,10 @@
   
   --radius-10: .625rem;
   
+  --radius-8: .5rem;
+  
+  --radius-16: 1rem;
+  
   --radius-20: 1.25rem;
   
 
@@ -866,13 +870,29 @@ html.dark {
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-geist-sans);
 }
 
 body {
-  background: var(--bg);
+  background: var(--color-bg-white-0);
   color: var(--tx);
   font-family: var(--font-sans), 'Inter', -apple-system, sans-serif;
   transition: background-color 200ms ease, color 200ms ease;
+}
+
+/* Figma shell — bordered cards & panels */
+.mn-panel {
+  background: var(--color-bg-white-0);
+  border: 1px solid var(--color-stroke-soft-200);
+  border-radius: 16px;
+  box-shadow: 0 1px 2px 0 rgba(10, 13, 20, 0.03);
+}
+
+/* Inter Display — valores grandes (Title/H4–H5 do Figma) */
+.font-display {
+  font-family: var(--font-display), var(--font-sans), 'Inter', sans-serif;
+  font-feature-settings: "ss11" 1, "calt" 0, "liga" 0;
+  letter-spacing: -0.01em;
 }
 
 /* ── Blueprint chrome (tech vibe) ─────────────────────────────

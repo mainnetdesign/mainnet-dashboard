@@ -37,9 +37,9 @@ function fmtBRL(v: number) {
 }
 
 function utilizationColor(pct: number) {
-  if (pct >= 70) return '#22C55E'
-  if (pct >= 40) return '#FBBF24'
-  return '#F87171'
+  if (pct >= 70) return '#1fc16b'
+  if (pct >= 40) return '#f6b51e'
+  return '#fb3748'
 }
 
 function utilizationLabel(pct: number) {
@@ -84,7 +84,7 @@ function UtilizationRing({ pct }: { pct: number }) {
         <circle
           cx={size / 2} cy={size / 2} r={r}
           fill="none"
-          stroke="var(--bd)"
+          stroke="var(--color-stroke-soft-200)"
           strokeWidth={stroke}
         />
         {/* fill */}
@@ -120,9 +120,9 @@ function SegmentedBar({
 
   return (
     <div className="flex w-full gap-0.5" style={{ height: 8 }}>
-      <div style={{ width: `${Math.max(0, pPct)}%`, background: '#22C55E', borderRadius: 3 }} title={`Produtivas: ${productive.toFixed(1)}h`} />
-      <div style={{ width: `${Math.max(0, iPct)}%`, background: '#FBBF24', borderRadius: 3 }} title={`Internas: ${internal.toFixed(1)}h`} />
-      <div style={{ width: `${Math.max(0, idlePct)}%`, background: '#D1D5DB', borderRadius: 3 }} title={`Ociosas: ${idle.toFixed(1)}h`} />
+      <div style={{ width: `${Math.max(0, pPct)}%`, background: '#1fc16b', borderRadius: 3 }} title={`Produtivas: ${productive.toFixed(1)}h`} />
+      <div style={{ width: `${Math.max(0, iPct)}%`, background: '#f6b51e', borderRadius: 3 }} title={`Internas: ${internal.toFixed(1)}h`} />
+      <div style={{ width: `${Math.max(0, idlePct)}%`, background: '#d1d1d1', borderRadius: 3 }} title={`Ociosas: ${idle.toFixed(1)}h`} />
     </div>
   )
 }
@@ -131,7 +131,7 @@ function StatCell({ label, value, color }: { label: string; value: string; color
   return (
     <div className="flex flex-col gap-1">
       <span className="text-label-2xs">{label}</span>
-      <span className="text-label-md" style={{ color: color ?? 'var(--tx)' }}>{value}</span>
+      <span className="text-label-md" style={{ color: color ?? 'var(--color-text-strong-950)' }}>{value}</span>
     </div>
   )
 }
@@ -148,7 +148,7 @@ function KPICard({
   valueColor?: string
 }) {
   return (
-    <div className="bg-[var(--bg3)] border border-[var(--bd)] p-5">
+    <div className="bg-bg-white-0 border border-stroke-soft-200 p-5">
       <p className="text-label-2xs mb-2">{label}</p>
       <p
         className="text-title-h4 mb-1"
@@ -165,7 +165,7 @@ function CollaboratorCard({ m, rank }: { m: CollaboratorMetrics; rank: number })
   const uColor = utilizationColor(m.utilizationRate)
 
   return (
-    <div className="bg-[var(--bg3)] border border-[var(--bd)] p-6 flex flex-col gap-5">
+    <div className="bg-bg-white-0 border border-stroke-soft-200 p-6 flex flex-col gap-5">
 
       {/* ── top row: rank + name + ring ── */}
       <div className="flex items-center gap-4">
@@ -198,17 +198,17 @@ function CollaboratorCard({ m, rank }: { m: CollaboratorMetrics; rank: number })
         {/* bar labels */}
         <div className="flex items-center gap-4 text-paragraph-xs">
           <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-sm inline-block shrink-0" style={{ background: '#22C55E' }} />
-            <span style={{ color: '#22C55E' }} className="font-semibold">{m.productiveHours.toFixed(0)}h</span>
+            <span className="w-2.5 h-2.5 rounded-sm inline-block shrink-0" style={{ background: '#1fc16b' }} />
+            <span style={{ color: '#1fc16b' }} className="font-semibold">{m.productiveHours.toFixed(0)}h</span>
             <span>produtivas</span>
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-sm inline-block shrink-0" style={{ background: '#FBBF24' }} />
-            <span style={{ color: '#FBBF24' }} className="font-semibold">{m.internalHours.toFixed(0)}h</span>
+            <span className="w-2.5 h-2.5 rounded-sm inline-block shrink-0" style={{ background: '#f6b51e' }} />
+            <span style={{ color: '#f6b51e' }} className="font-semibold">{m.internalHours.toFixed(0)}h</span>
             <span>internas</span>
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-sm inline-block shrink-0" style={{ background: '#D1D5DB' }} />
+            <span className="w-2.5 h-2.5 rounded-sm inline-block shrink-0" style={{ background: '#d1d1d1' }} />
             <span className="font-semibold">{m.idleHours.toFixed(0)}h</span>
             <span>ociosas</span>
           </span>
@@ -216,13 +216,13 @@ function CollaboratorCard({ m, rank }: { m: CollaboratorMetrics; rank: number })
       </div>
 
       {/* ── divider ── */}
-      <div className="border-t border-[var(--bd)]" />
+      <div className="border-t border-stroke-soft-200" />
 
       {/* ── stats grid ── */}
       <div className="grid grid-cols-3 gap-4">
-        <StatCell label="Custo" value={fmtBRL(m.totalCost)} color="#F87171" />
-        <StatCell label="Taxa/h" value={`${fmtBRL(m.effectiveHourlyRate)}/h`} color="#60A5FA" />
-        <StatCell label="Ociosidade" value={`${(100 - m.utilizationRate).toFixed(1)}%`} color={m.idleHours > m.availableHours * 0.4 ? '#F87171' : '#9CA3AF'} />
+        <StatCell label="Custo" value={fmtBRL(m.totalCost)} color="#fb3748" />
+        <StatCell label="Taxa/h" value={`${fmtBRL(m.effectiveHourlyRate)}/h`} color="#335cff" />
+        <StatCell label="Ociosidade" value={`${(100 - m.utilizationRate).toFixed(1)}%`} color={m.idleHours > m.availableHours * 0.4 ? '#fb3748' : '#a3a3a3'} />
       </div>
 
     </div>
@@ -350,7 +350,7 @@ export default function ColaboradoresPage() {
   return (
     <div>
       {/* ── sticky header ── */}
-      <header className="bg-[var(--bg)] border-b border-[var(--bd)] sticky top-0 z-10">
+      <header className="bg-bg-weak-50 border-b border-stroke-soft-200 sticky top-0 z-10">
         <div className="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between flex-wrap gap-4">
           <div>
             <span className="text-title-h6">Colaboradores</span>
@@ -364,7 +364,7 @@ export default function ColaboradoresPage() {
             <DateRangePicker start={start} end={end} onChange={handleRangeChange} />
             <button
               onClick={() => setEditingRates(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-[var(--bd)] hover:border-[var(--bd3)] hover:text-[var(--tx)] transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-stroke-soft-200 hover:border-stroke-sub-300 hover:text-text-strong-950 transition-colors"
               title="Editar taxas e salários"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -376,7 +376,7 @@ export default function ColaboradoresPage() {
             <button
               onClick={() => fetchData(start, end, true)}
               disabled={loading}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-[var(--bd)] hover:border-[var(--bd3)] hover:text-[var(--tx)] disabled:opacity-40 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-stroke-soft-200 hover:border-stroke-sub-300 hover:text-text-strong-950 disabled:opacity-40 transition-colors"
               title="Atualizar dados (ignora cache)"
             >
               <svg
@@ -402,12 +402,12 @@ export default function ColaboradoresPage() {
         {loading && <DashboardSkeleton />}
 
         {!loading && error && (
-          <div className="bg-[var(--bg3)] border border-[var(--bd)] p-6 text-center">
+          <div className="bg-bg-white-0 border border-stroke-soft-200 p-6 text-center">
             <p className="text-label-md mb-1">Erro ao carregar dados</p>
             <p className="text-paragraph-sm">{error}</p>
             <button
               onClick={() => fetchData(start, end)}
-              className="mt-4 px-4 py-2 bg-[var(--inv)] text-[var(--inv-tx)] text-sm hover:opacity-80 transition-opacity"
+              className="mt-4 px-4 py-2 bg-bg-strong-950 text-text-white-0 text-sm hover:opacity-80 transition-opacity"
             >
               Tentar novamente
             </button>
@@ -417,7 +417,7 @@ export default function ColaboradoresPage() {
         {!loading && !error && data && (
           <>
             {/* ── KPI row ── */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-px mb-8 border border-[var(--bd)]">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-px mb-8 border border-stroke-soft-200">
               <KPICard
                 label="UTILIZAÇÃO MÉDIA"
                 value={`${avgUtilization.toFixed(1)}%`}
@@ -434,7 +434,7 @@ export default function ColaboradoresPage() {
                 label="HORAS OCIOSAS"
                 value={`${totalIdleHours.toFixed(0)}h`}
                 sub={`de ${totalAvailableHours.toFixed(0)}h disponíveis no total`}
-                valueColor="#FB923C"
+                valueColor="#fa7319"
               />
             </div>
 
@@ -445,15 +445,15 @@ export default function ColaboradoresPage() {
               </p>
               <div className="flex items-center gap-4 text-paragraph-xs">
                 <span className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 inline-block shrink-0" style={{ background: '#22C55E' }} />
+                  <span className="w-3 h-3 inline-block shrink-0" style={{ background: '#1fc16b' }} />
                   Produtivas
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 inline-block shrink-0" style={{ background: '#FBBF24' }} />
+                  <span className="w-3 h-3 inline-block shrink-0" style={{ background: '#f6b51e' }} />
                   Internas
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 inline-block shrink-0" style={{ background: '#9CA3AF' }} />
+                  <span className="w-3 h-3 inline-block shrink-0" style={{ background: '#a3a3a3' }} />
                   Ociosas
                 </span>
               </div>
@@ -461,11 +461,11 @@ export default function ColaboradoresPage() {
 
             {/* ── collaborator cards ── */}
             {sortedMetrics.length === 0 ? (
-              <div className="bg-[var(--bg3)] border border-[var(--bd)] p-10 text-center">
+              <div className="bg-bg-white-0 border border-stroke-soft-200 p-10 text-center">
                 <p className="text-paragraph-sm">Nenhum colaborador encontrado no período.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-px border border-[var(--bd)]">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-px border border-stroke-soft-200">
                 {sortedMetrics.map((m, i) => (
                   <CollaboratorCard key={m.id} m={m} rank={i + 1} />
                 ))}

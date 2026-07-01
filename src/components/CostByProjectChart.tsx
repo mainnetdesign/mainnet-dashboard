@@ -52,8 +52,8 @@ export default function CostByProjectChart({ data }: Props) {
     if (!active || !payload?.length) return null
     const total = payload.reduce((s, p) => s + (p.value ?? 0), 0)
     return (
-      <div className="bg-[var(--bg3)] border border-[var(--bd)] p-3 text-sm">
-        <p className="font-semibold text-[var(--tx)] mb-2">{label}</p>
+      <div className="bg-bg-white-0 border border-stroke-soft-200 p-3 text-paragraph-sm">
+        <p className="mb-2">{label}</p>
         {payload
           .filter((p) => p.value > 0)
           .map((p) => {
@@ -61,29 +61,29 @@ export default function CostByProjectChart({ data }: Props) {
             return (
               <div key={p.dataKey} className="flex items-center gap-2 mb-1">
                 <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: collab?.color }} />
-                <span className="text-[var(--tx2)]">{collab?.name}:</span>
-                <span className="font-medium ml-auto" style={{ color: '#F87171' }}>{fmtBRL(p.value)}</span>
+                <span >{collab?.name}:</span>
+                <span className="font-medium ml-auto" style={{ color: '#fb3748' }}>{fmtBRL(p.value)}</span>
               </div>
             )
           })}
-        <div className="border-t border-[var(--bd)] mt-2 pt-2 flex justify-between font-semibold">
-          <span className="text-[var(--tx)]">Total</span>
-          <span style={{ color: '#F87171' }}>{fmtBRL(total)}</span>
+        <div className="border-t border-stroke-soft-200 mt-2 pt-2 flex justify-between font-semibold">
+          <span >Total</span>
+          <span style={{ color: '#fb3748' }}>{fmtBRL(total)}</span>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="bg-[var(--bg3)] p-6 border border-[var(--bd)]">
-      <h2 className="text-base font-bold text-[var(--tx)] mb-1">Custo por projeto — top 12</h2>
-      <p className="text-sm text-[var(--tx2)] mb-5">Barras empilhadas por colaborador · excluindo overhead</p>
+    <div className="bg-bg-white-0 p-6 border border-stroke-soft-200">
+      <h2 className="text-label-md mb-1">Custo por projeto — top 12</h2>
+      <p className="text-paragraph-sm mb-5">Barras empilhadas por colaborador · excluindo overhead</p>
 
       <div className="flex flex-wrap gap-x-5 gap-y-2 mb-6">
         {COLLABORATORS.filter((c) =>
           data.costByProject.some((p) => p.costByCollaborator[c.id]?.cost > 0)
         ).map((c) => (
-          <div key={c.id} className="flex items-center gap-1.5 text-sm text-[var(--tx2)]">
+          <div key={c.id} className="flex items-center gap-1.5 text-paragraph-sm">
             <span className="w-3 h-3 rounded-sm" style={{ background: c.color }} />
             {c.name}
           </div>

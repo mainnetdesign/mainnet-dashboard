@@ -83,19 +83,19 @@ export default function RatesEditor({ onClose, onSaved }: Props) {
       />
 
       <aside
-        className="fixed top-0 right-0 z-50 h-full w-full max-w-[420px] bg-[var(--bg3)] shadow-2xl overflow-y-auto flex flex-col transition-transform duration-300 ease-out"
-        style={{ transform: visible ? 'translateX(0)' : 'translateX(100%)', borderLeft: '1px solid var(--bd)' }}
+        className="fixed top-0 right-0 z-50 h-full w-full max-w-[420px] bg-bg-white-0 shadow-2xl overflow-y-auto flex flex-col transition-transform duration-300 ease-out"
+        style={{ transform: visible ? 'translateX(0)' : 'translateX(100%)', borderLeft: '1px solid var(--color-stroke-soft-200)' }}
       >
         {/* Accent strip */}
-        <div className="h-[3px] shrink-0 bg-[#6366F1]" />
+        <div className="h-[3px] shrink-0 bg-feature-base" />
 
         {/* Header */}
-        <div className="px-7 pt-6 pb-5 flex items-start justify-between shrink-0 border-b border-[var(--bd)]">
+        <div className="px-7 pt-6 pb-5 flex items-start justify-between shrink-0 border-b border-stroke-soft-200">
           <div>
-            <h2 className="text-title-h6 text-[var(--tx)]">Taxas & Salários</h2>
-            <p className="text-paragraph-xs text-[var(--tx3)] mt-0.5">Edite os valores — os custos são recalculados ao salvar</p>
+            <h2 className="text-title-h6">Taxas & Salários</h2>
+            <p className="text-paragraph-xs mt-0.5">Edite os valores — os custos são recalculados ao salvar</p>
           </div>
-          <button onClick={handleClose} className="w-7 h-7 flex items-center justify-center text-[var(--tx3)] hover:text-[var(--tx)] transition-colors">
+          <button onClick={handleClose} className="w-7 h-7 flex items-center justify-center text-text-soft-400 hover:text-text-strong-950 transition-colors">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -115,17 +115,17 @@ export default function RatesEditor({ onClose, onSaved }: Props) {
               <div key={c.id}>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold"
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center text-label-2xs"
                       style={{ background: c.color + '22', color: c.color, border: `1.5px solid ${c.color}44` }}>
                       {c.name.slice(0, 2).toUpperCase()}
                     </div>
                     <div>
-                      <p className="text-label-sm text-[var(--tx)]">{c.name}</p>
-                      <p className="text-paragraph-xs text-[var(--tx3)]">{isHourly ? 'Taxa fixa/hora' : 'Salário mensal'}</p>
+                      <p className="text-label-sm">{c.name}</p>
+                      <p className="text-paragraph-xs">{isHourly ? 'Taxa fixa/hora' : 'Salário mensal'}</p>
                     </div>
                   </div>
                   {changed && (
-                    <span className="text-label-2xs px-2 py-0.5" style={{ background: '#6366F122', color: '#6366F1', border: '1px solid #6366F144' }}>
+                    <span className="text-label-2xs px-2 py-0.5" style={{ background: '#7d52f422', color: '#7d52f4', border: '1px solid #7d52f444' }}>
                       alterado
                     </span>
                   )}
@@ -146,10 +146,10 @@ export default function RatesEditor({ onClose, onSaved }: Props) {
                 </Input.Root>
 
                 {changed && original !== undefined && (
-                  <p className="text-paragraph-xs text-[var(--tx3)] mt-1">
+                  <p className="text-paragraph-xs mt-1">
                     Original: {fmtBRL(original)}{isHourly ? '/h' : '/mês'}
                     <button
-                      className="ml-2 underline hover:text-[var(--tx2)]"
+                      className="ml-2 underline hover:text-text-sub-600"
                       onClick={() => {
                         setOverrides((prev) => {
                           const next = { ...prev }
@@ -168,7 +168,7 @@ export default function RatesEditor({ onClose, onSaved }: Props) {
         </div>
 
         {/* Footer */}
-        <div className="px-7 py-5 border-t border-[var(--bd)] shrink-0 flex gap-3">
+        <div className="px-7 py-5 border-t border-stroke-soft-200 shrink-0 flex gap-3">
           <Button.Root variant="neutral" mode="stroke" size="medium" className="flex-1" onClick={handleClose}>
             Cancelar
           </Button.Root>

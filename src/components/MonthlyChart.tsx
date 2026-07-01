@@ -41,12 +41,12 @@ const CustomTooltip = ({
 }) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-[var(--bg3)] border border-[var(--bd)] p-3 text-sm">
-      <p className="font-semibold text-[var(--tx)] mb-2">{label}</p>
+    <div className="bg-bg-white-0 border border-stroke-soft-200 p-3 text-paragraph-sm">
+      <p className="mb-2">{label}</p>
       {payload.map((p) => (
         <div key={p.name} className="flex items-center gap-2 mb-1">
           <span className="w-2 h-2 rounded-full" style={{ background: p.color }} />
-          <span className="text-[var(--tx2)]">{p.name}:</span>
+          <span >{p.name}:</span>
           <span className="font-semibold ml-auto pl-4" style={{ color: p.color }}>
             {p.value >= 0 ? '' : '-'}{fmtBRL(Math.abs(p.value))}
           </span>
@@ -66,9 +66,9 @@ export default function MonthlyChart({ data }: Props) {
   const gridColor = isDark ? '#222222' : '#E8E8E8'
   const axisColor = isDark ? '#666666' : '#888888'
   const legendColor = isDark ? '#999999' : '#555555'
-  const revenueColor = '#22C55E'
-  const costColor = '#F87171'
-  const resultColor = '#60A5FA'
+  const revenueColor = '#1fc16b'
+  const costColor = '#fb3748'
+  const resultColor = '#335cff'
   const targetColor = isDark ? '#555555' : '#BBBBBB'
 
   useEffect(() => {
@@ -92,19 +92,19 @@ export default function MonthlyChart({ data }: Props) {
   const totalMonths = data.filter((m) => m.revenue > 0).length
 
   return (
-    <div className="bg-[var(--bg3)] p-6 border border-[var(--bd)] mb-8">
+    <div className="bg-bg-white-0 p-6 border border-stroke-soft-200 mb-8">
       <div className="flex items-start justify-between gap-4 flex-wrap mb-6">
         <div>
-          <h2 className="text-base font-bold text-[var(--tx)]">Evolução mensal</h2>
-          <p className="text-sm text-[var(--tx2)]">Receita e custo por mês · linha = resultado líquido</p>
+          <h2 className="text-label-md">Evolução mensal</h2>
+          <p className="text-paragraph-sm">Receita e custo por mês · linha = resultado líquido</p>
         </div>
 
         <div className="flex items-center gap-2">
           {target > 0 && !editing && (
-            <span className="text-xs text-[var(--tx2)]">
-              Meta: <strong className="text-[var(--tx)]">{fmtBRL(target)}/mês</strong>
+            <span className="text-paragraph-xs">
+              Meta: <strong >{fmtBRL(target)}/mês</strong>
               {totalMonths > 0 && (
-                <span className={`ml-2 font-semibold ${metMonths === totalMonths ? 'text-[var(--tx)]' : 'text-[var(--tx2)]'}`}>
+                <span className={`ml-2 font-semibold ${metMonths === totalMonths ? 'text-text-strong-950' : 'text-text-sub-600'}`}>
                   · {metMonths}/{totalMonths} meses atingidos
                 </span>
               )}
@@ -113,7 +113,7 @@ export default function MonthlyChart({ data }: Props) {
 
           {editing ? (
             <div className="flex items-center gap-2">
-              <span className="text-sm text-[var(--tx2)]">R$</span>
+              <span className="text-paragraph-sm">R$</span>
               <input
                 type="number"
                 autoFocus
@@ -121,14 +121,14 @@ export default function MonthlyChart({ data }: Props) {
                 onChange={(e) => setInputVal(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') saveTarget(); if (e.key === 'Escape') setEditing(false) }}
                 placeholder="ex: 30000"
-                className="w-32 bg-[var(--bg2)] border border-[var(--bd)] px-2 py-1 text-sm text-[var(--tx)] focus:outline-none focus:border-[var(--bd3)]"
+                className="w-32 bg-bg-soft-200 border border-stroke-soft-200 px-2 py-1 text-paragraph-sm focus:outline-none focus:border-stroke-sub-300"
               />
-              <button onClick={saveTarget} className="text-xs font-semibold text-[var(--inv-tx)] bg-[var(--inv)] hover:opacity-80 px-2 py-1 transition-opacity">
+              <button onClick={saveTarget} className="text-xs font-semibold text-text-white-0 bg-bg-strong-950 hover:opacity-80 px-2 py-1 transition-opacity">
                 Salvar
               </button>
-              <button onClick={() => setEditing(false)} className="text-xs text-[var(--tx3)] hover:text-[var(--tx)]">Cancelar</button>
+              <button onClick={() => setEditing(false)} className="text-xs text-text-soft-400 hover:text-text-strong-950">Cancelar</button>
               {target > 0 && (
-                <button onClick={() => { setTarget(0); localStorage.removeItem(STORAGE_KEY); setEditing(false) }} className="text-xs text-[var(--tx3)] hover:text-[var(--tx2)]">
+                <button onClick={() => { setTarget(0); localStorage.removeItem(STORAGE_KEY); setEditing(false) }} className="text-xs text-text-soft-400 hover:text-text-sub-600">
                   Remover
                 </button>
               )}
@@ -136,7 +136,7 @@ export default function MonthlyChart({ data }: Props) {
           ) : (
             <button
               onClick={openEditor}
-              className="flex items-center gap-1.5 text-xs font-medium text-[var(--tx3)] hover:text-[var(--tx)] border border-[var(--bd)] px-2.5 py-1.5 transition-colors no-print hover:border-[var(--bd3)]"
+              className="flex items-center gap-1.5 text-xs font-medium text-text-soft-400 hover:text-text-strong-950 border border-stroke-soft-200 px-2.5 py-1.5 transition-colors no-print hover:border-stroke-sub-300"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />

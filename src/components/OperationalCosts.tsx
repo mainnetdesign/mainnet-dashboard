@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { SUBSCRIPTIONS, SUBSCRIPTION_CATEGORIES, totalMonthlySubscriptions } from '@/config/subscriptions'
 
 const CATEGORY_COLORS: Record<string, string> = {
-  'SaaS IA':     '#6366F1',
+  'SaaS IA':     '#7d52f4',
   'Design':      '#F59E0B',
   'Comunicação': '#10B981',
 }
@@ -19,15 +19,15 @@ export default function OperationalCosts({ months = 1 }: { months?: number }) {
   const totalPeriod = total * months
 
   return (
-    <div className="bg-[var(--bg3)] border border-[var(--bd)] p-6">
+    <div className="bg-bg-white-0 border border-stroke-soft-200 p-6">
       {/* Header */}
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-[var(--tx3)]">Custos Operacionais</h2>
-          <p className="text-[2rem] font-black text-[var(--tx)] leading-none mt-1">
+          <h2 className="text-label-sm">Custos Operacionais</h2>
+          <p className="text-[2rem] mt-1">
             {fmtBRL(months > 1 ? totalPeriod : total)}
           </p>
-          <p className="text-xs text-[var(--tx3)] mt-1">
+          <p className="text-paragraph-xs mt-1">
             {months > 1 ? `${fmtBRL(total)}/mês × ${months} meses` : 'por mês · 11 assinaturas'}
           </p>
         </div>
@@ -37,8 +37,8 @@ export default function OperationalCosts({ months = 1 }: { months?: number }) {
             const pct = Math.round((catTotal / total) * 100)
             return (
               <div key={cat} className="text-center">
-                <div className="text-[10px] font-bold" style={{ color: CATEGORY_COLORS[cat] }}>{pct}%</div>
-                <div className="text-[9px] text-[var(--tx3)]">{cat.split(' ')[0]}</div>
+                <div className="text-label-2xs" style={{ color: CATEGORY_COLORS[cat] }}>{pct}%</div>
+                <div className="text-paragraph-xs">{cat.split(' ')[0]}</div>
               </div>
             )
           })}
@@ -66,20 +66,20 @@ export default function OperationalCosts({ months = 1 }: { months?: number }) {
           const isOpen = expanded === cat
 
           return (
-            <div key={cat} className="border border-[var(--bd)] overflow-hidden">
+            <div key={cat} className="border border-stroke-soft-200 overflow-hidden">
               <button
                 onClick={() => setExpanded(isOpen ? null : cat)}
-                className="w-full flex items-center justify-between px-4 py-3 hover:bg-[var(--bg4)] transition-colors"
+                className="w-full flex items-center justify-between px-4 py-3 hover:bg-bg-weak-50 transition-colors"
               >
                 <div className="flex items-center gap-2.5">
                   <div className="w-2 h-2 rounded-full" style={{ background: CATEGORY_COLORS[cat] }} />
-                  <span className="text-sm font-medium text-[var(--tx)]">{cat}</span>
-                  <span className="text-xs text-[var(--tx3)]">{items.length} assinaturas</span>
+                  <span className="text-label-sm">{cat}</span>
+                  <span className="text-paragraph-xs">{items.length} assinaturas</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-semibold text-[var(--tx)]">{fmtBRL(catTotal)}</span>
+                  <span className="text-label-sm">{fmtBRL(catTotal)}</span>
                   <svg
-                    className="w-3.5 h-3.5 text-[var(--tx3)] transition-transform"
+                    className="w-3.5 h-3.5 transition-transform"
                     style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
                     fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
                   >
@@ -89,11 +89,11 @@ export default function OperationalCosts({ months = 1 }: { months?: number }) {
               </button>
 
               {isOpen && (
-                <div className="border-t border-[var(--bd)] divide-y divide-[var(--bd)]">
+                <div className="border-t border-stroke-soft-200 divide-y divide-[var(--color-stroke-soft-200)]">
                   {items.map((sub) => (
-                    <div key={sub.id} className="flex items-center justify-between px-4 py-2.5 bg-[var(--bg4)]">
-                      <span className="text-sm text-[var(--tx2)]">{sub.name}</span>
-                      <span className="text-sm font-medium text-[var(--tx)]">{fmtBRL(sub.monthlyBRL)}</span>
+                    <div key={sub.id} className="flex items-center justify-between px-4 py-2.5 bg-bg-weak-50">
+                      <span className="text-paragraph-sm">{sub.name}</span>
+                      <span className="text-label-sm">{fmtBRL(sub.monthlyBRL)}</span>
                     </div>
                   ))}
                 </div>
