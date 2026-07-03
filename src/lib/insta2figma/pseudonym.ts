@@ -1,23 +1,21 @@
-const FIRST = [
-  'Ana', 'Bruno', 'Carla', 'Diego', 'Elisa', 'Felipe', 'Gabriela', 'Henrique',
-  'Isabela', 'João', 'Karina', 'Lucas', 'Mariana', 'Nicolas', 'Olivia', 'Pedro',
-  'Rafaela', 'Samuel', 'Tatiana', 'Vitor', 'Yasmin', 'Zeca', 'Amanda', 'Caio',
-  'Daniela', 'Eduardo', 'Fernanda', 'Gustavo', 'Helena', 'Igor',
+const ADJECTIVES = [
+  'Preciso', 'Léxico', 'Ágil', 'Sutil', 'Nobre', 'Sereno', 'Vívido', 'Cauteloso',
+  'Radiante', 'Astuto', 'Gentil', 'Robusto', 'Elegante', 'Curioso', 'Discreto',
+  'Vibrante', 'Tranquilo', 'Ousado', 'Fiel', 'Esperto', 'Alegre', 'Calmo',
+  'Brilhante', 'Destemido', 'Amável', 'Zeloso', 'Sábio', 'Veloz', 'Leal', 'Rústico',
 ]
 
-const MIDDLE = [
-  'Maria', 'José', 'Luiz', 'Paulo', 'Ana', 'João', 'Pedro', 'Antonio',
-  'Francisco', 'Carlos', 'Miguel', 'Rafael', 'Gabriel', 'Lucas', 'Felipe',
-  'Rodrigo', 'Marcos', 'André', 'Ricardo', 'Fernando', 'Roberto', 'Eduardo',
-  'Daniel', 'Matheus', 'Leonardo', 'Guilherme', 'Bruno', 'Diego', 'Thiago', 'Renato',
+const COLORS = [
+  'Turquesa', 'Bege', 'Bronze', 'Índigo', 'Âmbar', 'Coral', 'Esmeralda', 'Lavanda',
+  'Escarlate', 'Safira', 'Marfim', 'Púrpura', 'Ocre', 'Jade', 'Cobre', 'Carmim',
+  'Grafite', 'Violeta', 'Ciano', 'Magenta', 'Pêssego', 'Verde-musgo', 'Azul-céu', 'Vinho',
 ]
 
-const LAST = [
-  'Silva', 'Santos', 'Oliveira', 'Souza', 'Rodrigues', 'Ferreira', 'Alves',
-  'Pereira', 'Lima', 'Gomes', 'Costa', 'Ribeiro', 'Martins', 'Carvalho',
-  'Almeida', 'Lopes', 'Soares', 'Fernandes', 'Vieira', 'Barbosa', 'Rocha',
-  'Dias', 'Nascimento', 'Andrade', 'Moreira', 'Nunes', 'Marques', 'Machado',
-  'Mendes', 'Freitas',
+const ANIMALS = [
+  'Tucano', 'Arara', 'Pinguim', 'Jaguar', 'Lontra', 'Coruja', 'Raposa', 'Tatu',
+  'Golfinho', 'Falcão', 'Sabiá', 'Onça', 'Tamanduá', 'Capivara', 'Bugio', 'Quati',
+  'Gralha', 'Cervo', 'Gavião', 'Andorinha', 'Perereca', 'Cágado', 'Beija-flor', 'Marreco',
+  'Peixe-boi', 'Ariranha', 'Mico', 'Preá', 'Sagui', 'Colibri',
 ]
 
 function hashSeed(seed: string): number {
@@ -29,13 +27,13 @@ function hashSeed(seed: string): number {
   return h >>> 0
 }
 
-/** Pseudônimo determinístico de 3 nomes a partir de id/email */
+/** Pseudônimo determinístico estilo "Animal Cor Adjetivo" a partir de id/email */
 export function pseudonym(seed: string): string {
   const h = hashSeed(seed)
-  const first = FIRST[h % FIRST.length]
-  const middle = MIDDLE[(h >>> 8) % MIDDLE.length]
-  const last = LAST[(h >>> 16) % LAST.length]
-  return `${first} ${middle} ${last}`
+  const animal = ANIMALS[h % ANIMALS.length]
+  const color = COLORS[(h >>> 8) % COLORS.length]
+  const adjective = ADJECTIVES[(h >>> 16) % ADJECTIVES.length]
+  return `${animal} ${color} ${adjective}`
 }
 
 export function pseudonymInitials(name: string): string {
@@ -43,6 +41,20 @@ export function pseudonymInitials(name: string): string {
   if (parts.length === 0) return '?'
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
   return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
+}
+
+/**
+ * Paleta de avatares — cores de destaque fora da paleta de "states"
+ * (verde/vermelho/amarelo/laranja/azul), para não confundir com status.
+ */
+export const AVATAR_COLOR_KEYS = ['purple', 'sky', 'pink', 'teal'] as const
+
+export type AvatarColorKey = (typeof AVATAR_COLOR_KEYS)[number]
+
+/** Cor determinística do avatar a partir de id/email/nome */
+export function pseudonymColor(seed: string): AvatarColorKey {
+  const h = hashSeed(seed)
+  return AVATAR_COLOR_KEYS[(h >>> 4) % AVATAR_COLOR_KEYS.length]
 }
 
 /** Admin fixo da sidebar */

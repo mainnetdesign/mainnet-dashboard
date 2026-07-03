@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation'
 import { RiBuildingLine, RiStore2Line } from '@remixicon/react'
 import MainnetMark from '@/components/MainnetMark'
+import UserProfile from '@/components/shell/UserProfile'
 import { cn } from '@/utils/cn'
 import { homeForMode, modeFromPathname, type AppMode } from '@/lib/app-mode'
 
@@ -78,14 +79,15 @@ export default function IconRail({ compact = false, onModeChange }: IconRailProp
           onClick={switchMode}
           compact
         />
+        <UserProfile iconOnly />
       </div>
     )
   }
 
   return (
-    <aside className="relative flex w-[83px] shrink-0 flex-col border-r border-stroke-soft-200 bg-bg-white-0">
+    <aside className="relative flex h-full w-[83px] shrink-0 flex-col border-r border-stroke-soft-200 bg-bg-white-0">
       <div className="flex h-[66px] flex-col items-center justify-end px-3.5 pb-3.5 pt-5">
-        <MainnetMark className="h-[18px] w-[30px] text-text-strong-950 dark:text-text-strong-950" />
+        <MainnetMark className="h-[18px] w-[25px] text-text-strong-950" />
       </div>
 
       <div className="border-y border-stroke-soft-200">
@@ -105,6 +107,12 @@ export default function IconRail({ compact = false, onModeChange }: IconRailProp
         icon={<RiStore2Line className="size-5" />}
         onClick={switchMode}
       />
+
+      <div className="flex flex-1" />
+
+      <div className="flex justify-center px-3.5 pb-4 pt-2">
+        <UserProfile iconOnly />
+      </div>
 
       <span className="pointer-events-none absolute left-full top-[63px] z-10 size-1.5 -translate-x-1/2 border border-stroke-soft-200 bg-bg-white-0" />
     </aside>

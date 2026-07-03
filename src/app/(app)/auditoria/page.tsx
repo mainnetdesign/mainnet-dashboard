@@ -1,10 +1,19 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
-import { useTheme } from 'next-themes'
 import {
   PieChart, Pie, Cell, Label, Tooltip as RTooltip, ResponsiveContainer,
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
 } from 'recharts'
+import { TOOLTIP_CARD } from '@/components/charts/chart-primitives'
+import PageHeader from '@/components/shell/PageHeader'
+import DateRangePicker from '@/components/DateRangePicker'
+import StudioPageActions from '@/components/studio/StudioPageActions'
+import StatWidget from '@/components/ds/StatWidget'
+import WidgetCard from '@/components/ds/WidgetCard'
+import SectionHeader from '@/components/ds/SectionHeader'
+import BadgeDS from '@/components/ds/Badge'
+import * as Button from '@/components/ui/button'
+import { RiDownloadLine } from '@remixicon/react'
 
 type TxStatus = 'matched' | 'unmatched' | 'ignored' | 'not-realized'
 
@@ -74,22 +83,9 @@ function useStatusCfg() {
 function Badge({ status }: { status: TxStatus }) {
   const c = STATUS_CFG_BASE[status]
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 border text-label-xs ${c.borderClass} ${c.textClass}`}>
+    <BadgeDS variant={status === 'matched' ? 'success' : status === 'unmatched' ? 'error' : status === 'not-realized' ? 'warning' : 'neutral'}>
       {c.label}
-    </span>
-  )
-}
-
-function SectionHeader({ label, title, count }: { label: string; title: string; count?: number }) {
-  return (
-    <div className="flex items-center gap-3 mb-4">
-      <p className="text-label-2xs whitespace-nowrap">{label}</p>
-      <div className="flex-1 h-px bg-stroke-soft-200" />
-      <h2 className="text-label-sm whitespace-nowrap">{title}</h2>
-      {count !== undefined && (
-        <span className="text-label-xs border px-2 py-0.5" style={{ color: '#335cff', borderColor: '#335cff44' }}>{count}</span>
-      )}
-    </div>
+    </BadgeDS>
   )
 }
 
@@ -110,11 +106,11 @@ function PieTooltip({ active, payload }: { active?: boolean; payload?: Array<{ n
   if (!active || !payload?.length) return null
   const p = payload[0]
   return (
-    <div className="bg-bg-white-0 border border-stroke-soft-200 px-3 py-2 text-paragraph-sm">
+    <div className={`${TOOLTIP_CARD} text-paragraph-sm`}>
       <div className="flex items-center gap-2">
         <span className="w-2 h-2 rounded-full shrink-0" style={{ background: p.payload.color }} />
-        <span >{p.name}</span>
-        <span className="ml-2">{p.value}</span>
+        <span className="text-text-sub-600">{p.name}</span>
+        <span className="ml-2 font-medium text-text-strong-950">{p.value}</span>
       </div>
     </div>
   )
@@ -123,13 +119,13 @@ function PieTooltip({ active, payload }: { active?: boolean; payload?: Array<{ n
 function BarTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ name: string; value: number; color: string }>; label?: string }) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-bg-white-0 border border-stroke-soft-200 p-3 text-paragraph-sm min-w-[140px]">
-      <p className="mb-2">{label}</p>
+    <div className={`${TOOLTIP_CARD} min-w-[140px] text-paragraph-sm`}>
+      <p className="mb-2 text-label-xs text-text-soft-400">{label}</p>
       {payload.filter(p => p.value > 0).map((p) => (
         <div key={p.name} className="flex items-center gap-2 mb-1">
           <span className="w-2 h-2 rounded-full shrink-0" style={{ background: p.color }} />
-          <span className="flex-1 text-paragraph-xs">{p.name}</span>
-          <span >{p.value}</span>
+          <span className="flex-1 text-paragraph-xs text-text-sub-600">{p.name}</span>
+          <span className="font-medium text-text-strong-950">{p.value}</span>
         </div>
       ))}
     </div>
@@ -156,7 +152,6 @@ export default function AuditoriaPage() {
   const [openDupGroups, setOpenDupGroups] = useState<Set<number>>(new Set([0]))
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [manualLinks, setManualLinks] = useState<Record<string, string>>({})
-  const { theme } = useTheme()
   const STATUS_CFG = useStatusCfg()
 
   // Load manual links from localStorage on mount
@@ -262,88 +257,60 @@ export default function AuditoriaPage() {
   }
 
   return (
-    <div>
-      {/* ── Header ── */}
-      <header className="bg-bg-weak-50 border-b border-stroke-soft-200 sticky top-0 z-10">
-        <div className="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between flex-wrap gap-4">
-          <div>
-            <span className="text-title-h6">Auditoria</span>
-            {lastUpdated && (
-              <p className="text-paragraph-xs mt-0.5">
-                Atualizado {(() => {
-                  const diff = Math.floor((Date.now() - lastUpdated.getTime()) / 60000)
-                  if (diff < 1) return 'agora mesmo'
-                  if (diff === 1) return 'há 1 minuto'
-                  return `há ${diff} minutos`
-                })()}
-              </p>
-            )}
-          </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1.5 border border-stroke-soft-200 px-3 py-1.5 bg-bg-white-0">
-              <input type="date" value={start} onChange={(e) => setStart(e.target.value)}
-                className="text-paragraph-sm outline-none bg-transparent" style={{ colorScheme: 'dark' }} />
-              <span className="text-text-soft-400 text-paragraph-sm">→</span>
-              <input type="date" value={end} onChange={(e) => setEnd(e.target.value)}
-                className="text-paragraph-sm outline-none bg-transparent" style={{ colorScheme: 'dark' }} />
-            </div>
-            <button onClick={() => fetchData(start, end)} disabled={loading}
-              className="px-3 py-1.5 text-sm font-medium bg-bg-strong-950 text-text-white-0 hover:opacity-80 disabled:opacity-40 transition-colors">
+    <>
+      <PageHeader
+        title="Auditoria"
+        subtitle={lastUpdated ? `Atualizado ${(() => {
+          const diff = Math.floor((Date.now() - lastUpdated.getTime()) / 60000)
+          if (diff < 1) return 'agora mesmo'
+          if (diff === 1) return 'há 1 minuto'
+          return `há ${diff} minutos`
+        })()}` : undefined}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <DateRangePicker start={start} end={end} onChange={(s, e) => { setStart(s); setEnd(e) }} />
+            <Button.Root variant="primary" mode="filled" size="small" onClick={() => fetchData(start, end)} disabled={loading}>
               {loading ? 'Carregando…' : 'Aplicar'}
-            </button>
-            <button
-              onClick={() => fetchData(start, end)}
-              disabled={loading}
-              title="Buscar dados atualizados do Notion"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-stroke-soft-200 text-text-sub-600 hover:border-stroke-sub-300 hover:text-text-strong-950 disabled:opacity-40 transition-colors"
-            >
-              <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              Atualizar
-            </button>
+            </Button.Root>
+            <StudioPageActions loading={loading} onRefresh={() => fetchData(start, end)} />
             {data && (
-              <button onClick={() => exportCSV(data.periodTransactions)}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-stroke-soft-200 text-text-sub-600 hover:border-stroke-sub-300 hover:text-text-strong-950 transition-colors">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
+              <Button.Root variant="neutral" mode="stroke" size="small" onClick={() => exportCSV(data.periodTransactions)}>
+                <Button.Icon as={RiDownloadLine} />
                 CSV
-              </button>
+              </Button.Root>
             )}
           </div>
-        </div>
-      </header>
+        }
+      />
 
-      <main className="max-w-screen-xl mx-auto px-6 py-8">
+      <main className="flex flex-col gap-6 p-5">
 
         {loading && (
-          <div className="space-y-6 animate-pulse">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-px border border-stroke-soft-200">
-              {[...Array(4)].map((_, i) => <div key={i} className="bg-bg-white-0 h-28" />)}
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {[...Array(4)].map((_, i) => <div key={i} className="h-36 animate-pulse rounded-2xl bg-bg-weak-50" />)}
             </div>
-            <div className="bg-bg-white-0 border border-stroke-soft-200 h-64" />
-            <div className="bg-bg-white-0 border border-stroke-soft-200 h-96" />
+            <div className="h-64 animate-pulse rounded-2xl bg-bg-weak-50" />
+            <div className="h-96 animate-pulse rounded-2xl bg-bg-weak-50" />
           </div>
         )}
 
         {!loading && error && (
-          <div className="bg-bg-white-0 border border-stroke-soft-200 p-6 text-center">
-            <p className="mb-1">Erro ao carregar dados</p>
-            <p className="text-paragraph-sm">{error}</p>
-            <button onClick={() => fetchData(start, end)}
-              className="mt-4 px-4 py-2 bg-white text-black text-sm hover:opacity-80 transition-colors">
+          <WidgetCard className="text-center">
+            <p className="text-label-md text-text-strong-950">Erro ao carregar dados</p>
+            <p className="mt-1 text-paragraph-sm text-text-sub-600">{error}</p>
+            <Button.Root variant="primary" mode="filled" size="small" className="mt-4" onClick={() => fetchData(start, end)}>
               Tentar novamente
-            </button>
-          </div>
+            </Button.Root>
+          </WidgetCard>
         )}
 
         {!loading && !error && data && (
-          <div className="space-y-10">
+          <div className="flex flex-col gap-6">
 
             {/* ── 1. Action summary ── */}
             {actions.length > 0 && (
-              <div className="p-5 border" style={{ background: '#f6b51e20', borderColor: '#f6b51e66' }}>
+              <WidgetCard className="border-away-light/40 bg-away-lighter/30">
                 <div className="flex items-center gap-2.5 mb-3">
                   <div className="w-6 h-6 flex items-center justify-center shrink-0" style={{ background: '#f6b51e22' }}>
                     <svg className="w-3.5 h-3.5" style={{ color: '#f6b51e' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -361,29 +328,20 @@ export default function AuditoriaPage() {
                     </li>
                   ))}
                 </ul>
-              </div>
+              </WidgetCard>
             )}
 
-            {/* ── 2. KPI cards + coverage ── */}
             <div>
-              <SectionHeader label="Visão geral" title="Resumo do período" />
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-px mb-4 border border-stroke-soft-200">
-                {[
-                  { label: 'Receita realizada',    value: fmtBRL(effectiveSummary.totalRealizedRevenue),  sub: 'período selecionado',                                                                                    color: '#1fc16b' },
-                  { label: 'Receita vinculada',     value: fmtBRL(effectiveSummary.totalMatchedRevenue),   sub: `${effectiveSummary.matchedCount} transações${matchPct !== null ? ` · ${matchPct}% cobertura` : ''}`,         color: '#1fc16b' },
-                  { label: 'Sem vínculo',           value: fmtBRL(effectiveSummary.totalUnmatchedRevenue), sub: `${effectiveSummary.unmatchedCount} transações`,                                                              color: '#fb3748' },
-                  { label: 'Ignoradas / Previstas', value: `${effectiveSummary.ignoredCount + effectiveSummary.notRealizedCount}`, sub: `${effectiveSummary.ignoredCount} ignoradas · ${effectiveSummary.notRealizedCount} previstas`, color: '#a3a3a3' },
-                ].map((c) => (
-                  <div key={c.label} className="bg-bg-white-0 p-5">
-                    <p className="text-label-2xs mb-2">{c.label}</p>
-                    <p className="text-title-h5 mb-1" style={{ color: c.color }}>{c.value}</p>
-                    <p className="text-paragraph-xs">{c.sub}</p>
-                  </div>
-                ))}
+              <SectionHeader title="Resumo do período" description="Visão geral" />
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <StatWidget label="Receita realizada" value={<span className="text-success-base">{fmtBRL(effectiveSummary.totalRealizedRevenue)}</span>} delta="período selecionado" />
+                <StatWidget label="Receita vinculada" value={<span className="text-success-base">{fmtBRL(effectiveSummary.totalMatchedRevenue)}</span>} delta={`${effectiveSummary.matchedCount} transações${matchPct !== null ? ` · ${matchPct}%` : ''}`} />
+                <StatWidget label="Sem vínculo" value={<span className="text-error-base">{fmtBRL(effectiveSummary.totalUnmatchedRevenue)}</span>} delta={`${effectiveSummary.unmatchedCount} transações`} deltaVariant="error" />
+                <StatWidget label="Ignoradas / Previstas" value={effectiveSummary.ignoredCount + effectiveSummary.notRealizedCount} delta={`${effectiveSummary.ignoredCount} ignoradas · ${effectiveSummary.notRealizedCount} previstas`} deltaVariant="neutral" />
               </div>
 
               {matchPct !== null && (
-                <div className="bg-bg-white-0 p-5 border border-stroke-soft-200">
+                <WidgetCard className="mt-4">
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-label-sm">Cobertura de vínculo</p>
                     <p className="text-title-h5" style={{ color: matchPct >= 70 ? '#1fc16b' : matchPct >= 40 ? '#f6b51e' : '#fb3748' }}>{matchPct}%</p>
@@ -408,17 +366,14 @@ export default function AuditoriaPage() {
                       </>
                     )
                   })()}
-                </div>
+                </WidgetCard>
               )}
             </div>
 
-            {/* ── 3. Charts ── */}
             <div>
-              <SectionHeader label="Análise visual" title="Distribuição e tendência mensal" />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-px border border-stroke-soft-200">
-
-                {/* Donut */}
-                <div className="bg-bg-white-0 p-6">
+              <SectionHeader title="Distribuição e tendência mensal" description="Análise visual" />
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <WidgetCard>
                   <p className="text-label-sm mb-0.5">Status das transações</p>
                   <p className="text-paragraph-xs mb-5">Distribuição por tipo no período</p>
                   {(() => {
@@ -472,20 +427,19 @@ export default function AuditoriaPage() {
                       </>
                     )
                   })()}
-                </div>
+                </WidgetCard>
 
-                {/* Bar chart */}
-                <div className="bg-bg-white-0 p-6">
+                <WidgetCard>
                   <p className="text-label-sm mb-0.5">Transações por mês</p>
                   <p className="text-paragraph-xs mb-5">Vinculadas vs sem vínculo ao longo do tempo</p>
                   {effectiveMonthlyBreakdown.length > 0 ? (
                     <>
                       <ResponsiveContainer width="100%" height={200}>
                         <BarChart data={effectiveMonthlyBreakdown} margin={{ top: 2, right: 0, left: -28, bottom: 0 }} barCategoryGap="25%">
-                          <CartesianGrid strokeDasharray="2 4" stroke={theme === 'dark' ? '#1E1E1E' : '#EBEBEB'} vertical={false} />
-                          <XAxis dataKey="label" tick={{ fontSize: 10, fill: theme === 'dark' ? '#555' : '#AAA' }} axisLine={false} tickLine={false} />
-                          <YAxis tick={{ fontSize: 10, fill: theme === 'dark' ? '#555' : '#AAA' }} axisLine={false} tickLine={false} allowDecimals={false} />
-                          <RTooltip content={<BarTooltip />} cursor={{ fill: theme === 'dark' ? '#ffffff08' : '#00000006', radius: 2 }} />
+                          <CartesianGrid strokeDasharray="2 4" stroke="var(--color-stroke-soft-200)" vertical={false} />
+                          <XAxis dataKey="label" tick={{ fontSize: 10, fill: 'var(--color-text-soft-400)' }} axisLine={false} tickLine={false} tickMargin={8} />
+                          <YAxis tick={{ fontSize: 10, fill: 'var(--color-text-soft-400)' }} axisLine={false} tickLine={false} allowDecimals={false} />
+                          <RTooltip content={<BarTooltip />} cursor={{ fill: 'var(--color-bg-weak-50)', radius: 2 }} />
                           <Bar dataKey="matched"     name="Vinculado"     stackId="a" fill={STATUS_CFG.matched.color}         radius={[0,0,0,0]} />
                           <Bar dataKey="unmatched"   name="Sem vínculo"   stackId="a" fill={STATUS_CFG.unmatched.color}       radius={[0,0,0,0]} />
                           <Bar dataKey="ignored"     name="Ignorado"      stackId="a" fill={STATUS_CFG.ignored.color}         radius={[0,0,0,0]} />
@@ -510,19 +464,22 @@ export default function AuditoriaPage() {
                   ) : (
                     <div className="flex items-center justify-center h-[200px] text-paragraph-sm text-text-soft-400">Sem dados suficientes</div>
                   )}
-                </div>
-
+                </WidgetCard>
               </div>
             </div>
 
             {/* ── 4. Overdue ── */}
             {data.overdueNotRealized.length > 0 && (
               <div>
-                <SectionHeader label="Recebimentos atrasados" title="Previstos há mais de 30 dias" count={data.overdueNotRealized.length} />
-                <div className="bg-bg-white-0 border border-stroke-soft-200 overflow-hidden">
-                  <div className="divide-y divide-[var(--color-stroke-soft-200)]">
+                <SectionHeader
+                  title="Previstos há mais de 30 dias"
+                  description="Recebimentos atrasados"
+                  actions={<BadgeDS variant="info">{data.overdueNotRealized.length}</BadgeDS>}
+                />
+                <WidgetCard>
+                  <div className="flex flex-col gap-1">
                     {data.overdueNotRealized.map((tx) => (
-                      <div key={tx.id} className="flex items-center gap-4 px-5 py-3 hover:bg-bg-weak-50 transition-colors">
+                      <div key={tx.id} className="flex items-center gap-4 rounded-xl px-4 py-3 transition-colors hover:bg-bg-weak-50">
                         <div className="flex-1 min-w-0">
                           <p className="text-label-sm truncate">{tx.name}</p>
                           <p className="text-paragraph-xs mt-0.5">Previsto para {fmtDate(tx.paymentDate)}</p>
@@ -534,30 +491,34 @@ export default function AuditoriaPage() {
                       </div>
                     ))}
                   </div>
-                  <div className="px-5 py-3 bg-bg-weak-50 border-t border-stroke-soft-200 flex justify-between text-label-xs">
-                    <span>{data.overdueNotRealized.length} recebimentos pendentes</span>
-                    <span style={{ color: '#1fc16b' }}>{fmtBRL(data.overdueNotRealized.reduce((s, t) => s + t.value, 0))}</span>
+                  <div className="mt-3 flex justify-between rounded-xl bg-bg-weak-50 px-4 py-3 text-label-xs">
+                    <span className="text-text-sub-600">{data.overdueNotRealized.length} recebimentos pendentes</span>
+                    <span className="text-success-base">{fmtBRL(data.overdueNotRealized.reduce((s, t) => s + t.value, 0))}</span>
                   </div>
-                </div>
+                </WidgetCard>
               </div>
             )}
 
             {/* ── 5. Duplicates ── */}
             {data.duplicateGroups.length > 0 && (
               <div>
-                <SectionHeader label="Possíveis duplicatas" title="Mesmo valor e nome no mesmo mês" count={data.duplicateGroups.length} />
+                <SectionHeader
+                  title="Mesmo valor e nome no mesmo mês"
+                  description="Possíveis duplicatas"
+                  actions={<BadgeDS variant="info">{data.duplicateGroups.length}</BadgeDS>}
+                />
                 <div className="space-y-3">
                   {data.duplicateGroups.map((group, gi) => {
                     const isOpen = openDupGroups.has(gi)
                     return (
-                      <div key={gi} className="bg-bg-white-0 border border-stroke-soft-200 overflow-hidden">
+                      <WidgetCard key={gi} padding="none" className="overflow-hidden">
                         <button
                           onClick={() => setOpenDupGroups((prev) => {
                             const next = new Set(prev)
                             if (next.has(gi)) next.delete(gi); else next.add(gi)
                             return next
                           })}
-                          className="w-full px-5 py-3 bg-bg-weak-50 flex items-center justify-between hover:bg-bg-weak-50 transition-colors text-left"
+                          className="flex w-full items-center justify-between rounded-2xl bg-bg-weak-50 px-5 py-3 text-left transition-colors hover:bg-bg-soft-200"
                         >
                           <p className="text-label-xs">
                             {group.transactions.length} transações · {group.month} · <span style={{ color: '#1fc16b' }}>{fmtBRL(group.value)}</span> cada
@@ -570,9 +531,9 @@ export default function AuditoriaPage() {
                           </div>
                         </button>
                         {isOpen && (
-                          <div className="divide-y divide-[var(--color-stroke-soft-200)] border-t border-stroke-soft-200">
+                          <div className="flex flex-col gap-1 border-t border-stroke-soft-200 p-3">
                             {group.transactions.map((tx) => (
-                              <div key={tx.id} className="flex items-center gap-4 px-5 py-2.5">
+                              <div key={tx.id} className="flex items-center gap-4 rounded-xl bg-bg-weak-50 px-4 py-2.5">
                                 <p className="flex-1 text-paragraph-sm truncate">{tx.name}</p>
                                 <span className="text-paragraph-xs shrink-0">{fmtDate(tx.paymentDate)}</span>
                                 <Badge status={tx.status as TxStatus} />
@@ -580,7 +541,7 @@ export default function AuditoriaPage() {
                             ))}
                           </div>
                         )}
-                      </div>
+                      </WidgetCard>
                     )
                   })}
                 </div>
@@ -590,23 +551,27 @@ export default function AuditoriaPage() {
             {/* ── 6. Implied rates ── */}
             {data.impliedRates.length > 0 && (
               <div>
-                <SectionHeader label="Taxa implícita" title="Receita ÷ horas por projeto" count={data.impliedRates.length} />
-                <div className="bg-bg-white-0 border border-stroke-soft-200 overflow-hidden">
+                <SectionHeader
+                  title="Receita ÷ horas por projeto"
+                  description="Taxa implícita"
+                  actions={<BadgeDS variant="info">{data.impliedRates.length}</BadgeDS>}
+                />
+                <WidgetCard>
                   {(() => {
                     const avg = Math.round(data.impliedRates.reduce((s, r) => s + r.rate, 0) / data.impliedRates.length)
                     return (
-                      <div className="px-5 py-3 bg-bg-weak-50 border-b border-stroke-soft-200 flex items-center justify-between text-paragraph-xs">
-                        <span>Taxa média: <strong style={{ color: '#335cff' }}>R${avg}/h</strong></span>
+                      <div className="mb-3 flex items-center justify-between rounded-xl bg-bg-weak-50 px-4 py-3 text-paragraph-xs text-text-sub-600">
+                        <span>Taxa média: <strong className="text-information-base">R${avg}/h</strong></span>
                         <span>anomalia = fora de 25–250% da média</span>
                       </div>
                     )
                   })()}
-                  <div className="divide-y divide-[var(--color-stroke-soft-200)]">
+                  <div className="flex flex-col gap-2">
                     {data.impliedRates.map((r) => {
                       const maxRate = Math.max(...data.impliedRates.map(x => x.rate))
                       const pct = maxRate > 0 ? (r.rate / maxRate) * 100 : 0
                       return (
-                        <div key={r.name} className="px-5 py-3 hover:bg-bg-weak-50 transition-colors">
+                        <div key={r.name} className="rounded-xl border border-stroke-soft-200 px-4 py-3 transition-colors hover:bg-bg-weak-50">
                           <div className="flex items-center gap-4 mb-1.5">
                             <p className="text-label-sm flex-1 truncate">{r.name}</p>
                             <span className="text-label-xs shrink-0" style={{ color: '#a3a3a3' }}>{r.hours}h</span>
@@ -616,69 +581,65 @@ export default function AuditoriaPage() {
                               <span className="text-label-xs px-1.5 py-0.5 shrink-0 border" style={{ color: '#fa7319', borderColor: '#fa731966' }}>⚠ fora do padrão</span>
                             )}
                           </div>
-                          <div className="w-full h-1.5 bg-stroke-soft-200 overflow-hidden">
-                            <div className="h-full" style={{ width: `${pct}%`, background: '#335cff' }} />
+                          <div className="h-1.5 w-full overflow-hidden rounded-full bg-stroke-soft-200">
+                            <div className="h-full rounded-full bg-information-base" style={{ width: `${pct}%` }} />
                           </div>
                         </div>
                       )
                     })}
                   </div>
-                </div>
+                </WidgetCard>
               </div>
             )}
 
             {/* ── 7. Project problems ── */}
             {(data.projectsWithNoRevenue.length > 0 || data.revenueProjectsNoHours.length > 0) && (
               <div>
-                <SectionHeader label="Inconsistências de projeto" title="Horas sem receita · Receita sem horas" />
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-px border border-stroke-soft-200">
+                <SectionHeader title="Horas sem receita · Receita sem horas" description="Inconsistências de projeto" />
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                   {data.projectsWithNoRevenue.length > 0 && (
-                    <div className="bg-bg-white-0 overflow-hidden">
-                      <div className="px-5 py-3.5 border-b border-stroke-soft-200 flex items-center justify-between">
+                    <WidgetCard>
+                      <div className="mb-3 flex items-center justify-between">
                         <div>
-                          <p className="text-label-sm">Horas sem receita</p>
-                          <p className="text-paragraph-xs mt-0.5">Clockify sem transação no Notion</p>
+                          <p className="text-label-sm text-text-strong-950">Horas sem receita</p>
+                          <p className="mt-0.5 text-paragraph-xs text-text-sub-600">Clockify sem transação no Notion</p>
                         </div>
-                        <span className="text-label-xs border border-stroke-sub-300 px-2 py-0.5">
-                          {data.projectsWithNoRevenue.length}
-                        </span>
+                        <BadgeDS variant="neutral">{data.projectsWithNoRevenue.length}</BadgeDS>
                       </div>
-                      <div className="divide-y divide-[var(--color-stroke-soft-200)]">
+                      <div className="flex flex-col gap-1">
                         {(showAllNoRevenue ? data.projectsWithNoRevenue : data.projectsWithNoRevenue.slice(0, 8)).map((p) => (
-                          <div key={p.name} className="flex items-center justify-between px-5 py-2.5 hover:bg-bg-weak-50 transition-colors">
-                            <span className="text-label-sm truncate">{p.name}</span>
-                            <span className="text-label-xs shrink-0 ml-2" style={{ color: '#335cff' }}>{p.hours}h</span>
+                          <div key={p.name} className="flex items-center justify-between rounded-xl px-3 py-2.5 transition-colors hover:bg-bg-weak-50">
+                            <span className="truncate text-label-sm text-text-strong-950">{p.name}</span>
+                            <span className="ml-2 shrink-0 text-label-xs text-information-base">{p.hours}h</span>
                           </div>
                         ))}
                         {data.projectsWithNoRevenue.length > 8 && (
                           <button onClick={() => setShowAllNoRevenue(v => !v)}
-                            className="w-full text-xs text-text-soft-400 hover:text-text-strong-950 py-2.5 text-center transition-colors border-t border-stroke-soft-200">
+                            className="mt-1 w-full rounded-lg py-2 text-center text-xs text-text-soft-400 transition-colors hover:text-text-strong-950">
                             {showAllNoRevenue ? 'Ver menos' : `+${data.projectsWithNoRevenue.length - 8} projetos`}
                           </button>
                         )}
                       </div>
-                    </div>
+                    </WidgetCard>
                   )}
                   {data.revenueProjectsNoHours.length > 0 && (
-                    <div className="bg-bg-white-0 overflow-hidden">
-                      <div className="px-5 py-3.5 border-b border-stroke-soft-200 flex items-center justify-between">
+                    <WidgetCard>
+                      <div className="mb-3 flex items-center justify-between">
                         <div>
-                          <p className="text-label-sm">Receita sem horas</p>
-                          <p className="text-paragraph-xs mt-0.5">Notion sem registro no Clockify</p>
+                          <p className="text-label-sm text-text-strong-950">Receita sem horas</p>
+                          <p className="mt-0.5 text-paragraph-xs text-text-sub-600">Notion sem registro no Clockify</p>
                         </div>
-                        <span className="text-label-xs border border-stroke-sub-300 px-2 py-0.5">
-                          {data.revenueProjectsNoHours.length}
-                        </span>
+                        <BadgeDS variant="neutral">{data.revenueProjectsNoHours.length}</BadgeDS>
                       </div>
-                      <div className="divide-y divide-[var(--color-stroke-soft-200)]">
+                      <div className="flex flex-col gap-1">
                         {data.revenueProjectsNoHours.map((p) => (
-                          <div key={p.name} className="flex items-center justify-between px-5 py-2.5 hover:bg-bg-weak-50 transition-colors">
-                            <span className="text-paragraph-sm truncate">{p.name}</span>
-                            <span className="text-label-xs shrink-0 ml-2" style={{ color: '#1fc16b' }}>{fmtBRL(p.revenue)}</span>
+                          <div key={p.name} className="flex items-center justify-between rounded-xl px-3 py-2.5 transition-colors hover:bg-bg-weak-50">
+                            <span className="truncate text-paragraph-sm text-text-strong-950">{p.name}</span>
+                            <span className="ml-2 shrink-0 text-label-xs text-success-base">{fmtBRL(p.revenue)}</span>
                           </div>
                         ))}
                       </div>
-                    </div>
+                    </WidgetCard>
                   )}
                 </div>
               </div>
@@ -690,10 +651,14 @@ export default function AuditoriaPage() {
               if (pendingSuggestions.length === 0) return null
               return (
                 <div>
-                  <SectionHeader label="Sugestões de vínculo" title="Projetos parecidos — clique para confirmar" count={pendingSuggestions.length} />
+                  <SectionHeader
+                    title="Projetos parecidos — clique para confirmar"
+                    description="Sugestões de vínculo"
+                    actions={<BadgeDS variant="info">{pendingSuggestions.length}</BadgeDS>}
+                  />
                   <div className={`space-y-2 ${!expandSuggestions ? 'max-h-96 overflow-hidden relative' : ''}`}>
                     {pendingSuggestions.map((s) => (
-                      <div key={s.txId} className="bg-bg-white-0 border border-stroke-soft-200 px-5 py-4">
+                      <WidgetCard key={s.txId}>
                         <div className="flex items-start justify-between gap-4 mb-3">
                           <div className="min-w-0">
                             <p className="text-label-sm truncate">{s.txName}</p>
@@ -722,8 +687,7 @@ export default function AuditoriaPage() {
                               <button
                                 key={sg.project}
                                 onClick={() => handleManualLink(s.txId, sg.project)}
-                                className="flex items-center gap-1.5 text-xs border px-2.5 py-1 font-medium transition-all hover:bg-information-lighter active:scale-95"
-                                style={{ borderColor: '#335cff44', color: '#335cff' }}
+                                className="flex items-center gap-1.5 rounded-lg border border-information-light/40 px-2.5 py-1 text-xs font-medium text-information-base transition-all hover:bg-information-lighter active:scale-95"
                                 title={`Vincular a "${sg.project}"`}
                               >
                                 {sg.project}
@@ -733,7 +697,7 @@ export default function AuditoriaPage() {
                             )
                           })}
                         </div>
-                      </div>
+                      </WidgetCard>
                     ))}
                     {!expandSuggestions && pendingSuggestions.length > 3 && (
                       <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[var(--color-bg-weak-50)] to-transparent pointer-events-none" />
@@ -741,7 +705,7 @@ export default function AuditoriaPage() {
                   </div>
                   {pendingSuggestions.length > 3 && (
                     <button onClick={() => setExpandSuggestions(v => !v)}
-                      className="mt-3 w-full text-xs font-medium text-text-soft-400 hover:text-text-strong-950 py-2 border border-stroke-soft-200 bg-bg-white-0 transition-colors hover:border-stroke-sub-300">
+                      className="mt-3 w-full rounded-xl border border-stroke-soft-200 bg-bg-white-0 py-2 text-xs font-medium text-text-soft-400 transition-colors hover:border-stroke-sub-300 hover:text-text-strong-950">
                       {expandSuggestions ? 'Ver menos' : `Ver todas as ${pendingSuggestions.length} sugestões`}
                     </button>
                   )}
@@ -751,7 +715,11 @@ export default function AuditoriaPage() {
 
             {/* ── 9. Transaction table ── */}
             <div>
-              <SectionHeader label="Detalhe" title="Todas as transações do período" count={data.periodTransactions.length} />
+              <SectionHeader
+                title="Todas as transações do período"
+                description="Detalhe"
+                actions={<BadgeDS variant="neutral">{data.periodTransactions.length}</BadgeDS>}
+              />
               <div className="bg-bg-white-0 border border-stroke-soft-200 overflow-hidden">
                 <div className="px-5 py-4 border-b border-stroke-soft-200 flex items-center justify-between flex-wrap gap-3">
                   <div className="flex gap-1 flex-wrap">
@@ -867,6 +835,6 @@ export default function AuditoriaPage() {
           </div>
         )}
       </main>
-    </div>
+    </>
   )
 }

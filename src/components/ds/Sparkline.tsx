@@ -14,7 +14,7 @@ type SparklineProps = {
 
 export default function Sparkline({
   data,
-  color = '#335cff',
+  color = 'var(--color-information-base)',
   height = 64,
   className,
   showGrid = false,
@@ -38,7 +38,7 @@ export default function Sparkline({
             </defs>
           )}
           <Line
-            type="monotone"
+            type="linear"
             dataKey="value"
             stroke={color}
             strokeWidth={2}

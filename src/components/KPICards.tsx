@@ -1,5 +1,8 @@
 'use client'
-import { DashboardData } from '@/types'
+
+import StatWidget from '@/components/ds/StatWidget'
+import type { DashboardData } from '@/types'
+import type { BadgeVariant } from '@/lib/design-system/tokens'
 
 function fmt(value: number) {
   return new Intl.NumberFormat('pt-BR', {
@@ -16,83 +19,50 @@ function monthsDiff(start: string, end: string) {
   return (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth()) + 1
 }
 
-function DeltaBadge({ current, previous }: { current: number; previous: number }) {
-  if (previous === 0) return null
+function deltaBadge(current: number, previous: number): { delta?: string; variant: BadgeVariant } {
+  if (previous === 0) return { variant: 'success' }
   const pct = ((current - previous) / Math.abs(previous)) * 100
-  const up = pct >= 0
-  return (
-    <span className={`inline-flex items-center gap-0.5 text-label-xs px-1.5 py-0.5 border ${
-      up ? 'border-success-light/40 text-success-base' : 'border-error-light/40 text-error-base'
-    }`}>
-      {up ? '↑' : '↓'} {Math.abs(pct).toFixed(0)}%
-    </span>
-  )
+  return {
+    delta: `${pct >= 0 ? '+' : ''}${pct.toFixed(0)}%`,
+    variant: pct >= 0 ? 'success' : 'error',
+  }
 }
 
 interface Props {
   data: DashboardData
 }
 
-function Card({ label, value, sub, largeText, delta, valueColor, subColor, subSize }: {
-  label: string
-  value: string
-  sub: string
-  largeText?: boolean
-  delta?: { current: number; previous: number }
-  valueColor?: string
-  subColor?: string
-  subSize?: string
-}) {
-  return (
-    <div className="bg-bg-white-0 p-5 border border-stroke-soft-200">
-      <p className="text-label-2xs mb-2">{label}</p>
-      <div className="flex items-baseline gap-2 mb-1">
-        <p
-          className={largeText ? 'text-title-h5' : 'text-title-h4'}
-          style={{ color: valueColor ?? 'var(--color-text-strong-950)' }}
-        >
-          {value}
-        </p>
-        {delta && <DeltaBadge current={delta.current} previous={delta.previous} />}
-      </div>
-      <p className={subSize ?? 'text-label-sm'} style={{ color: subColor ?? 'var(--color-text-sub-600)' }}>{sub}</p>
-    </div>
-  )
-}
-
 export default function KPICards({ data }: Props) {
   const months = monthsDiff(data.period.start, data.period.end)
   const prevRevenue = data.comparison?.totalRevenue ?? 0
   const currRevenue = data.pl.reduce((s, p) => s + p.revenue, 0)
+  const revenueDelta = deltaBadge(currRevenue, prevRevenue)
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-px mb-8 border border-stroke-soft-200">
-      <Card
-        label="TOTAL INVESTIDO"
-        value={fmt(data.totalCost)}
-        sub={`${months} meses · ${data.collaborators.length} colaboradores`}
-        valueColor="#1fc16b"
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <StatWidget
+        label="Total investido"
+        value={<span className="text-success-base">{fmt(data.totalCost)}</span>}
+        sparklineData={data.monthly.map((m) => m.cost)}
       />
-      <Card
-        label="OVERHEAD SEM PROJETO"
-        value={fmt(data.overheadCost)}
-        sub={`${data.overheadPercent.toFixed(1)}% das horas`}
-        valueColor="#fb3748"
+      <StatWidget
+        label="Overhead sem projeto"
+        value={<span className="text-error-base">{fmt(data.overheadCost)}</span>}
+        delta={`${data.overheadPercent.toFixed(1)}% das horas`}
+        deltaVariant="error"
       />
-      <Card
-        label="PROJETO MAIS CARO"
+      <StatWidget
+        label="Projeto mais caro"
         value={data.mostExpensiveProject.name}
-        sub={fmt(data.mostExpensiveProject.cost)}
-        largeText
-        subColor="#1fc16b"
-        subSize="text-label-xl"
+        delta={fmt(data.mostExpensiveProject.cost)}
+        deltaVariant="neutral"
       />
-      <Card
-        label="RECEITA RASTREADA"
-        value={fmt(currRevenue)}
-        sub={prevRevenue > 0 ? `vs ${fmt(prevRevenue)} período anterior` : 'entradas realizadas no Notion'}
-        delta={prevRevenue > 0 ? { current: currRevenue, previous: prevRevenue } : undefined}
-        valueColor="#1fc16b"
+      <StatWidget
+        label="Receita rastreada"
+        value={<span className="text-success-base">{fmt(currRevenue)}</span>}
+        delta={revenueDelta.delta ?? `${months} meses · ${data.collaborators.length} pessoas`}
+        deltaVariant={revenueDelta.variant}
+        sparklineData={data.monthly.map((m) => m.revenue)}
       />
     </div>
   )

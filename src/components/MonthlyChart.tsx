@@ -9,11 +9,12 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  CartesianGrid,
   ReferenceLine,
 } from 'recharts'
 import { MonthlyData } from '@/types'
-import { useTheme } from 'next-themes'
+import WidgetCard from '@/components/ds/WidgetCard'
+import * as Button from '@/components/ui/button'
+import { ChartGridLines, TOOLTIP_CARD, ACTIVE_DOT } from '@/components/charts/chart-primitives'
 
 const STORAGE_KEY = 'mainnet-monthly-target'
 
@@ -41,13 +42,13 @@ const CustomTooltip = ({
 }) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-bg-white-0 border border-stroke-soft-200 p-3 text-paragraph-sm">
-      <p className="mb-2">{label}</p>
+    <div className={`${TOOLTIP_CARD} text-paragraph-sm`}>
+      <p className="mb-2 text-label-xs text-text-soft-400">{label}</p>
       {payload.map((p) => (
         <div key={p.name} className="flex items-center gap-2 mb-1">
           <span className="w-2 h-2 rounded-full" style={{ background: p.color }} />
-          <span >{p.name}:</span>
-          <span className="font-semibold ml-auto pl-4" style={{ color: p.color }}>
+          <span className="text-text-sub-600">{p.name}:</span>
+          <span className="font-medium ml-auto pl-4 text-text-strong-950">
             {p.value >= 0 ? '' : '-'}{fmtBRL(Math.abs(p.value))}
           </span>
         </div>
@@ -60,16 +61,12 @@ export default function MonthlyChart({ data }: Props) {
   const [target, setTarget] = useState<number>(0)
   const [editing, setEditing] = useState(false)
   const [inputVal, setInputVal] = useState('')
-  const { theme } = useTheme()
-
-  const isDark = theme === 'dark'
-  const gridColor = isDark ? '#222222' : '#E8E8E8'
-  const axisColor = isDark ? '#666666' : '#888888'
-  const legendColor = isDark ? '#999999' : '#555555'
-  const revenueColor = '#1fc16b'
-  const costColor = '#fb3748'
-  const resultColor = '#335cff'
-  const targetColor = isDark ? '#555555' : '#BBBBBB'
+  const axisColor = 'var(--color-text-soft-400)'
+  const legendColor = 'var(--color-text-sub-600)'
+  const revenueColor = 'var(--color-success-base)'
+  const costColor = 'var(--color-error-base)'
+  const resultColor = 'var(--color-information-base)'
+  const targetColor = 'var(--color-stroke-sub-300)'
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY)
@@ -92,7 +89,7 @@ export default function MonthlyChart({ data }: Props) {
   const totalMonths = data.filter((m) => m.revenue > 0).length
 
   return (
-    <div className="bg-bg-white-0 p-6 border border-stroke-soft-200 mb-8">
+    <WidgetCard className="flex flex-col gap-4 no-print">
       <div className="flex items-start justify-between gap-4 flex-wrap mb-6">
         <div>
           <h2 className="text-label-md">Evolução mensal</h2>
@@ -112,8 +109,8 @@ export default function MonthlyChart({ data }: Props) {
           )}
 
           {editing ? (
-            <div className="flex items-center gap-2">
-              <span className="text-paragraph-sm">R$</span>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-paragraph-sm text-text-sub-600">R$</span>
               <input
                 type="number"
                 autoFocus
@@ -121,28 +118,20 @@ export default function MonthlyChart({ data }: Props) {
                 onChange={(e) => setInputVal(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') saveTarget(); if (e.key === 'Escape') setEditing(false) }}
                 placeholder="ex: 30000"
-                className="w-32 bg-bg-soft-200 border border-stroke-soft-200 px-2 py-1 text-paragraph-sm focus:outline-none focus:border-stroke-sub-300"
+                className="w-32 rounded-lg border border-stroke-soft-200 bg-bg-white-0 px-3 py-1.5 text-paragraph-sm focus:border-stroke-sub-300 focus:outline-none"
               />
-              <button onClick={saveTarget} className="text-xs font-semibold text-text-white-0 bg-bg-strong-950 hover:opacity-80 px-2 py-1 transition-opacity">
-                Salvar
-              </button>
-              <button onClick={() => setEditing(false)} className="text-xs text-text-soft-400 hover:text-text-strong-950">Cancelar</button>
+              <Button.Root variant="primary" mode="filled" size="xsmall" onClick={saveTarget}>Salvar</Button.Root>
+              <Button.Root variant="neutral" mode="ghost" size="xsmall" onClick={() => setEditing(false)}>Cancelar</Button.Root>
               {target > 0 && (
-                <button onClick={() => { setTarget(0); localStorage.removeItem(STORAGE_KEY); setEditing(false) }} className="text-xs text-text-soft-400 hover:text-text-sub-600">
+                <Button.Root variant="neutral" mode="ghost" size="xsmall" onClick={() => { setTarget(0); localStorage.removeItem(STORAGE_KEY); setEditing(false) }}>
                   Remover
-                </button>
+                </Button.Root>
               )}
             </div>
           ) : (
-            <button
-              onClick={openEditor}
-              className="flex items-center gap-1.5 text-xs font-medium text-text-soft-400 hover:text-text-strong-950 border border-stroke-soft-200 px-2.5 py-1.5 transition-colors no-print hover:border-stroke-sub-300"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-              </svg>
+            <Button.Root variant="neutral" mode="stroke" size="xsmall" onClick={openEditor} className="no-print">
               {target > 0 ? 'Editar meta' : 'Definir meta'}
-            </button>
+            </Button.Root>
           )}
         </div>
       </div>
@@ -160,8 +149,8 @@ export default function MonthlyChart({ data }: Props) {
             </linearGradient>
           </defs>
 
-          <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
-          <XAxis dataKey="label" tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
+          <ChartGridLines />
+          <XAxis dataKey="label" tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} tickMargin={8} />
           <YAxis tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
           <Tooltip content={<CustomTooltip />} />
           <Legend
@@ -179,12 +168,12 @@ export default function MonthlyChart({ data }: Props) {
             />
           )}
 
-          <Area type="monotone" dataKey="revenue" name="Receita" stroke={revenueColor} strokeWidth={2} fill="url(#gradRevenue)" dot={false} activeDot={{ r: 4, fill: revenueColor }} />
-          <Area type="monotone" dataKey="cost" name="Custo" stroke={costColor} strokeWidth={2} fill="url(#gradCost)" dot={false} activeDot={{ r: 4, fill: costColor }} />
-          <Line type="monotone" dataKey="predictedRevenue" name="Receita Prevista" stroke={targetColor} strokeWidth={2} strokeDasharray="5 3" dot={false} activeDot={{ r: 4 }} />
-          <Line type="monotone" dataKey="result" name="Resultado" stroke={resultColor} strokeWidth={2.5} dot={{ r: 3, fill: resultColor, strokeWidth: 0 }} activeDot={{ r: 5 }} />
+          <Area type="linear" dataKey="revenue" name="Receita" stroke={revenueColor} strokeWidth={2} fill="url(#gradRevenue)" dot={false} activeDot={ACTIVE_DOT(revenueColor)} />
+          <Area type="linear" dataKey="cost" name="Custo" stroke={costColor} strokeWidth={2} fill="url(#gradCost)" dot={false} activeDot={ACTIVE_DOT(costColor)} />
+          <Line type="linear" dataKey="predictedRevenue" name="Receita Prevista" stroke={targetColor} strokeWidth={2} strokeDasharray="5 3" dot={false} activeDot={ACTIVE_DOT(targetColor)} />
+          <Line type="linear" dataKey="result" name="Resultado" stroke={resultColor} strokeWidth={2.5} dot={{ r: 3, fill: resultColor, strokeWidth: 0 }} activeDot={ACTIVE_DOT(resultColor)} />
         </ComposedChart>
       </ResponsiveContainer>
-    </div>
+    </WidgetCard>
   )
 }

@@ -23,7 +23,7 @@ import {
   WidgetCard,
 } from '@/components/ds'
 
-import { pseudonym, pseudonymInitials } from '@/lib/insta2figma/pseudonym'
+import { pseudonym, pseudonymColor } from '@/lib/insta2figma/pseudonym'
 import { PLAN_LABELS } from '@/lib/insta2figma/labels'
 
 type DemoUser = {
@@ -85,7 +85,7 @@ export default function DesignSystemPage() {
         width: 'flex' as const,
         cell: (row: DemoUser) => (
           <DataTableUserCell
-            avatar={<Avatar initials={pseudonymInitials(row.displayName)} size={32} />}
+            avatar={<Avatar colorKey={pseudonymColor(row.id)} size={32} />}
             label={row.displayName}
             sublabel={row.verified ? 'Verificado' : 'Não verificado'}
           />

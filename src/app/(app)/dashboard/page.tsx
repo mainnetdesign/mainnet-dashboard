@@ -1,5 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback, useRef } from 'react'
+import Link from 'next/link'
+import { RiArrowRightSLine } from '@remixicon/react'
 import { DashboardData, ProjectPL, ProjectCostData, MonthlyData } from '@/types'
 import KPICards from '@/components/KPICards'
 import CostByProjectChart from '@/components/CostByProjectChart'
@@ -7,60 +9,28 @@ import CostByCollaborator from '@/components/CostByCollaborator'
 import PLTable from '@/components/PLTable'
 import DateRangePicker from '@/components/DateRangePicker'
 import MonthlyChart from '@/components/MonthlyChart'
-import Link from 'next/link'
 import AlertsPanel from '@/components/AlertsPanel'
 import RateHistoryChart from '@/components/RateHistoryChart'
 import DashboardSkeleton from '@/components/DashboardSkeleton'
 import PriceSimulator from '@/components/PriceSimulator'
 import OperationalCosts from '@/components/OperationalCosts'
+import PageHeader from '@/components/shell/PageHeader'
+import StudioPageActions from '@/components/studio/StudioPageActions'
+import StatWidget from '@/components/ds/StatWidget'
+import WidgetCard from '@/components/ds/WidgetCard'
+import SectionHeader from '@/components/ds/SectionHeader'
+import Badge from '@/components/ds/Badge'
+import * as Button from '@/components/ui/button'
+import { cn } from '@/utils/cn'
 
 const AUTO_REFRESH_MS = 60 * 60 * 1000
 const DEFAULT_END = new Date().toISOString().split('T')[0]
-// 6 months back — Clockify free plan limits historical range
 const DEFAULT_START = (() => {
   const d = new Date()
   d.setMonth(d.getMonth() - 6)
   d.setDate(1)
   return d.toISOString().split('T')[0]
 })()
-
-function InternalProjectsSection({ pl, costByProject }: { pl: ProjectPL[]; costByProject: ProjectCostData[] }) {
-  const [open, setOpen] = useState(false)
-  if (pl.length === 0) return null
-  const totalCost = pl.reduce((s, p) => s + p.cost, 0)
-  const totalHours = pl.reduce((s, p) => s + p.hours, 0)
-  return (
-    <div className="mt-6 bg-bg-white-0 border border-stroke-soft-200 overflow-hidden">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-6 py-4 hover:bg-bg-weak-50 transition-colors"
-      >
-        <div className="flex items-center gap-3">
-          <h2 className="text-label-md">Projetos internos</h2>
-          <span className="px-2 py-0.5 border border-stroke-sub-300 text-label-xs">
-            {pl.length}
-          </span>
-          <span className="hidden sm:flex items-center gap-3 text-paragraph-xs">
-            <span style={{ color: '#fa7319' }}>{Math.round(totalHours)}h registradas</span>
-            <span>·</span>
-            <span><span style={{ color: '#fb3748' }}>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalCost)}</span> em custo</span>
-          </span>
-        </div>
-        <svg
-          className={`w-4 h-4 text-text-soft-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
-          fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-      {open && (
-        <div className="border-t border-stroke-soft-200">
-          <PLTable pl={pl} costByProject={costByProject} />
-        </div>
-      )}
-    </div>
-  )
-}
 
 function fmtBRL(v: number) {
   return new Intl.NumberFormat('pt-BR', {
@@ -69,6 +39,34 @@ function fmtBRL(v: number) {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(v)
+}
+
+function InternalProjectsSection({ pl, costByProject }: { pl: ProjectPL[]; costByProject: ProjectCostData[] }) {
+  const [open, setOpen] = useState(false)
+  if (pl.length === 0) return null
+  const totalCost = pl.reduce((s, p) => s + p.cost, 0)
+  const totalHours = pl.reduce((s, p) => s + p.hours, 0)
+
+  return (
+    <WidgetCard padding="none" className="overflow-hidden">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between px-5 py-4 transition-colors hover:bg-bg-weak-50"
+      >
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className="text-label-md text-text-strong-950">Projetos internos</h2>
+          <Badge variant="neutral">{pl.length}</Badge>
+          <span className="hidden items-center gap-3 text-paragraph-xs text-text-sub-600 sm:flex">
+            <span className="text-away-base">{Math.round(totalHours)}h registradas</span>
+            <span>·</span>
+            <span className="text-error-base">{fmtBRL(totalCost)} em custo</span>
+          </span>
+        </div>
+        <RiArrowRightSLine className={cn('size-5 text-text-soft-400 transition-transform', open && 'rotate-90')} />
+      </button>
+      {open && <PLTable pl={pl} costByProject={costByProject} embedded />}
+    </WidgetCard>
+  )
 }
 
 function StrategicAnalysis({ pl, monthly }: { pl: ProjectPL[]; monthly: MonthlyData[] }) {
@@ -86,135 +84,101 @@ function StrategicAnalysis({ pl, monthly }: { pl: ProjectPL[]; monthly: MonthlyD
   const nextPredicted = [...monthly].reverse().find((m) => (m.predictedRevenue ?? 0) > 0)
 
   return (
-    <details
-      open={open}
-      onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}
-      className="mb-8 group"
-    >
-      <summary className="flex items-center justify-between px-6 py-4 bg-bg-white-0 border border-stroke-soft-200 cursor-pointer list-none select-none hover:bg-bg-weak-50 transition-colors">
+    <WidgetCard padding="none" className="overflow-hidden">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between px-5 py-4 transition-colors hover:bg-bg-weak-50"
+      >
         <div className="flex items-center gap-3">
-          <span className="text-label-md">Análise Estratégica</span>
-          <span className="px-2 py-0.5 border text-label-xs" style={{ color: '#335cff', borderColor: '#335cff55' }}>
-            IA · contexto
-          </span>
+          <h2 className="text-label-md text-text-strong-950">Análise estratégica</h2>
+          <Badge variant="info">IA · contexto</Badge>
         </div>
-        <svg
-          className={`w-4 h-4 text-text-soft-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
-          fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-        </svg>
-      </summary>
+        <RiArrowRightSLine className={cn('size-5 text-text-soft-400 transition-transform', open && 'rotate-90')} />
+      </button>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-px mt-px bg-stroke-soft-200">
-        <div className="bg-bg-white-0 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-label-sm">Concentração de Receita</h3>
-            {top1Pct > 40 && (
-              <span className="flex items-center gap-1 px-2 py-0.5 border text-label-xs" style={{ color: '#f6b51e', borderColor: '#f6b51e66' }}>
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                Alta concentração
-              </span>
-            )}
-          </div>
+      {open && (
+        <div className="grid grid-cols-1 gap-4 border-t border-stroke-soft-200 p-5 lg:grid-cols-2">
+          <div className="rounded-xl border border-stroke-soft-200 p-5">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-label-sm text-text-strong-950">Concentração de receita</h3>
+              {top1Pct > 40 && <Badge variant="warning">Alta concentração</Badge>}
+            </div>
 
-          {clientPl.length === 0 ? (
-            <p className="text-paragraph-sm text-center py-4">Nenhum projeto com receita neste período</p>
-          ) : (
-            <div className="space-y-3">
-              {top5.map((p) => {
-                const pct = totalRev > 0 ? (p.revenue / totalRev) * 100 : 0
-                return (
-                  <div key={p.clockifyProjectId}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-label-sm truncate max-w-[60%]" style={{ color: pct > 50 ? '#f6b51e' : '#1fc16b' }}>
-                        {p.clockifyProjectName}
-                      </span>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-paragraph-xs" style={{ color: '#1fc16b' }}>{fmtBRL(p.revenue)}</span>
-                        <span className="text-label-xs" style={{ color: pct > 50 ? '#f6b51e' : '#1fc16b' }}>{pct.toFixed(1)}%</span>
+            {clientPl.length === 0 ? (
+              <p className="py-4 text-center text-paragraph-sm text-text-sub-600">Nenhum projeto com receita neste período</p>
+            ) : (
+              <div className="space-y-3">
+                {top5.map((p) => {
+                  const pct = totalRev > 0 ? (p.revenue / totalRev) * 100 : 0
+                  return (
+                    <div key={p.clockifyProjectId}>
+                      <div className="mb-1 flex items-center justify-between">
+                        <span className={cn('max-w-[60%] truncate text-label-sm', pct > 50 ? 'text-away-base' : 'text-success-base')}>
+                          {p.clockifyProjectName}
+                        </span>
+                        <div className="flex shrink-0 items-center gap-2">
+                          <span className="text-paragraph-xs text-success-base">{fmtBRL(p.revenue)}</span>
+                          <span className={cn('text-label-xs', pct > 50 ? 'text-away-base' : 'text-success-base')}>{pct.toFixed(1)}%</span>
+                        </div>
+                      </div>
+                      <div className="h-1.5 overflow-hidden rounded-full bg-stroke-soft-200">
+                        <div
+                          className={cn('h-full transition-all', pct > 50 ? 'bg-away-base' : 'bg-success-base')}
+                          style={{ width: `${Math.min(pct, 100)}%` }}
+                        />
                       </div>
                     </div>
-                    <div className="h-1.5 bg-stroke-soft-200 overflow-hidden">
-                      <div
-                        className="h-full transition-all"
-                        style={{ width: `${Math.min(pct, 100)}%`, background: pct > 50 ? '#f6b51e' : '#1fc16b' }}
-                      />
-                    </div>
-                  </div>
-                )
-              })}
-              {totalRev > 0 && (
-                <p className="text-paragraph-xs pt-1">
-                  Total: <span style={{ color: '#1fc16b' }}>{fmtBRL(totalRev)}</span> · {clientPl.length} projeto{clientPl.length !== 1 ? 's' : ''} com receita
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="bg-bg-white-0 p-6">
-          <h3 className="text-label-sm mb-4">Previsão de Receita</h3>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between py-3 px-4 bg-bg-soft-200 border border-stroke-soft-200">
-              <div>
-                <p className="text-label-2xs mb-0.5">
-                  Média histórica (3m)
-                </p>
-                <p className="text-title-h5" style={{ color: '#1fc16b' }}>{fmtBRL(avgRevenue3m)}</p>
-                {last3.length > 0 && (
-                  <p className="text-paragraph-xs mt-0.5">Baseado em: {last3.map((m) => m.label).join(', ')}</p>
-                )}
-              </div>
-              <div className="w-10 h-10 bg-stroke-soft-200 flex items-center justify-center shrink-0">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between py-3 px-4 bg-bg-soft-200 border border-stroke-soft-200">
-              <div>
-                <p className="text-label-2xs mb-0.5">
-                  Receita prevista no Notion
-                </p>
-                <p className={`text-title-h5 ${predictedRevTotal <= 0 ? 'text-text-soft-400' : ''}`} style={predictedRevTotal > 0 ? { color: '#1fc16b' } : {}}>
-                  {predictedRevTotal > 0 ? fmtBRL(predictedRevTotal) : '—'}
-                </p>
-                {nextPredicted && (
-                  <p className="text-paragraph-xs mt-0.5">
-                    Próx. período: <span style={{ color: '#1fc16b' }}>{fmtBRL(nextPredicted.predictedRevenue)}</span> ({nextPredicted.label})
+                  )
+                })}
+                {totalRev > 0 && (
+                  <p className="pt-1 text-paragraph-xs text-text-sub-600">
+                    Total: <span className="text-success-base">{fmtBRL(totalRev)}</span> · {clientPl.length} projeto{clientPl.length !== 1 ? 's' : ''} com receita
                   </p>
                 )}
               </div>
-              <div className="w-10 h-10 bg-stroke-soft-200 flex items-center justify-center shrink-0">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
-            </div>
-
-            {avgRevenue3m > 0 && predictedRevTotal > 0 && (
-              <div className="flex items-center gap-2 text-paragraph-xs px-1">
-                {(() => {
-                  const delta = predictedRevTotal - avgRevenue3m
-                  const deltaPct = (delta / avgRevenue3m) * 100
-                  const positive = delta >= 0
-                  return (
-                    <span className={`flex items-center gap-1 font-semibold ${positive ? 'text-success-base' : 'text-error-base'}`}>
-                      {positive ? '↑' : '↓'} {Math.abs(deltaPct).toFixed(1)}% em relação à média histórica
-                    </span>
-                  )
-                })()}
-              </div>
             )}
           </div>
+
+          <div className="rounded-xl border border-stroke-soft-200 p-5">
+            <h3 className="mb-4 text-label-sm text-text-strong-950">Previsão de receita</h3>
+            <div className="space-y-3">
+              <div className="rounded-xl border border-stroke-soft-200 bg-bg-weak-50 px-4 py-3">
+                <p className="text-label-2xs text-text-sub-600">Média histórica (3m)</p>
+                <p className="mt-1 text-title-h5 text-success-base">{fmtBRL(avgRevenue3m)}</p>
+                {last3.length > 0 && (
+                  <p className="mt-0.5 text-paragraph-xs text-text-sub-600">Baseado em: {last3.map((m) => m.label).join(', ')}</p>
+                )}
+              </div>
+              <div className="rounded-xl border border-stroke-soft-200 bg-bg-weak-50 px-4 py-3">
+                <p className="text-label-2xs text-text-sub-600">Receita prevista no Notion</p>
+                <p className={cn('mt-1 text-title-h5', predictedRevTotal > 0 ? 'text-success-base' : 'text-text-soft-400')}>
+                  {predictedRevTotal > 0 ? fmtBRL(predictedRevTotal) : '—'}
+                </p>
+                {nextPredicted && (
+                  <p className="mt-0.5 text-paragraph-xs text-text-sub-600">
+                    Próx. período: <span className="text-success-base">{fmtBRL(nextPredicted.predictedRevenue)}</span> ({nextPredicted.label})
+                  </p>
+                )}
+              </div>
+              {avgRevenue3m > 0 && predictedRevTotal > 0 && (
+                <p className="text-paragraph-xs">
+                  {(() => {
+                    const delta = predictedRevTotal - avgRevenue3m
+                    const deltaPct = (delta / avgRevenue3m) * 100
+                    const positive = delta >= 0
+                    return (
+                      <span className={positive ? 'text-success-base' : 'text-error-base'}>
+                        {positive ? '↑' : '↓'} {Math.abs(deltaPct).toFixed(1)}% em relação à média histórica
+                      </span>
+                    )
+                  })()}
+                </p>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
-    </details>
+      )}
+    </WidgetCard>
   )
 }
 
@@ -258,8 +222,10 @@ export default function Dashboard() {
   }, [fetchData])
 
   function handleRangeChange(newStart: string, newEnd: string) {
-    setStart(newStart); setEnd(newEnd)
-    startRef.current = newStart; endRef.current = newEnd
+    setStart(newStart)
+    setEnd(newEnd)
+    startRef.current = newStart
+    endRef.current = newEnd
     fetchData(newStart, newEnd)
   }
 
@@ -278,122 +244,88 @@ export default function Dashboard() {
           return costEntry?.costByCollaborator[selectedCollaboratorId] !== undefined
         }),
         costByProject: data.costByProject.filter(
-          (c) => c.costByCollaborator[selectedCollaboratorId] !== undefined
+          (c) => c.costByCollaborator[selectedCollaboratorId] !== undefined,
         ),
       }
     : data
 
+  const totalRevenue = data ? data.pl.filter((p) => !p.isInternal).reduce((s, p) => s + p.revenue, 0) : 0
+  const netResult = data ? totalRevenue - data.totalCostAllCollaborators : 0
+  const noRevenueCost = data
+    ? data.pl.filter((p) => p.revenue === 0 && !p.isInternal).reduce((s, p) => s + p.cost, 0)
+    : 0
+
   return (
-    <div>
-      <header className="bg-bg-weak-50 border-b border-stroke-soft-200 sticky top-0 z-10">
-        <div className="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between flex-wrap gap-4">
-          <div>
-            <span className="text-title-h6">Dashboard</span>
-            {lastUpdated && (
-              <p className="text-paragraph-xs mt-0.5">
-                Atualizado {formatLastUpdated(lastUpdated)}
-              </p>
-            )}
-          </div>
-          <div className="flex items-center gap-3 flex-wrap no-print">
+    <>
+      <PageHeader
+        title="Dashboard"
+        subtitle={lastUpdated ? `Atualizado ${formatLastUpdated(lastUpdated)}` : undefined}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
             <DateRangePicker start={start} end={end} onChange={handleRangeChange} />
-            <button
-              onClick={() => fetchData(start, end, true)}
-              disabled={loading}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-stroke-soft-200 text-text-sub-600 hover:border-stroke-sub-300 hover:text-text-strong-950 disabled:opacity-40 transition-colors"
-              title="Atualizar dados (ignora cache)"
-            >
-              <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              Atualizar
-            </button>
-            <button
-              onClick={() => window.print()}
-              disabled={loading}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-stroke-soft-200 text-text-sub-600 hover:border-stroke-sub-300 hover:text-text-strong-950 disabled:opacity-40 transition-colors"
-              title="Exportar PDF"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-              </svg>
-              PDF
-            </button>
+            <StudioPageActions
+              loading={loading}
+              onRefresh={() => fetchData(start, end, true)}
+              onPrint={() => window.print()}
+            />
           </div>
-        </div>
-      </header>
+        }
+      />
 
-      <main className="max-w-screen-xl mx-auto px-6 py-8">
-        {loading && <DashboardSkeleton />}
+      <main className="flex flex-col gap-6 p-5">
+        {loading && !data && <DashboardSkeleton />}
 
-        {!loading && error && (
-          <div className="bg-bg-white-0 border border-stroke-soft-200 p-6 text-center">
-            <p className="mb-1">Erro ao carregar dados</p>
-            <p className="text-paragraph-sm">{error}</p>
-            <button
-              onClick={() => fetchData(start, end)}
-              className="mt-4 px-4 py-2 bg-bg-strong-950 text-text-white-0 text-sm hover:opacity-80 transition-opacity"
-            >
+        {error && (
+          <WidgetCard className="text-center">
+            <p className="text-label-md text-text-strong-950">Erro ao carregar dados</p>
+            <p className="mt-1 text-paragraph-sm text-text-sub-600">{error}</p>
+            <Button.Root variant="primary" mode="filled" size="small" className="mt-4" onClick={() => fetchData(start, end)}>
               Tentar novamente
-            </button>
-          </div>
+            </Button.Root>
+          </WidgetCard>
         )}
 
-        {!loading && !error && data && filteredData && (
-          <>
+        {data && filteredData && (
+          <div className={cn('flex flex-col gap-6', loading && 'pointer-events-none opacity-60')}>
             <KPICards data={data} />
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-px mb-8 border border-stroke-soft-200">
-              <div className="bg-bg-white-0 p-5">
-                <p className="text-label-2xs mb-2">CUSTO TOTAL (HORAS)</p>
-                <p className="text-title-h4 mb-1" style={{ color: '#1fc16b' }}>{fmtBRL(data.totalCostAllCollaborators)}</p>
-                <p className="text-paragraph-sm">{data.collaborators.length} pessoas</p>
-              </div>
-              <div className="bg-bg-white-0 p-5">
-                <p className="text-label-2xs mb-2">RESULTADO LÍQUIDO</p>
-                {(() => {
-                  const totalRevenue = data.pl.filter((p) => !p.isInternal).reduce((s, p) => s + p.revenue, 0)
-                  const net = totalRevenue - data.totalCostAllCollaborators
-                  return (
-                    <>
-                      <p className={`text-title-h4 mb-1 ${net >= 0 ? 'text-success-base' : 'text-error-base'}`}>
-                        {net >= 0 ? '+' : ''}{fmtBRL(net)}
-                      </p>
-                      <span
-                        className="inline-flex items-center gap-1.5 px-3 py-1 text-label-sm border"
-                        style={net >= 0
-                          ? { color: '#1fc16b', borderColor: '#1fc16b88', background: '#1fc16b18' }
-                          : { color: '#fb3748', borderColor: '#fb374888', background: '#fb374818' }}
-                      >
-                        <span className="text-paragraph-md">{net >= 0 ? '↑' : '↓'}</span>
-                        {net >= 0 ? 'superávit' : 'déficit'}
-                      </span>
-                    </>
-                  )
-                })()}
-              </div>
-              <div className="bg-bg-white-0 p-5">
-                <p className="text-label-2xs mb-2">CUSTO SEM FATURAMENTO</p>
-                <p className="text-title-h4 mb-1" style={{ color: '#fb3748' }}>
-                  {fmtBRL(data.pl.filter((p) => p.revenue === 0 && !p.isInternal).reduce((s, p) => s + p.cost, 0))}
-                </p>
-                <p className="text-paragraph-sm">
-                  {data.pl.filter((p) => p.revenue === 0 && !p.isInternal).length} projetos sem receita
-                </p>
-              </div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <StatWidget
+                label="Custo total (horas)"
+                value={<span className="text-success-base">{fmtBRL(data.totalCostAllCollaborators)}</span>}
+                delta={`${data.collaborators.length} pessoas`}
+                deltaVariant="neutral"
+              />
+              <StatWidget
+                label="Resultado líquido"
+                value={
+                  <span className={netResult >= 0 ? 'text-success-base' : 'text-error-base'}>
+                    {netResult >= 0 ? '+' : ''}{fmtBRL(netResult)}
+                  </span>
+                }
+                delta={netResult >= 0 ? 'superávit' : 'déficit'}
+                deltaVariant={netResult >= 0 ? 'success' : 'error'}
+              />
+              <StatWidget
+                label="Custo sem faturamento"
+                value={<span className="text-error-base">{fmtBRL(noRevenueCost)}</span>}
+                delta={`${data.pl.filter((p) => p.revenue === 0 && !p.isInternal).length} projetos sem receita`}
+                deltaVariant="error"
+              />
             </div>
 
             <AlertsPanel alerts={data.alerts} />
             <StrategicAnalysis pl={data.pl} monthly={data.monthly} />
 
             {data.pl.some((p) => p.hasAttention) && (
-              <div className="p-4 mb-8 text-label-sm border" style={{ background: '#f6b51e20', borderColor: '#f6b51e66', color: 'var(--color-text-strong-950)' }}>
-                <strong style={{ color: '#f6b51e' }}>* atenção</strong> — Projetos marcados têm receita que inclui trabalho feito
-                antes de jun/2025 (início do rastreio). O custo real é maior e a margem está inflada.
-              </div>
+              <WidgetCard className="border-away-light/40 bg-away-lighter/30">
+                <p className="text-label-sm text-text-strong-950">
+                  <span className="text-away-base">* atenção</span> — Projetos marcados têm receita que inclui trabalho feito
+                  antes de jun/2025 (início do rastreio). O custo real é maior e a margem está inflada.
+                </p>
+              </WidgetCard>
             )}
 
-            {/* Cashflow summary card → links to full Fluxo de Caixa page */}
             {(() => {
               const todayYM = new Date().toISOString().slice(0, 7)
               const future = data.monthly.filter((m) => m.month > todayYM && m.predictedRevenue > 0)
@@ -401,95 +333,97 @@ export default function Dashboard() {
               const next3 = future.slice(0, 3).reduce((s, m) => s + m.predictedRevenue, 0)
               const pastR = data.monthly.filter((m) => m.month <= todayYM)
               const net = pastR.reduce((s, m) => s + m.revenue - m.cost, 0)
+
               return (
-                <Link href="/fluxo" className="block mb-8 group">
-                  <div className="bg-bg-white-0 border border-stroke-soft-200 px-6 py-5 flex items-center justify-between gap-6 hover:border-stroke-sub-300 transition-colors flex-wrap">
-                    <div className="flex items-center gap-6 flex-wrap">
+                <Link href="/fluxo" className="block">
+                  <WidgetCard className="flex flex-wrap items-center justify-between gap-6 transition-colors hover:border-stroke-sub-300">
+                    <div className="flex flex-wrap items-center gap-6">
                       <div>
-                        <p className="text-paragraph-xs mb-1">Resultado acumulado</p>
-                        <p className="text-title-h6" style={{ color: net >= 0 ? '#1fc16b' : '#fb3748' }}>{fmtBRL(net)}</p>
+                        <p className="text-paragraph-xs text-text-sub-600">Resultado acumulado</p>
+                        <p className={cn('text-title-h6', net >= 0 ? 'text-success-base' : 'text-error-base')}>{fmtBRL(net)}</p>
                       </div>
                       {next3 > 0 && (
                         <div>
-                          <p className="text-paragraph-xs mb-1">Previsto próx. 3 meses</p>
-                          <p className="text-title-h6" style={{ color: '#335cff' }}>{fmtBRL(next3)}</p>
+                          <p className="text-paragraph-xs text-text-sub-600">Previsto próx. 3 meses</p>
+                          <p className="text-title-h6 text-information-base">{fmtBRL(next3)}</p>
                         </div>
                       )}
                       {next && (
                         <div>
-                          <p className="text-paragraph-xs mb-1">Próxima entrada</p>
-                          <p className="text-title-h6">{next.label}</p>
+                          <p className="text-paragraph-xs text-text-sub-600">Próxima entrada</p>
+                          <p className="text-title-h6 text-text-strong-950">{next.label}</p>
                         </div>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 text-xs font-semibold text-text-soft-400 group-hover:text-text-strong-950 transition-colors shrink-0">
+                    <span className="flex shrink-0 items-center gap-1 text-label-xs text-text-soft-400">
                       Ver Fluxo de Caixa
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
-                  </div>
+                      <RiArrowRightSLine className="size-4" />
+                    </span>
+                  </WidgetCard>
                 </Link>
               )
             })()}
+
             {data.monthly.length > 0 && <MonthlyChart data={data.monthly} />}
 
-            <div className="flex items-center gap-3 mb-4 no-print flex-wrap">
-              <span className="text-label-2xs">
-                Filtrar por colaborador
-              </span>
+            <div className="no-print">
+              <SectionHeader title="Filtrar por colaborador" />
               <div className="flex flex-wrap gap-2">
-                <button
+                <Button.Root
+                  variant={!selectedCollaboratorId ? 'primary' : 'neutral'}
+                  mode={!selectedCollaboratorId ? 'filled' : 'stroke'}
+                  size="xsmall"
                   onClick={() => setSelectedCollaboratorId('')}
-                  className={`px-3 py-1.5 text-sm font-medium border transition-colors ${
-                    !selectedCollaboratorId
-                      ? 'bg-bg-strong-950 text-text-white-0 border-stroke-strong-950'
-                      : 'border-stroke-soft-200 text-text-sub-600 hover:border-stroke-sub-300 hover:text-text-strong-950'
-                  }`}
                 >
                   Todos
-                </button>
+                </Button.Root>
                 {data.collaborators.map((c) => (
-                  <button
+                  <Button.Root
                     key={c.id}
+                    variant={selectedCollaboratorId === c.id ? 'primary' : 'neutral'}
+                    mode={selectedCollaboratorId === c.id ? 'filled' : 'stroke'}
+                    size="xsmall"
                     onClick={() => setSelectedCollaboratorId(c.id === selectedCollaboratorId ? '' : c.id)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border transition-colors ${
-                      selectedCollaboratorId === c.id
-                        ? 'text-white border-transparent'
-                        : 'border-stroke-soft-200 text-text-sub-600 hover:border-stroke-sub-300 hover:text-text-strong-950'
-                    }`}
-                    style={selectedCollaboratorId === c.id ? { background: c.color, borderColor: c.color } : {}}
+                    style={selectedCollaboratorId === c.id ? { background: c.color, borderColor: c.color } : undefined}
                   >
                     <span
-                      className="w-2 h-2 rounded-full"
+                      className="mr-1.5 inline-block size-2 rounded-full"
                       style={{ background: selectedCollaboratorId === c.id ? 'white' : c.color }}
                     />
                     {c.name}
-                  </button>
+                  </Button.Root>
                 ))}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-px mb-8 border border-stroke-soft-200">
-              <div className="lg:col-span-2"><CostByProjectChart data={filteredData} /></div>
-              <div><CostByCollaborator data={data} onRatesChanged={() => fetchData(startRef.current, endRef.current, true)} /></div>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+              <div className="lg:col-span-2">
+                <CostByProjectChart data={filteredData} />
+              </div>
+              <CostByCollaborator data={data} onRatesChanged={() => fetchData(startRef.current, endRef.current, true)} />
             </div>
 
             {data.monthly.length > 1 && <RateHistoryChart data={data.monthly} />}
             <PriceSimulator collaborators={data.collaborators} />
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-px mb-8 border border-stroke-soft-200">
-              <div className="lg:col-span-2 bg-bg-white-0">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+              <div className="lg:col-span-2">
                 <PLTable pl={filteredData.pl.filter((p) => !p.isInternal)} costByProject={filteredData.costByProject} />
               </div>
-              <div>
-                <OperationalCosts months={Math.max(1, (new Date(end).getFullYear() - new Date(start).getFullYear()) * 12 + new Date(end).getMonth() - new Date(start).getMonth())} />
-              </div>
+              <OperationalCosts
+                months={Math.max(
+                  1,
+                  (new Date(end).getFullYear() - new Date(start).getFullYear()) * 12 +
+                    new Date(end).getMonth() -
+                    new Date(start).getMonth(),
+                )}
+              />
             </div>
+
             <InternalProjectsSection pl={data.pl.filter((p) => p.isInternal)} costByProject={data.costByProject} />
-          </>
+          </div>
         )}
       </main>
-    </div>
+    </>
   )
 }

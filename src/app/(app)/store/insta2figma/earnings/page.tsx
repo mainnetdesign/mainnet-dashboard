@@ -3,15 +3,20 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
   Bar,
-  CartesianGrid,
   ComposedChart,
   Legend,
   Line,
   ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
 } from 'recharts'
+import {
+  ChartGridLines,
+  ChartCategoryAxis,
+  ChartValueAxis,
+  BarTooltip,
+  ACTIVE_DOT,
+  CHART_MARGIN,
+  CHART_TOKENS,
+} from '@/components/charts/chart-primitives'
 import PageHeader from '@/components/shell/PageHeader'
 import StatWidget from '@/components/ds/StatWidget'
 import { DataTable, DataTableTextCell, WidgetCard } from '@/components/ds'
@@ -112,15 +117,23 @@ export default function EarningsPage() {
               <p className="mb-4 text-label-sm text-text-strong-950">Receita total</p>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart data={data.chart}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--color-stroke-soft-200)" />
-                    <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                    <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `$${v}`} />
-                    <Tooltip formatter={(v) => fmtUSD(Number(v))} />
-                    <Legend />
-                    <Bar dataKey="revenue" fill="#335cff" name="Receita" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="costs" fill="#fb3748" name="Custos" radius={[4, 4, 0, 0]} />
-                    <Line type="monotone" dataKey="net" stroke="#1fc16b" strokeWidth={2} name="Líquido" dot={false} />
+                  <ComposedChart data={data.chart} margin={CHART_MARGIN}>
+                    <ChartGridLines />
+                    <ChartCategoryAxis dataKey="month" />
+                    <ChartValueAxis />
+                    <BarTooltip format={(v) => fmtUSD(Number(v ?? 0))} />
+                    <Legend iconType="circle" wrapperStyle={{ fontSize: 11 }} />
+                    <Bar dataKey="revenue" fill={CHART_TOKENS.info} name="Receita" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="costs" fill={CHART_TOKENS.negative} name="Custos" radius={[6, 6, 0, 0]} />
+                    <Line
+                      type="linear"
+                      dataKey="net"
+                      stroke={CHART_TOKENS.positive}
+                      strokeWidth={2}
+                      name="Líquido"
+                      dot={false}
+                      activeDot={ACTIVE_DOT(CHART_TOKENS.positive)}
+                    />
                   </ComposedChart>
                 </ResponsiveContainer>
               </div>

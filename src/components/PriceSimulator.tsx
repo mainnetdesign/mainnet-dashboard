@@ -1,6 +1,9 @@
 'use client'
 import { useState } from 'react'
 import { CollaboratorSummary } from '@/types'
+import WidgetCard from '@/components/ds/WidgetCard'
+import { RiArrowDownSLine } from '@remixicon/react'
+import { cn } from '@/utils/cn'
 
 function fmtBRL(v: number) {
   return new Intl.NumberFormat('pt-BR', {
@@ -36,49 +39,42 @@ export default function PriceSimulator({ collaborators }: Props) {
   const suggestedPrice = totalCost > 0 ? totalCost / (1 - 0.5) : 0
 
   return (
-    <div className="bg-bg-white-0 border border-stroke-soft-200 overflow-hidden mb-8 no-print">
+    <WidgetCard padding="none" className="overflow-hidden no-print">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-6 py-4 hover:bg-bg-weak-50 transition-colors"
+        className="flex w-full items-center justify-between px-5 py-4 transition-colors hover:bg-bg-weak-50"
       >
         <div className="flex items-center gap-3">
-          <h2 className="text-label-md">Simulador de preço</h2>
-          <span className="text-paragraph-xs hidden sm:block">
+          <h2 className="text-label-md text-text-strong-950">Simulador de preço</h2>
+          <span className="hidden text-paragraph-xs text-text-sub-600 sm:block">
             Calcule o preço mínimo para uma margem desejada
           </span>
         </div>
-        <svg
-          className={`w-4 h-4 text-text-soft-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
-          fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-        </svg>
+        <RiArrowDownSLine className={cn('size-5 text-text-soft-400 transition-transform', open && 'rotate-180')} />
       </button>
 
       {open && (
-        <div className="border-t border-stroke-soft-200 p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="border-t border-stroke-soft-200 p-5">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <div>
-              <p className="text-label-2xs mb-4">
-                Horas por colaborador
-              </p>
-              <div className="space-y-3">
+              <p className="mb-4 text-label-2xs text-text-sub-600">Horas por colaborador</p>
+              <div className="space-y-2">
                 {collaborators.map((c) => (
-                  <div key={c.id} className="flex items-center gap-3">
-                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: c.color }} />
-                    <span className="text-paragraph-sm w-24 shrink-0">{c.name}</span>
+                  <div key={c.id} className="flex items-center gap-3 rounded-xl border border-stroke-soft-200 bg-bg-weak-50 px-3 py-2.5">
+                    <span className="size-2.5 shrink-0 rounded-full" style={{ background: c.color }} />
+                    <span className="w-24 shrink-0 text-paragraph-sm text-text-strong-950">{c.name}</span>
                     <input
                       type="number"
                       min={0}
                       value={hours[c.id] ?? ''}
                       placeholder="0"
                       onChange={(e) => setHour(c.id, Number(e.target.value))}
-                      className="w-20 bg-bg-soft-200 border border-stroke-soft-200 px-2 py-1.5 text-paragraph-sm text-center focus:outline-none focus:border-stroke-sub-300"
+                      className="w-20 rounded-lg border border-stroke-soft-200 bg-bg-white-0 px-2 py-1.5 text-center text-paragraph-sm focus:border-stroke-sub-300 focus:outline-none"
                     />
-                    <span className="text-paragraph-xs">h</span>
-                    <span className="text-label-xs ml-auto">× {fmtBRL(c.effectiveHourlyRate)}/h</span>
+                    <span className="text-paragraph-xs text-text-sub-600">h</span>
+                    <span className="ml-auto text-label-xs text-text-sub-600">× {fmtBRL(c.effectiveHourlyRate)}/h</span>
                     {(hours[c.id] ?? 0) > 0 && (
-                      <span className="text-label-sm w-24 text-right" style={{ color: '#fb3748' }}>
+                      <span className="w-24 text-right text-label-sm text-error-base">
                         {fmtBRL((hours[c.id] ?? 0) * c.effectiveHourlyRate)}
                       </span>
                     )}
@@ -86,7 +82,7 @@ export default function PriceSimulator({ collaborators }: Props) {
                 ))}
               </div>
 
-              <div className="mt-6">
+              <div className="mt-6 rounded-xl border border-stroke-soft-200 bg-bg-weak-50 p-4">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-label-2xs">Margem desejada</p>
                   <span className="text-label-sm">{targetMargin}%</span>
@@ -107,10 +103,10 @@ export default function PriceSimulator({ collaborators }: Props) {
               </div>
             </div>
 
-            <div className="flex flex-col gap-4">
-              <p className="text-label-2xs">Resultado</p>
+            <div className="flex flex-col gap-3">
+              <p className="text-label-2xs text-text-sub-600">Resultado</p>
 
-              <div className="bg-bg-soft-200 border border-stroke-soft-200 p-5 space-y-4">
+              <div className="space-y-4 rounded-xl border border-stroke-soft-200 bg-bg-weak-50 p-5">
                 <div className="flex justify-between items-center">
                   <span className="text-paragraph-sm">Total de horas</span>
                   <span className="text-label-sm">{totalHours}h</span>
@@ -123,27 +119,23 @@ export default function PriceSimulator({ collaborators }: Props) {
 
               {totalCost > 0 && (
                 <>
-                  <div className="bg-bg-soft-200 border border-stroke-sub-300 p-5">
-                    <p className="text-label-2xs mb-1">
-                      Preço mínimo ({targetMargin}% margem)
-                    </p>
-                    <p className="text-title-h4" style={{ color: '#1fc16b' }}>{fmtBRL(minPrice)}</p>
-                    <p className="text-paragraph-xs mt-1" style={{ color: '#1fc16b' }}>Lucro: {fmtBRL(minPrice - totalCost)}</p>
+                  <div className="rounded-xl border border-success-light/40 bg-success-lighter/20 p-5">
+                    <p className="mb-1 text-label-2xs text-text-sub-600">Preço mínimo ({targetMargin}% margem)</p>
+                    <p className="text-title-h4 text-success-base">{fmtBRL(minPrice)}</p>
+                    <p className="mt-1 text-paragraph-xs text-success-base">Lucro: {fmtBRL(minPrice - totalCost)}</p>
                   </div>
 
-                  <div className="bg-bg-white-0 border border-stroke-sub-300 p-5">
-                    <p className="text-label-2xs mb-1">
-                      Preço sugerido (50% margem)
-                    </p>
-                    <p className="text-title-h4" style={{ color: '#1fc16b' }}>{fmtBRL(suggestedPrice)}</p>
-                    <p className="text-paragraph-xs mt-1" style={{ color: '#1fc16b' }}>Lucro: {fmtBRL(suggestedPrice - totalCost)}</p>
+                  <div className="rounded-xl border border-stroke-soft-200 bg-bg-white-0 p-5">
+                    <p className="mb-1 text-label-2xs text-text-sub-600">Preço sugerido (50% margem)</p>
+                    <p className="text-title-h4 text-success-base">{fmtBRL(suggestedPrice)}</p>
+                    <p className="mt-1 text-paragraph-xs text-success-base">Lucro: {fmtBRL(suggestedPrice - totalCost)}</p>
                   </div>
                 </>
               )}
 
               {totalCost === 0 && (
-                <div className="bg-bg-soft-200 border border-stroke-soft-200 p-5 text-center">
-                  <p className="text-paragraph-sm">Insira as horas de cada colaborador para calcular o preço.</p>
+                <div className="rounded-xl border border-stroke-soft-200 bg-bg-weak-50 p-5 text-center">
+                  <p className="text-paragraph-sm text-text-sub-600">Insira as horas de cada colaborador para calcular o preço.</p>
                 </div>
               )}
 
@@ -159,6 +151,6 @@ export default function PriceSimulator({ collaborators }: Props) {
           </div>
         </div>
       )}
-    </div>
+    </WidgetCard>
   )
 }

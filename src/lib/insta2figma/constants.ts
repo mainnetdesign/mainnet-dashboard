@@ -33,4 +33,5 @@ export function fmtDuration(ms: number | null) {
 }
 
 export const I2F_BASE = '/store/insta2figma'
+export const I2F_ICON_PATH = '/insta2figma-icon.png'
 export const I2F_MIN_DATE = '2024-01-01'

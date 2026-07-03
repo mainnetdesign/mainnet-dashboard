@@ -10,7 +10,8 @@ import {
 } from 'recharts'
 import { DashboardData, ProjectCostData } from '@/types'
 import { COLLABORATORS } from '@/config/collaborators'
-import { useTheme } from 'next-themes'
+import { TOOLTIP_CARD } from '@/components/charts/chart-primitives'
+import WidgetCard from '@/components/ds/WidgetCard'
 
 function fmtBRL(v: number) {
   return new Intl.NumberFormat('pt-BR', {
@@ -26,9 +27,7 @@ interface Props {
 }
 
 export default function CostByProjectChart({ data }: Props) {
-  const { theme } = useTheme()
-  const isDark = theme === 'dark'
-  const axisColor = isDark ? '#666666' : '#999999'
+  const axisColor = 'var(--color-text-soft-400)'
 
   const top12 = data.costByProject.slice(0, 12)
 
@@ -52,7 +51,7 @@ export default function CostByProjectChart({ data }: Props) {
     if (!active || !payload?.length) return null
     const total = payload.reduce((s, p) => s + (p.value ?? 0), 0)
     return (
-      <div className="bg-bg-white-0 border border-stroke-soft-200 p-3 text-paragraph-sm">
+      <div className={`${TOOLTIP_CARD} text-paragraph-sm`}>
         <p className="mb-2">{label}</p>
         {payload
           .filter((p) => p.value > 0)
@@ -62,24 +61,26 @@ export default function CostByProjectChart({ data }: Props) {
               <div key={p.dataKey} className="flex items-center gap-2 mb-1">
                 <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: collab?.color }} />
                 <span >{collab?.name}:</span>
-                <span className="font-medium ml-auto" style={{ color: '#fb3748' }}>{fmtBRL(p.value)}</span>
+                <span className="font-medium ml-auto" style={{ color: 'var(--color-error-base)' }}>{fmtBRL(p.value)}</span>
               </div>
             )
           })}
         <div className="border-t border-stroke-soft-200 mt-2 pt-2 flex justify-between font-semibold">
           <span >Total</span>
-          <span style={{ color: '#fb3748' }}>{fmtBRL(total)}</span>
+          <span style={{ color: 'var(--color-error-base)' }}>{fmtBRL(total)}</span>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="bg-bg-white-0 p-6 border border-stroke-soft-200">
-      <h2 className="text-label-md mb-1">Custo por projeto — top 12</h2>
-      <p className="text-paragraph-sm mb-5">Barras empilhadas por colaborador · excluindo overhead</p>
+    <WidgetCard className="flex flex-col gap-4">
+      <div>
+        <h2 className="text-label-md text-text-strong-950">Custo por projeto — top 12</h2>
+        <p className="mt-0.5 text-paragraph-sm text-text-sub-600">Barras empilhadas por colaborador · excluindo overhead</p>
+      </div>
 
-      <div className="flex flex-wrap gap-x-5 gap-y-2 mb-6">
+      <div className="flex flex-wrap gap-x-5 gap-y-2">
         {COLLABORATORS.filter((c) =>
           data.costByProject.some((p) => p.costByCollaborator[c.id]?.cost > 0)
         ).map((c) => (
@@ -104,6 +105,6 @@ export default function CostByProjectChart({ data }: Props) {
           ))}
         </BarChart>
       </ResponsiveContainer>
-    </div>
+    </WidgetCard>
   )
 }

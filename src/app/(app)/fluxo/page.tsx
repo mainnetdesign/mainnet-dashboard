@@ -2,10 +2,15 @@
 import { useState, useEffect, useCallback } from 'react'
 import {
   ComposedChart, Bar, Line, XAxis, YAxis, Tooltip,
-  ResponsiveContainer, CartesianGrid, ReferenceLine, Cell, Area,
+  ResponsiveContainer, ReferenceLine, Cell, Area,
 } from 'recharts'
-import { useTheme } from 'next-themes'
+import { ChartGridLines, TOOLTIP_CARD, ACTIVE_DOT, CHART_TOKENS } from '@/components/charts/chart-primitives'
 import OperationalCosts from '@/components/OperationalCosts'
+import PageHeader from '@/components/shell/PageHeader'
+import StudioPageActions from '@/components/studio/StudioPageActions'
+import StatWidget from '@/components/ds/StatWidget'
+import WidgetCard from '@/components/ds/WidgetCard'
+import * as SegmentedControl from '@/components/ui/segmented-control'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -79,15 +84,15 @@ const ChartTooltip = ({
   if (!active || !payload?.length) return null
   const items = payload.filter((p) => p.value !== 0)
   return (
-    <div className="bg-bg-weak-50 border border-stroke-sub-300 shadow-xl p-4 text-paragraph-sm min-w-[200px]">
-      <p className="text-label-xs mb-3">{label}</p>
+    <div className={`${TOOLTIP_CARD} min-w-[200px] text-paragraph-sm`}>
+      <p className="text-label-xs text-text-soft-400 mb-3">{label}</p>
       {items.map((p) => (
         <div key={p.dataKey} className="flex items-center justify-between gap-6 mb-2 last:mb-0">
           <div className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: p.color }} />
-            <span className="text-paragraph-xs">{p.name}</span>
+            <span className="text-paragraph-xs text-text-sub-600">{p.name}</span>
           </div>
-          <span className="text-label-xs" style={{ color: p.color }}>
+          <span className="text-label-xs font-medium text-text-strong-950">
             {fmtBRL(Math.abs(p.value))}
           </span>
         </div>
@@ -109,11 +114,7 @@ export default function FluxoPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [scenario, setScenario] = useState<100 | 75 | 50>(100)
-  const { theme } = useTheme()
-
-  const isDark = theme === 'dark'
-  const gridColor = isDark ? '#1E1E1E' : '#F0F0F0'
-  const axisColor = isDark ? '#555' : '#999'
+  const axisColor = 'var(--color-text-soft-400)'
 
   const load = useCallback(async () => {
     setLoading(true); setError(null)
@@ -186,109 +187,83 @@ export default function FluxoPage() {
   const netPositive = net >= 0
 
   return (
-    <div className="min-h-screen p-6 lg:p-10 max-w-6xl">
+    <>
+      <PageHeader
+        title="Fluxo de Caixa"
+        subtitle="resultado acumulado do período"
+        actions={
+          <div className="flex items-center gap-2">
+            <SegmentedControl.Root value={String(scenario)} onValueChange={(v) => setScenario(Number(v) as 100 | 75 | 50)}>
+              <SegmentedControl.List>
+                {([100, 75, 50] as const).map((s) => (
+                  <SegmentedControl.Trigger key={s} value={String(s)}>
+                    {s}%
+                  </SegmentedControl.Trigger>
+                ))}
+              </SegmentedControl.List>
+            </SegmentedControl.Root>
+            <StudioPageActions loading={loading} onRefresh={load} />
+          </div>
+        }
+      />
 
-      {/* ── Hero header ── */}
-      <div className="flex items-start justify-between gap-6 mb-10">
-        <div>
-          <p className="text-label-xs mb-2">
-            Fluxo de Caixa
-          </p>
-          {loading ? (
-            <Skeleton className="h-12 w-56 mb-2" />
-          ) : error ? (
-            <p className="text-title-h4 text-error-base">Erro ao carregar</p>
-          ) : (
-            <p className="text-title-h3" style={{ color: netPositive ? '#1fc16b' : '#fb3748' }}>
-              {fmtBRL(net)}
-            </p>
-          )}
-          <p className="text-paragraph-sm mt-1">resultado acumulado do período</p>
+      <main className="flex flex-col gap-6 p-5">
+        {error && (
+          <WidgetCard className="border-error-light/40 bg-error-lighter/20">
+            <p className="text-label-sm text-error-base">{error}</p>
+          </WidgetCard>
+        )}
+
+        <StatWidget
+          label="Resultado acumulado"
+          value={
+            loading ? '—' : (
+              <span className={netPositive ? 'text-success-base' : 'text-error-base'}>{fmtBRL(net)}</span>
+            )
+          }
+        />
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {loading
+            ? Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-36 rounded-2xl" />)
+            : [
+                {
+                  label: 'Previsto · próx. 3 meses',
+                  value: summary && summary.next3Forecast > 0 ? fmtBRL(summary.next3Forecast * mult) : '—',
+                  delta: scenario < 100 ? `Cenário ${scenario}%` : 'Cenário otimista',
+                  variant: 'info' as const,
+                },
+                {
+                  label: 'Receita realizada',
+                  value: summary ? fmtBRL(summary.totalRealized) : '—',
+                  delta: `custo ${summary ? fmtBRL(summary.totalCost) : '—'}`,
+                  variant: 'success' as const,
+                },
+                {
+                  label: 'Custo médio / mês',
+                  value: summary && summary.avgMonthlyCost > 0 ? fmtBRL(summary.avgMonthlyCost) : '—',
+                  delta: 'média últimos 3 meses',
+                  variant: 'error' as const,
+                },
+                {
+                  label: 'Em aberto · vencido',
+                  value: summary && summary.totalOverdue > 0 ? fmtBRL(summary.totalOverdue) : '—',
+                  delta: `${overdue.length} em atraso`,
+                  variant: 'warning' as const,
+                },
+              ].map((k) => (
+                <StatWidget
+                  key={k.label}
+                  label={k.label}
+                  value={k.value}
+                  delta={k.delta}
+                  deltaVariant={k.variant}
+                />
+              ))}
         </div>
 
-        <div className="flex items-center gap-3 shrink-0 mt-1">
-          {/* Scenario pills */}
-          <div className="flex items-center gap-1 bg-bg-white-0 border border-stroke-soft-200 p-0.5">
-            {([100, 75, 50] as const).map((s) => (
-              <button
-                key={s}
-                onClick={() => setScenario(s)}
-                className={`px-3 py-1.5 text-xs font-semibold transition-all ${
-                  scenario === s
-                    ? 'bg-bg-strong-950 text-text-white-0'
-                    : 'text-text-soft-400 hover:text-text-strong-950'
-                }`}
-              >
-                {s}%
-              </button>
-            ))}
-          </div>
-
-          <button
-            onClick={load}
-            disabled={loading}
-            className="flex items-center gap-1.5 text-xs font-medium text-text-soft-400 border border-stroke-soft-200 px-3 py-2 hover:border-stroke-sub-300 hover:text-text-strong-950 transition-colors disabled:opacity-40"
-          >
-            <svg className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Atualizar
-          </button>
-        </div>
-      </div>
-
-      {/* ── Error ── */}
-      {error && (
-        <div className="mb-8 px-5 py-4 border text-label-sm" style={{ color: '#fb3748', borderColor: '#fb374833', background: '#fb374808' }}>
-          {error}
-        </div>
-      )}
-
-      {/* ── KPI strip ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-stroke-soft-200 border border-stroke-soft-200 mb-8">
-        {loading ? Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="bg-bg-white-0 px-6 py-5">
-            <Skeleton className="h-3 w-24 mb-3" />
-            <Skeleton className="h-6 w-32 mb-2" />
-            <Skeleton className="h-2.5 w-20" />
-          </div>
-        )) : [
-          {
-            label: 'Previsto · próx. 3 meses',
-            value: summary && summary.next3Forecast > 0 ? fmtBRL(summary.next3Forecast * mult) : '—',
-            color: '#335cff',
-            sub: scenario < 100 ? `Cenário conservador ${scenario}%` : 'Cenário otimista',
-          },
-          {
-            label: 'Receita realizada',
-            value: summary ? fmtBRL(summary.totalRealized) : '—',
-            color: '#1fc16b',
-            sub: `custo ${summary ? fmtBRL(summary.totalCost) : '—'}`,
-          },
-          {
-            label: 'Custo médio / mês',
-            value: summary && summary.avgMonthlyCost > 0 ? fmtBRL(summary.avgMonthlyCost) : '—',
-            color: '#fb3748',
-            sub: 'média últimos 3 meses',
-          },
-          {
-            label: 'Em aberto · vencido',
-            value: summary && summary.totalOverdue > 0 ? fmtBRL(summary.totalOverdue) : '—',
-            color: summary && summary.totalOverdue > 0 ? '#f6b51e' : '#a3a3a3',
-            sub: `${overdue.length} entr${overdue.length !== 1 ? 'adas' : 'ada'} em atraso`,
-          },
-        ].map((k) => (
-          <div key={k.label} className="bg-bg-white-0 px-6 py-5">
-            <p className="text-label-2xs mb-3">{k.label}</p>
-            <p className="text-title-h5" style={{ color: k.color }}>{k.value}</p>
-            <p className="text-paragraph-xs mt-2">{k.sub}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* ── Chart ── */}
-      <div className="border border-stroke-soft-200 mb-8 bg-bg-white-0">
-        <div className="px-6 pt-6 pb-4 flex items-center justify-between gap-4 flex-wrap">
+        <WidgetCard className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="text-label-sm">Receita por mês</h2>
             <p className="text-paragraph-xs mt-0.5">
@@ -336,16 +311,16 @@ export default function FluxoPage() {
               <ComposedChart data={cumulativeData} margin={{ top: 8, right: 24, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="gradCumulative" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#335cff" stopOpacity={0.12} />
-                    <stop offset="95%" stopColor="#335cff" stopOpacity={0.01} />
+                    <stop offset="5%" stopColor={CHART_TOKENS.info} stopOpacity={0.12} />
+                    <stop offset="95%" stopColor={CHART_TOKENS.info} stopOpacity={0.01} />
                   </linearGradient>
                 </defs>
 
-                <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
+                <ChartGridLines />
                 <XAxis
                   dataKey="label"
                   tick={{ fontSize: 11, fill: axisColor }}
-                  axisLine={false} tickLine={false}
+                  axisLine={false} tickLine={false} tickMargin={8}
                 />
                 <YAxis
                   yAxisId="left"
@@ -364,7 +339,7 @@ export default function FluxoPage() {
                 />
                 <Tooltip
                   content={<ChartTooltip />}
-                  cursor={{ fill: isDark ? '#ffffff05' : '#00000004' }}
+                  cursor={{ fill: 'var(--color-bg-weak-50)' }}
                 />
 
                 {/* "Hoje" divider */}
@@ -372,7 +347,7 @@ export default function FluxoPage() {
                   <ReferenceLine
                     yAxisId="left"
                     x={lastPastLabel}
-                    stroke={isDark ? '#333' : '#DDD'}
+                    stroke="var(--color-stroke-sub-300)"
                     strokeWidth={1.5}
                     strokeDasharray="4 3"
                     label={{ value: 'hoje', position: 'insideTopRight', fontSize: 10, fill: axisColor }}
@@ -380,16 +355,16 @@ export default function FluxoPage() {
                 )}
 
                 {/* Realized bars */}
-                <Bar yAxisId="left" dataKey="realized" name="Realizado" maxBarSize={32} radius={[3, 3, 0, 0]}>
+                <Bar yAxisId="left" dataKey="realized" name="Realizado" maxBarSize={32} radius={[6, 6, 0, 0]}>
                   {cumulativeData.map((d, i) => (
-                    <Cell key={i} fill="#1fc16b" fillOpacity={d.isFuture ? 0 : 0.9} />
+                    <Cell key={i} fill={CHART_TOKENS.positive} fillOpacity={d.isFuture ? 0 : 0.9} />
                   ))}
                 </Bar>
 
                 {/* Forecast bars */}
-                <Bar yAxisId="left" dataKey="forecast" name="Previsto" maxBarSize={32} radius={[3, 3, 0, 0]}>
+                <Bar yAxisId="left" dataKey="forecast" name="Previsto" maxBarSize={32} radius={[6, 6, 0, 0]}>
                   {cumulativeData.map((_, i) => (
-                    <Cell key={i} fill="#1fc16b" fillOpacity={0.18} stroke="#1fc16b" strokeWidth={1} />
+                    <Cell key={i} fill={CHART_TOKENS.positive} fillOpacity={0.18} stroke={CHART_TOKENS.positive} strokeWidth={1} />
                   ))}
                 </Bar>
 
@@ -398,63 +373,56 @@ export default function FluxoPage() {
                   yAxisId="left"
                   dataKey="costLine"
                   name="Custo"
-                  stroke="#fb3748"
+                  stroke={CHART_TOKENS.negative}
                   strokeWidth={1.5}
                   dot={false}
-                  activeDot={{ r: 3, fill: '#fb3748', strokeWidth: 0 }}
+                  activeDot={ACTIVE_DOT(CHART_TOKENS.negative)}
                 />
 
                 {/* Cumulative area */}
                 <Area
                   yAxisId="right"
-                  type="monotone"
+                  type="linear"
                   dataKey="cumulative"
                   name="Saldo acumulado"
-                  stroke="#335cff"
+                  stroke={CHART_TOKENS.info}
                   strokeWidth={2}
                   fill="url(#gradCumulative)"
                   dot={false}
-                  activeDot={{ r: 4, fill: '#335cff', strokeWidth: 0 }}
+                  activeDot={ACTIVE_DOT(CHART_TOKENS.info)}
                 />
               </ComposedChart>
             </ResponsiveContainer>
           )}
         </div>
-      </div>
+        </WidgetCard>
 
-      {/* ── Custos Operacionais ── */}
-      <div className="mb-8">
         <OperationalCosts months={Math.max(1, data?.monthly.filter(m => !m.isFuture).length ?? 1)} />
-      </div>
 
-      {/* ── Upcoming + Overdue ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 
         {/* Próximas entradas */}
-        <div className="border border-stroke-soft-200 bg-bg-white-0">
-          <div className="px-6 py-5 border-b border-stroke-soft-200">
-            <div className="flex items-center justify-between">
-              <h2 className="text-label-sm">Próximas entradas</h2>
+        <WidgetCard>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-label-sm text-text-strong-950">Próximas entradas</h2>
               {!loading && upcoming.length > 0 && (
-                <span className="text-label-2xs px-2 py-0.5 border"
-                  style={{ color: '#335cff', borderColor: '#335cff33', background: '#335cff0A' }}>
+              <span className="rounded-full border px-2 py-0.5 text-label-2xs text-information-base" style={{ borderColor: '#335cff33', background: '#335cff0A' }}>
                   {upcoming.length} agendada{upcoming.length !== 1 ? 's' : ''}
                 </span>
               )}
-            </div>
           </div>
 
           {loading ? (
-            <div className="divide-y divide-[var(--color-stroke-soft-200)]">
+            <div className="flex flex-col gap-2">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="px-6 py-4 flex items-center justify-between gap-4">
+                <div key={i} className="flex items-center justify-between gap-4 rounded-xl bg-bg-weak-50 px-4 py-3">
                   <div className="flex-1"><Skeleton className="h-3.5 w-40 mb-2" /><Skeleton className="h-2.5 w-24" /></div>
                   <div className="text-right"><Skeleton className="h-4 w-20 mb-1.5" /><Skeleton className="h-2.5 w-16" /></div>
                 </div>
               ))}
             </div>
           ) : upcoming.length === 0 ? (
-            <div className="px-6 py-12 text-center">
+            <div className="rounded-xl bg-bg-weak-50 py-12 text-center">
               <svg className="w-7 h-7 mx-auto text-text-soft-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
@@ -462,13 +430,13 @@ export default function FluxoPage() {
               <p className="text-paragraph-xs mt-1 opacity-60">Lance transações com datas futuras no Notion</p>
             </div>
           ) : (
-            <div className="divide-y divide-[var(--color-stroke-soft-200)]">
+            <div className="flex flex-col gap-1">
               {upcoming.map((tx) => {
                 const ym = tx.paymentDate.slice(0, 7)
                 const nextMonthYM = new Date(Date.now() + 31 * 864e5).toISOString().slice(0, 7)
                 const isNext = ym > todayYM && ym <= nextMonthYM
                 return (
-                  <div key={tx.id} className="px-6 py-4 flex items-center justify-between gap-4 hover:bg-bg-weak-50 transition-colors">
+                  <div key={tx.id} className="flex items-center justify-between gap-4 rounded-xl px-4 py-3 transition-colors hover:bg-bg-weak-50">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 mb-0.5">
                         <p className="text-label-sm truncate">
@@ -495,7 +463,7 @@ export default function FluxoPage() {
                 )
               })}
               {/* Total */}
-              <div className="px-6 py-4 flex items-center justify-between bg-bg-weak-50">
+              <div className="mt-2 flex items-center justify-between rounded-xl bg-bg-weak-50 px-4 py-3">
                 <p className="text-label-xs">Total previsto</p>
                 <p className="text-label-sm" style={{ color: '#1fc16b' }}>
                   {fmtBRL(upcoming.reduce((s, t) => s + t.value, 0) * mult)}
@@ -503,91 +471,77 @@ export default function FluxoPage() {
               </div>
             </div>
           )}
-        </div>
+        </WidgetCard>
 
         {/* Em aberto */}
-        <div className="border border-stroke-soft-200 bg-bg-white-0">
-          <div className="px-6 py-5 border-b border-stroke-soft-200">
-            <div className="flex items-center justify-between">
-              <h2 className="text-label-sm">Em aberto · vencido</h2>
-              {!loading && overdue.length > 0 && (
-                <span className="text-label-2xs px-2 py-0.5 border"
-                  style={{ color: '#f6b51e', borderColor: '#f6b51e33', background: '#f6b51e0A' }}>
-                  {overdue.length} vencida{overdue.length !== 1 ? 's' : ''}
-                </span>
-              )}
-            </div>
+        <WidgetCard>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-label-sm text-text-strong-950">Em aberto · vencido</h2>
+            {!loading && overdue.length > 0 && (
+              <span className="rounded-full border px-2 py-0.5 text-label-2xs text-away-base" style={{ borderColor: '#f6b51e33', background: '#f6b51e0A' }}>
+                {overdue.length} vencida{overdue.length !== 1 ? 's' : ''}
+              </span>
+            )}
           </div>
 
           {loading ? (
-            <div className="divide-y divide-[var(--color-stroke-soft-200)]">
+            <div className="flex flex-col gap-2">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="px-6 py-4 flex items-center justify-between gap-4">
-                  <div className="flex-1"><Skeleton className="h-3.5 w-40 mb-2" /><Skeleton className="h-2.5 w-20" /></div>
-                  <div className="text-right"><Skeleton className="h-4 w-20 mb-1.5" /><Skeleton className="h-2.5 w-16" /></div>
+                <div key={i} className="flex items-center justify-between gap-4 rounded-xl bg-bg-weak-50 px-4 py-3">
+                  <div className="flex-1"><Skeleton className="mb-2 h-3.5 w-40" /><Skeleton className="h-2.5 w-20" /></div>
+                  <div className="text-right"><Skeleton className="mb-1.5 h-4 w-20" /><Skeleton className="h-2.5 w-16" /></div>
                 </div>
               ))}
             </div>
           ) : overdue.length === 0 ? (
-            <div className="px-6 py-12 text-center">
-              <div className="w-7 h-7 mx-auto mb-3 flex items-center justify-center rounded-full" style={{ background: '#1fc16b18' }}>
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="#1fc16b" strokeWidth={2.5}>
+            <div className="rounded-xl bg-bg-weak-50 py-12 text-center">
+              <div className="mx-auto mb-3 flex size-7 items-center justify-center rounded-full bg-success-lighter">
+                <svg className="size-4 text-success-base" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <p className="text-label-sm" style={{ color: '#1fc16b' }}>Tudo em dia</p>
-              <p className="text-paragraph-xs mt-1 opacity-60">Nenhuma entrada vencida em aberto</p>
+              <p className="text-label-sm text-success-base">Tudo em dia</p>
+              <p className="mt-1 text-paragraph-xs text-text-sub-600">Nenhuma entrada vencida em aberto</p>
             </div>
           ) : (
-            <div className="divide-y divide-[var(--color-stroke-soft-200)]">
+            <div className="flex flex-col gap-1">
               {overdue.map((tx) => (
-                <div key={tx.id} className="px-6 py-4 flex items-center justify-between gap-4 hover:bg-bg-weak-50 transition-colors">
+                <div key={tx.id} className="flex items-center justify-between gap-4 rounded-xl px-4 py-3 transition-colors hover:bg-bg-weak-50">
                   <div className="min-w-0 flex-1">
-                    <p className="text-label-sm truncate mb-0.5">
-                      {tx.extractedName ?? tx.name}
-                    </p>
-                    <p className="text-paragraph-xs">{fmtDate(tx.paymentDate)}</p>
+                    <p className="mb-0.5 truncate text-label-sm text-text-strong-950">{tx.extractedName ?? tx.name}</p>
+                    <p className="text-paragraph-xs text-text-sub-600">{fmtDate(tx.paymentDate)}</p>
                   </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-label-sm" style={{ color: '#f6b51e' }}>{fmtBRL(tx.value)}</p>
-                    <p className="text-label-2xs mt-0.5" style={{ color: '#fb3748' }}>
-                      {tx.daysOverdue}d em atraso
-                    </p>
+                  <div className="shrink-0 text-right">
+                    <p className="text-label-sm text-away-base">{fmtBRL(tx.value)}</p>
+                    <p className="mt-0.5 text-label-2xs text-error-base">{tx.daysOverdue}d em atraso</p>
                   </div>
                 </div>
               ))}
-              <div className="px-6 py-4 flex items-center justify-between bg-bg-weak-50">
-                <p className="text-label-xs">Total vencido</p>
-                <p className="text-label-sm" style={{ color: '#f6b51e' }}>
-                  {fmtBRL(overdue.reduce((s, t) => s + t.value, 0))}
-                </p>
+              <div className="mt-2 flex items-center justify-between rounded-xl bg-bg-weak-50 px-4 py-3">
+                <p className="text-label-xs text-text-sub-600">Total vencido</p>
+                <p className="text-label-sm text-away-base">{fmtBRL(overdue.reduce((s, t) => s + t.value, 0))}</p>
               </div>
             </div>
           )}
+        </WidgetCard>
+
         </div>
 
-      </div>
-
-      {/* ── Histórico de pagamentos ── */}
-      <div className="mt-6 border border-stroke-soft-200 bg-bg-white-0">
-
-        {/* Header + filters */}
-        <div className="px-6 py-5 border-b border-stroke-soft-200">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
+        <WidgetCard>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h2 className="text-label-sm">Histórico de pagamentos</h2>
+              <h2 className="text-label-sm text-text-strong-950">Histórico de pagamentos</h2>
               {!loading && (
-                <p className="text-paragraph-xs mt-0.5">
+                <p className="mt-0.5 text-paragraph-xs text-text-soft-400">
                   {filteredHistory.length} entrada{filteredHistory.length !== 1 ? 's' : ''} realizad{filteredHistory.length !== 1 ? 'as' : 'a'}
                   {search || monthFilter ? ' (filtrado)' : ''}
                 </p>
               )}
             </div>
 
-            <div className="flex items-center gap-2 flex-wrap">
-              {/* Search */}
+            <div className="flex flex-wrap items-center gap-2">
               <div className="relative">
-                <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-text-soft-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <input
@@ -595,15 +549,14 @@ export default function FluxoPage() {
                   placeholder="Buscar cliente…"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="pl-8 pr-3 py-1.5 text-paragraph-xs bg-bg-weak-50 border border-stroke-soft-200 placeholder-[var(--color-text-soft-400)] focus:outline-none focus:border-stroke-sub-300 w-40"
+                  className="w-40 rounded-lg border border-stroke-soft-200 bg-bg-white-0 py-1.5 pl-8 pr-3 text-paragraph-xs text-text-strong-950 shadow-[0_1px_2px_0_rgba(10,13,20,0.03)] placeholder:text-text-soft-400 focus:border-stroke-sub-300 focus:outline-none"
                 />
               </div>
 
-              {/* Month filter */}
               <select
                 value={monthFilter}
                 onChange={(e) => setMonthFilter(e.target.value)}
-                className="text-paragraph-xs bg-bg-weak-50 border border-stroke-soft-200 px-2.5 py-1.5 focus:outline-none focus:border-stroke-sub-300 cursor-pointer"
+                className="cursor-pointer rounded-lg border border-stroke-soft-200 bg-bg-white-0 px-2.5 py-1.5 text-paragraph-xs text-text-strong-950 focus:border-stroke-sub-300 focus:outline-none"
               >
                 <option value="">Todos os meses</option>
                 {historyMonths.map((ym) => (
@@ -611,71 +564,58 @@ export default function FluxoPage() {
                 ))}
               </select>
 
-              {/* Clear filters */}
               {(search || monthFilter) && (
                 <button
                   onClick={() => { setSearch(''); setMonthFilter('') }}
-                  className="text-xs text-text-soft-400 hover:text-text-strong-950 transition-colors px-2 py-1.5 border border-stroke-soft-200 hover:border-stroke-sub-300"
+                  className="rounded-lg border border-stroke-soft-200 px-2 py-1.5 text-xs text-text-soft-400 transition-colors hover:border-stroke-sub-300 hover:text-text-strong-950"
                 >
                   Limpar
                 </button>
               )}
             </div>
           </div>
-        </div>
 
-        {/* Content */}
         {loading ? (
-          <div className="divide-y divide-[var(--color-stroke-soft-200)]">
+          <div className="flex flex-col gap-2">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="px-6 py-4 flex items-center justify-between gap-4">
-                <div className="flex-1"><Skeleton className="h-3.5 w-48 mb-2" /><Skeleton className="h-2.5 w-24" /></div>
+              <div key={i} className="flex items-center justify-between gap-4 rounded-xl bg-bg-weak-50 px-4 py-3">
+                <div className="flex-1"><Skeleton className="mb-2 h-3.5 w-48" /><Skeleton className="h-2.5 w-24" /></div>
                 <Skeleton className="h-4 w-20" />
               </div>
             ))}
           </div>
         ) : filteredHistory.length === 0 ? (
-          <div className="px-6 py-12 text-center">
-            <svg className="w-7 h-7 mx-auto text-text-soft-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+          <div className="rounded-xl bg-bg-weak-50 py-12 text-center">
+            <svg className="mx-auto mb-3 size-7 text-text-soft-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            <p className="text-paragraph-sm">Nenhum pagamento encontrado</p>
+            <p className="text-paragraph-sm text-text-sub-600">Nenhum pagamento encontrado</p>
           </div>
         ) : (
-          <div>
+          <div className="flex flex-col gap-4">
             {Object.entries(groupedHistory)
               .sort(([a], [b]) => b.localeCompare(a))
               .map(([ym, entries]) => {
                 const monthTotal = entries.reduce((s, e) => s + e.value, 0)
                 return (
                   <div key={ym}>
-                    {/* Month header */}
-                    <div className="px-6 py-2.5 flex items-center justify-between bg-bg-weak-50 border-y border-stroke-soft-200">
-                      <p className="text-label-2xs">
-                        {fmtMonthLabel(ym)}
-                      </p>
-                      <p className="text-label-2xs" style={{ color: '#1fc16b' }}>
-                        {fmtBRL(monthTotal)}
-                      </p>
+                    <div className="mb-2 flex items-center justify-between rounded-lg bg-bg-weak-50 px-4 py-2">
+                      <p className="text-label-2xs text-text-sub-600">{fmtMonthLabel(ym)}</p>
+                      <p className="text-label-2xs text-success-base">{fmtBRL(monthTotal)}</p>
                     </div>
 
-                    {/* Entries */}
-                    <div className="divide-y divide-[var(--color-stroke-soft-200)]">
+                    <div className="flex flex-col gap-1">
                       {entries.map((tx) => (
-                        <div key={tx.id} className="px-6 py-3.5 flex items-center justify-between gap-4 hover:bg-bg-weak-50 transition-colors">
+                        <div key={tx.id} className="flex items-center justify-between gap-4 rounded-xl px-4 py-3 transition-colors hover:bg-bg-weak-50">
                           <div className="min-w-0 flex-1">
-                            <p className="text-label-sm truncate">
-                              {tx.extractedName ?? tx.name}
-                            </p>
+                            <p className="truncate text-label-sm text-text-strong-950">{tx.extractedName ?? tx.name}</p>
                             {tx.extractedName && tx.extractedName !== tx.name && (
-                              <p className="text-paragraph-xs truncate mt-0.5">{tx.name}</p>
+                              <p className="mt-0.5 truncate text-paragraph-xs text-text-sub-600">{tx.name}</p>
                             )}
                           </div>
-                          <div className="shrink-0 flex items-center gap-6">
-                            <p className="text-paragraph-xs">{fmtDate(tx.paymentDate)}</p>
-                            <p className="text-label-sm w-24 text-right" style={{ color: '#1fc16b' }}>
-                              {fmtBRL(tx.value)}
-                            </p>
+                          <div className="flex shrink-0 items-center gap-6">
+                            <p className="text-paragraph-xs text-text-sub-600">{fmtDate(tx.paymentDate)}</p>
+                            <p className="w-24 text-right text-label-sm text-success-base">{fmtBRL(tx.value)}</p>
                           </div>
                         </div>
                       ))}
@@ -684,19 +624,14 @@ export default function FluxoPage() {
                 )
               })}
 
-            {/* Grand total */}
-            <div className="px-6 py-4 flex items-center justify-between border-t border-stroke-soft-200 bg-bg-weak-50">
-              <p className="text-label-xs">
-                Total {search || monthFilter ? 'filtrado' : 'realizado'}
-              </p>
-              <p className="text-label-md" style={{ color: '#1fc16b' }}>
-                {fmtBRL(filteredHistory.reduce((s, t) => s + t.value, 0))}
-              </p>
+            <div className="flex items-center justify-between rounded-xl bg-bg-weak-50 px-4 py-3">
+              <p className="text-label-xs text-text-sub-600">Total {search || monthFilter ? 'filtrado' : 'realizado'}</p>
+              <p className="text-label-md text-success-base">{fmtBRL(filteredHistory.reduce((s, t) => s + t.value, 0))}</p>
             </div>
           </div>
         )}
-      </div>
-
-    </div>
+        </WidgetCard>
+      </main>
+    </>
   )
 }

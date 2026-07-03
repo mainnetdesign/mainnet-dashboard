@@ -12,16 +12,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-bg-white-0">
-      <div className="hidden lg:flex">
+      <div className="sticky top-0 hidden h-screen shrink-0 self-start lg:flex">
         <IconRail />
       </div>
 
       {mode === 'store' ? <StoreSidebar /> : <StudioSidebar />}
 
-      <div className="relative flex min-w-0 flex-1 flex-col lg:pt-0 pt-14">
-        <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-          {children}
-        </div>
+      <div className="relative flex min-w-0 flex-1 flex-col pt-14 lg:pt-0">
+        {children}
       </div>
     </div>
   )

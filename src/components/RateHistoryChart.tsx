@@ -7,11 +7,11 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  CartesianGrid,
 } from 'recharts'
 import { MonthlyData } from '@/types'
 import { COLLABORATORS } from '@/config/collaborators'
-import { useTheme } from 'next-themes'
+import { ChartGridLines, TOOLTIP_CARD, ACTIVE_DOT } from '@/components/charts/chart-primitives'
+import WidgetCard from '@/components/ds/WidgetCard'
 
 interface Props {
   data: MonthlyData[]
@@ -29,13 +29,13 @@ const CustomTooltip = ({
   if (!active || !payload?.length) return null
   const sorted = [...payload].sort((a, b) => b.value - a.value)
   return (
-    <div className="bg-bg-white-0 border border-stroke-soft-200 p-3 text-paragraph-sm min-w-[180px]">
-      <p className="mb-2">{label}</p>
+    <div className={`${TOOLTIP_CARD} min-w-[180px] text-paragraph-sm`}>
+      <p className="mb-2 text-label-xs text-text-soft-400">{label}</p>
       {sorted.map((p) => (
         <div key={p.name} className="flex items-center gap-2 mb-1">
           <span className="w-2 h-2 rounded-full shrink-0" style={{ background: p.color }} />
-          <span className="flex-1">{p.name}</span>
-          <span className="font-semibold" style={{ color: '#335cff' }}>R${p.value}/h</span>
+          <span className="flex-1 text-text-sub-600">{p.name}</span>
+          <span className="font-medium text-text-strong-950">R${p.value}/h</span>
         </div>
       ))}
     </div>
@@ -43,12 +43,9 @@ const CustomTooltip = ({
 }
 
 export default function RateHistoryChart({ data }: Props) {
-  const { theme } = useTheme()
-  const isDark = theme === 'dark'
-  const gridColor = isDark ? '#222222' : '#EEEEEE'
-  const axisColor = isDark ? '#666666' : '#999999'
-  const legendColor = isDark ? '#999999' : '#555555'
-  const dotStroke = isDark ? '#000000' : '#FFFFFF'
+  const axisColor = 'var(--color-text-soft-400)'
+  const legendColor = 'var(--color-text-sub-600)'
+  const dotStroke = 'var(--color-bg-white-0)'
 
   const filteredData = data.filter((m) => Object.keys(m.collaboratorRates).length > 0)
 
@@ -68,9 +65,11 @@ export default function RateHistoryChart({ data }: Props) {
   if (activeCollabs.length === 0) return null
 
   return (
-    <div className="bg-bg-white-0 p-6 border border-stroke-soft-200 mb-8">
-      <h2 className="text-label-md mb-1">Histórico de custo/hora</h2>
-      <p className="text-paragraph-sm mb-6">Taxa efetiva R$/h por colaborador ao longo dos meses</p>
+    <WidgetCard className="flex flex-col gap-4">
+      <div>
+        <h2 className="text-label-md text-text-strong-950">Histórico de custo/hora</h2>
+        <p className="mt-0.5 text-paragraph-sm text-text-sub-600">Taxa efetiva R$/h por colaborador ao longo dos meses</p>
+      </div>
       <ResponsiveContainer width="100%" height={280}>
         <ComposedChart data={chartData} margin={{ top: 4, right: 20, left: 0, bottom: 0 }}>
           <defs>
@@ -82,8 +81,8 @@ export default function RateHistoryChart({ data }: Props) {
             ))}
           </defs>
 
-          <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
-          <XAxis dataKey="label" tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
+          <ChartGridLines />
+          <XAxis dataKey="label" tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} tickMargin={8} />
           <YAxis tickFormatter={(v) => `R$${v}`} tick={{ fontSize: 11, fill: axisColor }} axisLine={false} tickLine={false} />
           <Tooltip content={<CustomTooltip />} />
           <Legend
@@ -94,18 +93,18 @@ export default function RateHistoryChart({ data }: Props) {
           {activeCollabs.map((c) => (
             <Area
               key={c.id}
-              type="monotone"
+              type="linear"
               dataKey={c.name}
               stroke={c.color}
-              strokeWidth={2.5}
+              strokeWidth={2}
               fill={`url(#grad-${c.id})`}
-              dot={{ r: 3.5, fill: c.color, strokeWidth: 2, stroke: dotStroke }}
-              activeDot={{ r: 6, fill: c.color, stroke: dotStroke, strokeWidth: 2 }}
+              dot={{ r: 3, fill: c.color, strokeWidth: 2, stroke: dotStroke }}
+              activeDot={ACTIVE_DOT(c.color)}
               connectNulls
             />
           ))}
         </ComposedChart>
       </ResponsiveContainer>
-    </div>
+    </WidgetCard>
   )
 }

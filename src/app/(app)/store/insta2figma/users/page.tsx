@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { RiDownloadLine, RiGlobalLine } from '@remixicon/react'
+import { RiDownloadLine } from '@remixicon/react'
 import PageHeader from '@/components/shell/PageHeader'
 import DateRangePicker from '@/components/DateRangePicker'
 import { UsersMetricsGrid } from '@/components/store/MetricAreaCard'
@@ -14,11 +14,13 @@ import {
   DataTableTextCell,
   DataTableUserCell,
 } from '@/components/ds'
-import UserDrawer from '@/components/store/UserDrawer'
-import type { UserDetail, UsersListData } from '@/types/insta2figma'
+import StoreDrawerStack from '@/components/store/StoreDrawerStack'
+import { useStoreDrawers } from '@/components/store/useStoreDrawers'
+import { PlatformTableCell } from '@/components/store/PlatformIcon'
+import type { UsersListData } from '@/types/insta2figma'
 import { fmtDate, fmtDateTime, I2F_MIN_DATE } from '@/lib/insta2figma/constants'
 import { PLAN_FILTER_OPTIONS, planLabel } from '@/lib/insta2figma/labels'
-import { pseudonymInitials } from '@/lib/insta2figma/pseudonym'
+import { pseudonymColor } from '@/lib/insta2figma/pseudonym'
 
 const PLAN_BADGE = {
   free: 'neutral',
@@ -43,8 +45,7 @@ export default function UsersPage() {
   const [plan, setPlan] = useState('all')
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(15)
-  const [drawerUser, setDrawerUser] = useState<UserDetail | null>(null)
-  const [drawerLoading, setDrawerLoading] = useState(false)
+  const drawers = useStoreDrawers()
 
   const load = useCallback(() => {
     setLoading(true)
@@ -73,12 +74,7 @@ export default function UsersPage() {
   }, [load])
 
   function openUser(id: string) {
-    setDrawerLoading(true)
-    setDrawerUser(null)
-    fetch(`/api/store/insta2figma/users/${id}`)
-      .then((r) => r.json())
-      .then((d) => setDrawerUser(d))
-      .finally(() => setDrawerLoading(false))
+    drawers.openUser(id)
   }
 
   function exportCSV() {
@@ -106,7 +102,7 @@ export default function UsersPage() {
         cell: (u: UsersListData['users'][0]) => (
           <button type="button" onClick={() => openUser(u.id)} className="w-full text-left">
             <DataTableUserCell
-              avatar={<Avatar initials={pseudonymInitials(u.displayName)} size={32} />}
+              avatar={<Avatar colorKey={pseudonymColor(u.id)} size={32} />}
               label={u.displayName}
             />
           </button>
@@ -134,15 +130,7 @@ export default function UsersPage() {
         id: 'platform',
         header: 'Plataforma',
         width: 120,
-        cell: (u: UsersListData['users'][0]) =>
-          u.platform ? (
-            <div className="flex items-center gap-2 text-paragraph-sm text-text-sub-600">
-              <RiGlobalLine className="size-4" />
-              {u.platform === 'figma' ? 'Figma' : 'Framer'}
-            </div>
-          ) : (
-            <DataTableTextCell>—</DataTableTextCell>
-          ),
+        cell: (u: UsersListData['users'][0]) => <PlatformTableCell platform={u.platform} />,
       },
       {
         id: 'images',
@@ -252,11 +240,7 @@ export default function UsersPage() {
         )}
       </main>
 
-      <UserDrawer
-        user={drawerUser}
-        loading={drawerLoading}
-        onClose={() => setDrawerUser(null)}
-      />
+      <StoreDrawerStack {...drawers} />
     </>
   )
 }

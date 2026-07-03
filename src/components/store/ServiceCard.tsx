@@ -4,8 +4,8 @@ import Sparkline from '@/components/ds/Sparkline'
 import Badge from '@/components/ds/Badge'
 import WidgetCard from '@/components/ds/WidgetCard'
 import type { Insta2FigmaService } from '@/types/insta2figma'
-import { fmtUSD } from '@/lib/insta2figma/constants'
-import { I2F_BASE } from '@/lib/insta2figma/constants'
+import { fmtUSD, I2F_BASE } from '@/lib/insta2figma/constants'
+import Insta2FigmaIcon from '@/components/store/Insta2FigmaIcon'
 
 export default function ServiceCard({ service }: { service: Insta2FigmaService }) {
   return (
@@ -13,9 +13,7 @@ export default function ServiceCard({ service }: { service: Insta2FigmaService }
       <WidgetCard className="group transition-colors hover:border-stroke-sub-300">
         <div className="mb-4 flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#f58529] via-[#dd2a7b] to-[#8134af]">
-              <span className="text-sm font-bold text-white">I2F</span>
-            </div>
+            <Insta2FigmaIcon size={40} className="rounded-xl" />
             <div>
               <p className="text-label-md text-text-strong-950">{service.name}</p>
               <p className="text-paragraph-xs text-text-soft-400">{service.url.replace('https://', '')}</p>

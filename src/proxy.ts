@@ -6,7 +6,7 @@ const PUBLIC_PATHS = ['/login', '/api/auth']
 // Para alterar: mude o valor abaixo e faça deploy
 const DASHBOARD_PASSWORD = process.env.DASHBOARD_PASSWORD ?? 'mainnet2025'
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
 
   // Allow public paths

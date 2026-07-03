@@ -3,6 +3,12 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import DateRangePicker from '@/components/DateRangePicker'
 import DashboardSkeleton from '@/components/DashboardSkeleton'
 import RatesEditor from '@/components/RatesEditor'
+import PageHeader from '@/components/shell/PageHeader'
+import StudioPageActions from '@/components/studio/StudioPageActions'
+import StatWidget from '@/components/ds/StatWidget'
+import WidgetCard from '@/components/ds/WidgetCard'
+import * as Button from '@/components/ui/button'
+import { RiSettings3Line } from '@remixicon/react'
 import { DashboardData } from '@/types'
 
 const AUTO_REFRESH_MS = 60 * 60 * 1000
@@ -136,36 +142,11 @@ function StatCell({ label, value, color }: { label: string; value: string; color
   )
 }
 
-function KPICard({
-  label,
-  value,
-  sub,
-  valueColor,
-}: {
-  label: string
-  value: string
-  sub?: string
-  valueColor?: string
-}) {
-  return (
-    <div className="bg-bg-white-0 border border-stroke-soft-200 p-5">
-      <p className="text-label-2xs mb-2">{label}</p>
-      <p
-        className="text-title-h4 mb-1"
-        style={valueColor ? { color: valueColor } : undefined}
-      >
-        {value}
-      </p>
-      {sub && <p className="text-paragraph-sm">{sub}</p>}
-    </div>
-  )
-}
-
 function CollaboratorCard({ m, rank }: { m: CollaboratorMetrics; rank: number }) {
   const uColor = utilizationColor(m.utilizationRate)
 
   return (
-    <div className="bg-bg-white-0 border border-stroke-soft-200 p-6 flex flex-col gap-5">
+    <WidgetCard className="flex flex-col gap-5">
 
       {/* ── top row: rank + name + ring ── */}
       <div className="flex items-center gap-4">
@@ -225,7 +206,7 @@ function CollaboratorCard({ m, rank }: { m: CollaboratorMetrics; rank: number })
         <StatCell label="Ociosidade" value={`${(100 - m.utilizationRate).toFixed(1)}%`} color={m.idleHours > m.availableHours * 0.4 ? '#fb3748' : '#a3a3a3'} />
       </div>
 
-    </div>
+    </WidgetCard>
   )
 }
 
@@ -348,57 +329,23 @@ export default function ColaboradoresPage() {
   const totalAvailableHours = metrics.length * availableHoursPerPerson
 
   return (
-    <div>
-      {/* ── sticky header ── */}
-      <header className="bg-bg-weak-50 border-b border-stroke-soft-200 sticky top-0 z-10">
-        <div className="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between flex-wrap gap-4">
-          <div>
-            <span className="text-title-h6">Colaboradores</span>
-            {lastUpdated && (
-              <p className="text-paragraph-xs mt-0.5">
-                Atualizado {formatLastUpdated(lastUpdated)}
-              </p>
-            )}
-          </div>
-          <div className="flex items-center gap-3 flex-wrap">
+    <>
+      <PageHeader
+        title="Colaboradores"
+        subtitle={lastUpdated ? `Atualizado ${formatLastUpdated(lastUpdated)}` : undefined}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
             <DateRangePicker start={start} end={end} onChange={handleRangeChange} />
-            <button
-              onClick={() => setEditingRates(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-stroke-soft-200 hover:border-stroke-sub-300 hover:text-text-strong-950 transition-colors"
-              title="Editar taxas e salários"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
+            <Button.Root variant="neutral" mode="stroke" size="small" onClick={() => setEditingRates(true)} title="Editar taxas e salários">
+              <Button.Icon as={RiSettings3Line} />
               Editar taxas
-            </button>
-            <button
-              onClick={() => fetchData(start, end, true)}
-              disabled={loading}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-stroke-soft-200 hover:border-stroke-sub-300 hover:text-text-strong-950 disabled:opacity-40 transition-colors"
-              title="Atualizar dados (ignora cache)"
-            >
-              <svg
-                className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                />
-              </svg>
-              Atualizar
-            </button>
+            </Button.Root>
+            <StudioPageActions loading={loading} onRefresh={() => fetchData(start, end, true)} />
           </div>
-        </div>
-      </header>
+        }
+      />
 
-      <main className="max-w-screen-xl mx-auto px-6 py-8">
+      <main className="flex flex-col gap-6 p-5">
         {loading && <DashboardSkeleton />}
 
         {!loading && error && (
@@ -416,25 +363,22 @@ export default function ColaboradoresPage() {
 
         {!loading && !error && data && (
           <>
-            {/* ── KPI row ── */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-px mb-8 border border-stroke-soft-200">
-              <KPICard
-                label="UTILIZAÇÃO MÉDIA"
-                value={`${avgUtilization.toFixed(1)}%`}
-                sub={`${metrics.length} colaborador${metrics.length !== 1 ? 'es' : ''}`}
-                valueColor={utilizationColor(avgUtilization)}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <StatWidget
+                label="Utilização média"
+                value={<span style={{ color: utilizationColor(avgUtilization) }}>{avgUtilization.toFixed(1)}%</span>}
+                delta={`${metrics.length} colaborador${metrics.length !== 1 ? 'es' : ''}`}
               />
-              <KPICard
-                label="MAIS PRODUTIVO"
+              <StatWidget
+                label="Mais produtivo"
                 value={mostProductive?.name ?? '—'}
-                sub={mostProductive ? `${mostProductive.utilizationRate.toFixed(1)}% utilização` : undefined}
-                valueColor={mostProductive ? utilizationColor(mostProductive.utilizationRate) : undefined}
+                delta={mostProductive ? `${mostProductive.utilizationRate.toFixed(1)}% utilização` : undefined}
               />
-              <KPICard
-                label="HORAS OCIOSAS"
-                value={`${totalIdleHours.toFixed(0)}h`}
-                sub={`de ${totalAvailableHours.toFixed(0)}h disponíveis no total`}
-                valueColor="#fa7319"
+              <StatWidget
+                label="Horas ociosas"
+                value={<span className="text-away-base">{totalIdleHours.toFixed(0)}h</span>}
+                delta={`de ${totalAvailableHours.toFixed(0)}h disponíveis`}
+                deltaVariant="warning"
               />
             </div>
 
@@ -461,11 +405,11 @@ export default function ColaboradoresPage() {
 
             {/* ── collaborator cards ── */}
             {sortedMetrics.length === 0 ? (
-              <div className="bg-bg-white-0 border border-stroke-soft-200 p-10 text-center">
-                <p className="text-paragraph-sm">Nenhum colaborador encontrado no período.</p>
-              </div>
+              <WidgetCard className="py-10 text-center">
+                <p className="text-paragraph-sm text-text-sub-600">Nenhum colaborador encontrado no período.</p>
+              </WidgetCard>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-px border border-stroke-soft-200">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 {sortedMetrics.map((m, i) => (
                   <CollaboratorCard key={m.id} m={m} rank={i + 1} />
                 ))}
@@ -481,6 +425,6 @@ export default function ColaboradoresPage() {
           onSaved={() => { setEditingRates(false); fetchData(startRef.current, endRef.current, true) }}
         />
       )}
-    </div>
+    </>
   )
 }

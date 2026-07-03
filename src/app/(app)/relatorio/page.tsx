@@ -2,6 +2,11 @@
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { DashboardData } from '@/types'
+import PageHeader from '@/components/shell/PageHeader'
+import StatWidget from '@/components/ds/StatWidget'
+import WidgetCard from '@/components/ds/WidgetCard'
+import * as Button from '@/components/ui/button'
+import { RiPrinterLine } from '@remixicon/react'
 
 function fmtBRL(v: number) {
   return new Intl.NumberFormat('pt-BR', {
@@ -86,64 +91,49 @@ function RelatorioContent() {
   const netResult = totalRevenue - totalCost
 
   return (
-    <div className="min-h-screen bg-bg-weak-50">
-      {/* No-print controls bar */}
-      <div className="no-print sticky top-0 z-10 bg-bg-weak-50 border-b border-stroke-soft-200 px-6 py-3 flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-3">
-          <span className="text-label-md">Relatório Mensal</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <label className="text-label-2xs">Mês</label>
-          <input
-            type="month"
-            value={month}
-            onChange={(e) => handleMonthChange(e.target.value)}
-            className="px-3 py-1.5 text-paragraph-sm bg-bg-white-0 border border-stroke-soft-200 focus:outline-none focus:border-stroke-sub-300"
-            style={{ colorScheme: 'dark' }}
-          />
-          <button
-            onClick={() => window.print()}
-            disabled={loading}
-            className="flex items-center gap-1.5 px-4 py-1.5 text-sm font-semibold bg-bg-strong-950 text-text-white-0 hover:opacity-80 disabled:opacity-40 transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round"
-                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-            </svg>
-            Imprimir PDF
-          </button>
-        </div>
+    <>
+      <div className="no-print">
+        <PageHeader
+          title="Relatório Mensal"
+          actions={
+            <div className="flex items-center gap-2">
+              <input
+                type="month"
+                value={month}
+                onChange={(e) => handleMonthChange(e.target.value)}
+                className="rounded-10 border border-stroke-soft-200 bg-bg-white-0 px-3 py-1.5 text-paragraph-sm text-text-strong-950 focus:border-stroke-sub-300 focus:outline-none"
+              />
+              <Button.Root variant="primary" mode="filled" size="small" onClick={() => window.print()} disabled={loading}>
+                <Button.Icon as={RiPrinterLine} />
+                Imprimir PDF
+              </Button.Root>
+            </div>
+          }
+        />
       </div>
 
-      {loading && (
-        <div className="flex items-center justify-center py-32">
-          <div className="flex flex-col items-center gap-4">
-            <svg className="w-8 h-8 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
-            <p className="text-paragraph-sm">Carregando dados...</p>
+      <main className="flex flex-col gap-6 p-5 print:p-0">
+        {loading && (
+          <div className="flex items-center justify-center py-32">
+            <div className="flex flex-col items-center gap-4">
+              <div className="size-8 animate-spin rounded-full border-2 border-stroke-soft-200 border-t-text-strong-950" />
+              <p className="text-paragraph-sm text-text-sub-600">Carregando dados...</p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {!loading && error && (
-        <div className="max-w-2xl mx-auto py-16 px-6">
-          <div className="bg-bg-white-0 border border-stroke-soft-200 p-6 text-center">
-            <p className="mb-1">Erro ao carregar dados</p>
-            <p className="text-paragraph-sm">{error}</p>
-            <button
-              onClick={() => fetchData(month)}
-              className="mt-4 px-4 py-2 bg-white text-black text-sm hover:opacity-80 transition-colors"
-            >
+        {!loading && error && (
+          <WidgetCard className="mx-auto max-w-2xl text-center">
+            <p className="text-label-md text-text-strong-950">Erro ao carregar dados</p>
+            <p className="mt-1 text-paragraph-sm text-text-sub-600">{error}</p>
+            <Button.Root variant="primary" mode="filled" size="small" className="mt-4" onClick={() => fetchData(month)}>
               Tentar novamente
-            </button>
-          </div>
-        </div>
-      )}
+            </Button.Root>
+          </WidgetCard>
+        )}
 
-      {!loading && !error && data && (
-        <div className="max-w-4xl mx-auto px-8 py-10 print:px-0 print:py-0">
+        {!loading && !error && data && (
+          <div className="mx-auto max-w-4xl print:max-w-none print:px-0">
           {/* ── REPORT HEADER ── */}
           <div className="flex items-start justify-between mb-10 pb-8 border-b border-stroke-soft-200">
             <div>
@@ -158,25 +148,15 @@ function RelatorioContent() {
             </div>
           </div>
 
-          {/* ── KPI ROW ── */}
-          <div className="grid grid-cols-3 gap-px mb-10 border border-stroke-soft-200">
-            <div className="bg-bg-white-0 p-6">
-              <p className="text-label-2xs mb-2">Receita Total</p>
-              <p className="text-title-h4" style={{ color: '#1fc16b' }}>{fmtBRL(totalRevenue)}</p>
-              <p className="text-paragraph-xs mt-1">{clientPl.length} projeto{clientPl.length !== 1 ? 's' : ''} faturados</p>
-            </div>
-            <div className="bg-bg-white-0 p-6">
-              <p className="text-label-2xs mb-2">Custo Total</p>
-              <p className="text-title-h4" style={{ color: '#fb3748' }}>{fmtBRL(totalCost)}</p>
-              <p className="text-paragraph-xs mt-1">{data.collaborators.length} colaboradores</p>
-            </div>
-            <div className="bg-bg-white-0 p-6">
-              <p className="text-label-2xs mb-2">Resultado Líquido</p>
-              <p className={`text-title-h4 ${netResult >= 0 ? 'text-success-base' : 'text-error-base'}`}>
-                {netResult >= 0 ? '+' : ''}{fmtBRL(netResult)}
-              </p>
-              <p className="text-paragraph-xs mt-1">{netResult >= 0 ? 'superávit' : 'déficit'}</p>
-            </div>
+          <div className="mb-10 grid grid-cols-1 gap-4 print:grid-cols-3 md:grid-cols-3">
+            <StatWidget label="Receita Total" value={<span className="text-success-base">{fmtBRL(totalRevenue)}</span>} delta={`${clientPl.length} projetos faturados`} />
+            <StatWidget label="Custo Total" value={<span className="text-error-base">{fmtBRL(totalCost)}</span>} delta={`${data.collaborators.length} colaboradores`} deltaVariant="error" />
+            <StatWidget
+              label="Resultado Líquido"
+              value={<span className={netResult >= 0 ? 'text-success-base' : 'text-error-base'}>{netResult >= 0 ? '+' : ''}{fmtBRL(netResult)}</span>}
+              delta={netResult >= 0 ? 'superávit' : 'déficit'}
+              deltaVariant={netResult >= 0 ? 'success' : 'error'}
+            />
           </div>
 
           {/* ── TOP PROJETOS ── */}
@@ -283,7 +263,8 @@ function RelatorioContent() {
             <p className="text-paragraph-xs">Gerado em {generatedDate} · Mainnet Design</p>
           </footer>
         </div>
-      )}
+        )}
+      </main>
 
       <style>{`
         @media print {
@@ -293,7 +274,7 @@ function RelatorioContent() {
           @page { margin: 20mm; }
         }
       `}</style>
-    </div>
+    </>
   )
 }
 

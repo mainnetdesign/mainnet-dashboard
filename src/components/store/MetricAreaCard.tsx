@@ -12,13 +12,15 @@ import {
 } from 'recharts'
 import Badge from '@/components/ds/Badge'
 import WidgetCard from '@/components/ds/WidgetCard'
-import type { OverviewDailyPoint, OverviewKPIs, OverviewUserDayPoint, UsersKPIs } from '@/types/insta2figma'
+import type { OverviewDailyPoint, OverviewKPIs, OverviewUserDayPoint, OverviewAttentionPoint, UsersKPIs, ImportsKPIs } from '@/types/insta2figma'
 import { fmtUSD } from '@/lib/insta2figma/constants'
 import type { BadgeVariant } from '@/lib/design-system/tokens'
+import AttentionPointsCard from '@/components/store/AttentionPointsCard'
 import { cn } from '@/utils/cn'
 
 export const OVERVIEW_CHART_SYNC_ID = 'insta2figma-overview'
 export const USERS_CHART_SYNC_ID = 'insta2figma-users'
+export const IMPORTS_CHART_SYNC_ID = 'insta2figma-imports'
 
 const USER_NEVER_EXPORTED_COLOR = '#525866'
 const USER_EXPORTED_COLOR = '#1fc16b'
@@ -274,7 +276,6 @@ function NewUsersAreaCard({
             <Area
               type="linear"
               dataKey="neverExported"
-              stackId="new-users"
               stroke={USER_NEVER_EXPORTED_COLOR}
               strokeWidth={2}
               fill={`url(#fill-${chartId}-never)`}
@@ -283,7 +284,6 @@ function NewUsersAreaCard({
             <Area
               type="linear"
               dataKey="exported"
-              stackId="new-users"
               stroke={USER_EXPORTED_COLOR}
               strokeWidth={2}
               fill={`url(#fill-${chartId}-exported)`}
@@ -302,21 +302,33 @@ function NewUsersAreaCard({
   )
 }
 
-export function OverviewMetricsGrid({ kpis, className }: { kpis: OverviewKPIs; className?: string }) {
+export function OverviewMetricsGrid({
+  kpis,
+  attentionPoints,
+  className,
+}: {
+  kpis: OverviewKPIs
+  attentionPoints: OverviewAttentionPoint[]
+  className?: string
+}) {
   const { series } = kpis
   const newUsersInPeriod = series.users.reduce((sum, d) => sum + d.value, 0)
 
   return (
     <div className={cn('flex flex-col gap-4', className)}>
-      <NewUsersAreaCard
-        chartId="overview-users"
-        syncId={OVERVIEW_CHART_SYNC_ID}
-        label="Novos usuários"
-        value={newUsersInPeriod.toLocaleString('pt-BR')}
-        delta={deltaStr(kpis.usersDeltaPct)}
-        deltaVariant={deltaVariant(kpis.usersDeltaPct)}
-        data={series.users}
-      />
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <NewUsersAreaCard
+          chartId="overview-users"
+          syncId={OVERVIEW_CHART_SYNC_ID}
+          label="Novos usuários"
+          value={newUsersInPeriod.toLocaleString('pt-BR')}
+          delta={deltaStr(kpis.usersDeltaPct)}
+          deltaVariant={deltaVariant(kpis.usersDeltaPct)}
+          data={series.users}
+          className="md:col-span-2"
+        />
+        <AttentionPointsCard points={attentionPoints} />
+      </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <MetricAreaCard
@@ -399,6 +411,61 @@ export function UsersMetricsGrid({ kpis, className }: { kpis: UsersKPIs; classNa
           data={series.conversions}
           color="#335cff"
           formatValue={(v) => `${v} assinatura${v === 1 ? '' : 's'}`}
+        />
+      </div>
+    </div>
+  )
+}
+
+export function ImportsMetricsGrid({ kpis, className }: { kpis: ImportsKPIs; className?: string }) {
+  const { series } = kpis
+
+  return (
+    <div className={cn('flex flex-col gap-4', className)}>
+      <MetricAreaCard
+        chartId="imports-total"
+        syncId={IMPORTS_CHART_SYNC_ID}
+        size="large"
+        label="Total de importações"
+        value={kpis.totalImports.toLocaleString('pt-BR')}
+        delta={deltaStr(kpis.importsDeltaPct)}
+        deltaVariant={deltaVariant(kpis.importsDeltaPct)}
+        data={series.imports}
+        color="#335cff"
+      />
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <MetricAreaCard
+          chartId="imports-images"
+          syncId={IMPORTS_CHART_SYNC_ID}
+          label="Imagens importadas"
+          value={kpis.totalImages.toLocaleString('pt-BR')}
+          delta={deltaStr(kpis.imagesDeltaPct)}
+          deltaVariant={deltaVariant(kpis.imagesDeltaPct)}
+          data={series.images}
+          color="#f58529"
+        />
+        <MetricAreaCard
+          chartId="imports-avg"
+          syncId={IMPORTS_CHART_SYNC_ID}
+          label="Média de imagens por importação"
+          value={kpis.avgImagesPerImport.toLocaleString('pt-BR')}
+          delta={deltaStr(kpis.avgDeltaPct)}
+          deltaVariant={deltaVariant(kpis.avgDeltaPct)}
+          data={series.avgPerImport}
+          color="#8134af"
+          formatValue={(v) => v.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}
+        />
+        <MetricAreaCard
+          chartId="imports-failed"
+          syncId={IMPORTS_CHART_SYNC_ID}
+          label={`Importações com erro (${kpis.failureRatePct}% do total)`}
+          value={kpis.failedImports.toLocaleString('pt-BR')}
+          delta={deltaStr(kpis.failedDeltaPct)}
+          deltaVariant={kpis.failedImports === 0 ? 'success' : 'error'}
+          data={series.failed}
+          color="#e5484d"
+          formatValue={(v) => `${v} falha${v === 1 ? '' : 's'}`}
         />
       </div>
     </div>

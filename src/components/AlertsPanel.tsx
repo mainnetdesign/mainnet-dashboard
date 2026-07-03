@@ -1,6 +1,11 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { AlertItem } from '@/types'
+import WidgetCard from '@/components/ds/WidgetCard'
+import Badge from '@/components/ds/Badge'
+import * as Button from '@/components/ui/button'
+import * as Input from '@/components/ui/input'
+import { RiArrowDownSLine, RiSettings3Line } from '@remixicon/react'
 
 function fmtBRL(v: number) {
   return new Intl.NumberFormat('pt-BR', {
@@ -98,18 +103,16 @@ function AlertHistory({ alerts }: { alerts: AlertItem[] }) {
       </button>
 
       {open && (
-        <div className="px-6 pb-4 space-y-1.5">
+        <div className="space-y-2 border-t border-stroke-soft-200 p-5">
           {history.map((entry) => (
-            <div key={entry.date} className="border border-stroke-soft-200 overflow-hidden">
+            <div key={entry.date} className="overflow-hidden rounded-xl border border-stroke-soft-200">
               <button
                 onClick={() => toggleDate(entry.date)}
                 className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-bg-weak-50 transition-colors text-left"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-label-sm">{formatDate(entry.date)}</span>
-                  <span className="px-1.5 py-0.5 border border-stroke-sub-300 text-label-xs">
-                    {entry.alerts.length}
-                  </span>
+                  <span className="text-label-sm text-text-strong-950">{formatDate(entry.date)}</span>
+                  <Badge variant="neutral">{entry.alerts.length}</Badge>
                 </div>
                 <svg
                   className={`w-3 h-3 text-text-soft-400 transition-transform ${expandedDates.has(entry.date) ? 'rotate-180' : ''}`}
@@ -119,15 +122,15 @@ function AlertHistory({ alerts }: { alerts: AlertItem[] }) {
                 </svg>
               </button>
               {expandedDates.has(entry.date) && (
-                <div className="px-4 pb-3 pt-1 space-y-1 bg-bg-soft-200">
+                <div className="space-y-1 border-t border-stroke-soft-200 bg-bg-weak-50 px-4 py-3">
                   {entry.alerts.map((a, i) => {
                     const cfg = TYPE_CONFIG[a.type]
                     return (
-                      <div key={i} className="flex items-center justify-between text-paragraph-xs py-0.5">
-                        <span >{a.projectName}</span>
-                        <span className="px-1.5 py-0.5 border text-paragraph-xs" style={{ color: cfg.color, borderColor: cfg.color + '66' }}>
+                      <div key={i} className="flex items-center justify-between rounded-lg px-2 py-1 text-paragraph-xs">
+                        <span className="text-text-strong-950">{a.projectName}</span>
+                        <Badge variant={a.type === 'loss' ? 'error' : a.type === 'low-margin' ? 'warning' : 'neutral'}>
                           {cfg.label}
-                        </span>
+                        </Badge>
                       </div>
                     )
                   })}
@@ -183,111 +186,86 @@ export default function AlertsPanel({ alerts }: Props) {
   const noRevenue = filteredAlerts.filter((a) => a.type === 'no-revenue').length
 
   return (
-    <div className="mb-8 bg-bg-white-0 border border-stroke-soft-200 overflow-hidden">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-stroke-soft-200">
+    <WidgetCard padding="none" className="overflow-hidden no-print">
+      <div className="flex items-center justify-between gap-3 border-b border-stroke-soft-200 px-5 py-4">
         <button
           onClick={() => setOpen((v) => !v)}
-          className="flex-1 flex items-center gap-3 hover:opacity-80 transition-opacity text-left"
+          className="flex flex-1 items-center gap-3 text-left transition-opacity hover:opacity-80"
         >
-          <h2 className="text-label-md">Projetos em risco</h2>
-          <span className="px-2 py-0.5 border border-stroke-sub-300 text-label-xs">
-            {filteredAlerts.length}
-          </span>
-          <div className="hidden sm:flex items-center gap-3">
-            {losses > 0 && (
-              <span className="flex items-center gap-1 text-paragraph-xs">
-                <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: '#fb3748' }} />
-                {losses} prejuízo
-              </span>
-            )}
-            {lowMargin > 0 && (
-              <span className="flex items-center gap-1 text-paragraph-xs">
-                <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: '#f6b51e' }} />
-                {lowMargin} margem baixa
-              </span>
-            )}
-            {noRevenue > 0 && (
-              <span className="flex items-center gap-1 text-paragraph-xs">
-                <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: '#a3a3a3' }} />
-                {noRevenue} sem receita
-              </span>
-            )}
+          <div>
+            <h2 className="text-label-md text-text-strong-950">Projetos em risco</h2>
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              <Badge variant="warning">{filteredAlerts.length} alertas</Badge>
+              {losses > 0 && <span className="text-paragraph-xs text-error-base">{losses} prejuízo</span>}
+              {lowMargin > 0 && <span className="text-paragraph-xs text-away-base">{lowMargin} margem baixa</span>}
+              {noRevenue > 0 && <span className="text-paragraph-xs text-text-soft-400">{noRevenue} sem receita</span>}
+            </div>
           </div>
-          <span className="hidden sm:inline-flex px-2 py-0.5 border text-label-xs" style={{ color: '#f6b51e', borderColor: '#f6b51e55' }}>
-            Alerta: {threshold}%
-          </span>
         </button>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={(e) => { e.stopPropagation(); setSettingsOpen((v) => !v) }}
-            className={`p-1.5 transition-colors ${settingsOpen ? 'bg-stroke-soft-200 text-text-strong-950' : 'text-text-soft-400 hover:text-text-strong-950 hover:bg-bg-weak-50'}`}
+        <div className="flex items-center gap-1">
+          <Button.Root
+            variant="neutral"
+            mode="ghost"
+            size="xsmall"
+            onClick={() => setSettingsOpen((v) => !v)}
             title="Configurar threshold de margem"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-              <path strokeLinecap="round" strokeLinejoin="round"
-                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </button>
-          <button onClick={() => setOpen((v) => !v)}>
-            <svg
-              className={`w-4 h-4 text-text-soft-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
-              fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
+            <Button.Icon as={RiSettings3Line} />
+          </Button.Root>
+          <Button.Root
+            variant="neutral"
+            mode="ghost"
+            size="xsmall"
+            onClick={() => setOpen((v) => !v)}
+          >
+            <Button.Icon as={RiArrowDownSLine} className={open ? 'rotate-180' : undefined} />
+          </Button.Root>
         </div>
       </div>
 
       {settingsOpen && (
-        <div className="px-6 py-4 bg-bg-soft-200 border-b border-stroke-soft-200">
-          <p className="text-label-sm mb-2">Threshold de margem baixa</p>
-          <p className="text-paragraph-xs mb-3">
+        <div className="border-b border-stroke-soft-200 bg-bg-weak-50 px-5 py-4">
+          <p className="text-label-sm text-text-strong-950">Threshold de margem baixa</p>
+          <p className="mt-0.5 text-paragraph-xs text-text-sub-600">
             Projetos com margem abaixo desse percentual serão exibidos como alerta de margem baixa.
           </p>
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <input
-                type="number"
-                min={1}
-                max={100}
-                value={thresholdInput}
-                onChange={(e) => setThresholdInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && applyThreshold()}
-                className="w-24 px-3 py-1.5 pr-8 text-paragraph-sm bg-bg-white-0 border border-stroke-soft-200 focus:outline-none focus:border-stroke-sub-300"
-              />
-              <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-paragraph-xs">%</span>
-            </div>
-            <button
-              onClick={applyThreshold}
-              className="px-3 py-1.5 text-sm font-medium bg-bg-strong-950 text-text-white-0 hover:opacity-80 transition-opacity"
-            >
+          <div className="mt-3 flex items-center gap-2">
+            <Input.Root size="small" className="w-28">
+              <Input.Wrapper>
+                <Input.Input
+                  type="number"
+                  min={1}
+                  max={100}
+                  value={thresholdInput}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setThresholdInput(e.target.value)}
+                  onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && applyThreshold()}
+                />
+              </Input.Wrapper>
+              <Input.Affix>%</Input.Affix>
+            </Input.Root>
+            <Button.Root variant="primary" mode="filled" size="small" onClick={applyThreshold}>
               Aplicar
-            </button>
-            <button
-              onClick={() => setSettingsOpen(false)}
-              className="px-3 py-1.5 text-sm font-medium text-text-soft-400 hover:text-text-strong-950 transition-colors"
-            >
+            </Button.Root>
+            <Button.Root variant="neutral" mode="ghost" size="small" onClick={() => setSettingsOpen(false)}>
               Cancelar
-            </button>
+            </Button.Root>
           </div>
         </div>
       )}
 
       {open && (
-        <div className="px-6 pb-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px pt-4 bg-stroke-soft-200">
+        <div className="p-5">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {filteredAlerts.map((alert) => {
               const cfg = TYPE_CONFIG[alert.type]
               return (
-                <div key={alert.projectName + alert.type} className="bg-bg-white-0 p-4">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <p className="text-label-sm">{alert.projectName}</p>
-                    <span className="shrink-0 text-label-xs px-2 py-0.5 border" style={{ color: cfg.color, borderColor: cfg.color + '55' }}>
-                      {cfg.icon} {cfg.label}
-                    </span>
+                <div key={alert.projectName + alert.type} className="rounded-xl border border-stroke-soft-200 bg-bg-white-0 p-4">
+                  <div className="mb-2 flex items-start justify-between gap-2">
+                    <p className="text-label-sm text-text-strong-950">{alert.projectName}</p>
+                    <Badge variant={alert.type === 'loss' ? 'error' : alert.type === 'low-margin' ? 'warning' : 'neutral'}>
+                      {cfg.label}
+                    </Badge>
                   </div>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-paragraph-xs">
                     <span>Custo: <strong style={{ color: '#fb3748' }}>{fmtBRL(alert.cost)}</strong></span>
@@ -309,6 +287,6 @@ export default function AlertsPanel({ alerts }: Props) {
       )}
 
       <AlertHistory alerts={alerts} />
-    </div>
+    </WidgetCard>
   )
 }

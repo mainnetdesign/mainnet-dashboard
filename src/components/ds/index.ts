@@ -11,6 +11,7 @@ export {
 } from './DataTable'
 export { default as DataPagination } from './DataPagination'
 export { default as FilterBar } from './FilterBar'
+export { default as FilterSelect } from './FilterSelect'
 export { default as MetricHeader } from './MetricHeader'
 export { default as SectionHeader } from './SectionHeader'
 export { default as Sparkline } from './Sparkline'

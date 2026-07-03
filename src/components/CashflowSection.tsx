@@ -1,10 +1,10 @@
 'use client'
 import {
   ComposedChart, Bar, Line, XAxis, YAxis, Tooltip,
-  ResponsiveContainer, CartesianGrid, ReferenceLine, Cell,
+  ResponsiveContainer, ReferenceLine, Cell,
 } from 'recharts'
 import { MonthlyData } from '@/types'
-import { useTheme } from 'next-themes'
+import { ChartGridLines, TOOLTIP_CARD, ACTIVE_DOT, CHART_TOKENS } from '@/components/charts/chart-primitives'
 
 function fmtBRL(v: number) {
   return new Intl.NumberFormat('pt-BR', {
@@ -29,8 +29,8 @@ const CustomTooltip = ({
 }) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-bg-white-0 border border-stroke-soft-200 p-3 text-paragraph-sm min-w-[180px]">
-      <p className="mb-2">{label}</p>
+    <div className={`${TOOLTIP_CARD} min-w-[180px] text-paragraph-sm`}>
+      <p className="mb-2 text-label-xs text-text-soft-400">{label}</p>
       {payload.map((p) => (
         p.value !== 0 && (
           <div key={p.dataKey} className="flex items-center justify-between gap-4 mb-1">
@@ -49,8 +49,6 @@ const CustomTooltip = ({
 }
 
 export default function CashflowSection({ data }: Props) {
-  const { theme } = useTheme()
-  const isDark = theme === 'dark'
 
   const todayYM = new Date().toISOString().slice(0, 7)
 
@@ -85,32 +83,31 @@ export default function CashflowSection({ data }: Props) {
   const next3Forecast   = futureMonths.slice(0, 3).reduce((s, m) => s + m.predictedRevenue, 0)
   const nextMonthEntry  = futureMonths[0]
 
-  const gridColor  = isDark ? '#222' : '#E8E8E8'
-  const axisColor  = isDark ? '#666' : '#888'
+  const axisColor = 'var(--color-text-soft-400)'
 
   const kpis = [
     {
       label: 'Resultado acumulado',
       value: fmtBRL(netBalance),
-      color: netBalance >= 0 ? '#1fc16b' : '#fb3748',
+      color: netBalance >= 0 ? 'var(--color-success-base)' : 'var(--color-error-base)',
       sub: `${fmtBRL(totalRealized)} receita · ${fmtBRL(totalCost)} custo`,
     },
     {
       label: 'Próxima entrada prevista',
       value: nextMonthEntry ? fmtBRL(nextMonthEntry.predictedRevenue) : '—',
-      color: '#335cff',
+      color: 'var(--color-information-base)',
       sub: nextMonthEntry ? nextMonthEntry.label : 'Nenhum agendamento',
     },
     {
       label: 'Previsão próximos 3 meses',
       value: next3Forecast > 0 ? fmtBRL(next3Forecast) : '—',
-      color: '#f6b51e',
+      color: 'var(--color-away-base)',
       sub: futureMonths.slice(0, 3).map((m) => m.label).join(' · ') || 'Sem previsão',
     },
     {
       label: 'Custo projetado (média 3m)',
       value: avgCost > 0 ? fmtBRL(avgCost) : '—',
-      color: '#fb3748',
+      color: 'var(--color-error-base)',
       sub: 'por mês estimado',
     },
   ]
@@ -130,7 +127,7 @@ export default function CashflowSection({ data }: Props) {
           </div>
           <div className="flex items-center gap-4 text-paragraph-xs">
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm" style={{ background: '#1fc16b' }} />
+              <span className="w-3 h-3 rounded-sm" style={{ background: 'var(--color-success-base)' }} />
               Realizado
             </span>
             <span className="flex items-center gap-1.5">
@@ -138,7 +135,7 @@ export default function CashflowSection({ data }: Props) {
               Previsto
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-1.5" style={{ background: '#fb3748' }} />
+              <span className="w-3 h-1.5" style={{ background: 'var(--color-error-base)' }} />
               Custo
             </span>
           </div>
@@ -160,18 +157,18 @@ export default function CashflowSection({ data }: Props) {
       <div className="p-6">
         <ResponsiveContainer width="100%" height={260}>
           <ComposedChart data={chartData} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
+            <ChartGridLines />
             <XAxis
               dataKey="label"
               tick={{ fontSize: 11, fill: axisColor }}
-              axisLine={false} tickLine={false}
+              axisLine={false} tickLine={false} tickMargin={8}
             />
             <YAxis
               tickFormatter={fmtK}
               tick={{ fontSize: 11, fill: axisColor }}
               axisLine={false} tickLine={false}
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: isDark ? '#ffffff08' : '#00000006' }} />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--color-bg-weak-50)' }} />
 
             {/* "Hoje" divider */}
             {chartData.some((d) => d.isFuture) && chartData.some((d) => !d.isFuture) && (() => {
@@ -180,7 +177,7 @@ export default function CashflowSection({ data }: Props) {
               return lastPastLabel ? (
                 <ReferenceLine
                   x={lastPastLabel}
-                  stroke={isDark ? '#444' : '#CCC'}
+                  stroke="var(--color-stroke-sub-300)"
                   strokeWidth={1.5}
                   strokeDasharray="4 2"
                   label={{ value: 'hoje', position: 'insideTopRight', fontSize: 10, fill: axisColor }}
@@ -189,16 +186,16 @@ export default function CashflowSection({ data }: Props) {
             })()}
 
             {/* Realized revenue — solid green */}
-            <Bar dataKey="realized" name="Receita realizada" maxBarSize={40} radius={[3, 3, 0, 0]}>
+            <Bar dataKey="realized" name="Receita realizada" maxBarSize={40} radius={[6, 6, 0, 0]}>
               {chartData.map((d, i) => (
-                <Cell key={i} fill="#1fc16b" fillOpacity={d.isFuture ? 0 : 1} />
+                <Cell key={i} fill={CHART_TOKENS.positive} fillOpacity={d.isFuture ? 0 : 1} />
               ))}
             </Bar>
 
             {/* Forecast revenue — light green */}
-            <Bar dataKey="forecast" name="Receita prevista" maxBarSize={40} radius={[3, 3, 0, 0]}>
+            <Bar dataKey="forecast" name="Receita prevista" maxBarSize={40} radius={[6, 6, 0, 0]}>
               {chartData.map((d, i) => (
-                <Cell key={i} fill="#1fc16b" fillOpacity={0.25} stroke="#1fc16b" strokeWidth={1} strokeDasharray="4 2" />
+                <Cell key={i} fill={CHART_TOKENS.positive} fillOpacity={0.25} stroke={CHART_TOKENS.positive} strokeWidth={1} strokeDasharray="4 2" />
               ))}
             </Bar>
 
@@ -206,11 +203,11 @@ export default function CashflowSection({ data }: Props) {
             <Line
               dataKey="cost"
               name="Custo"
-              stroke="#fb3748"
+              stroke={CHART_TOKENS.negative}
               strokeWidth={2}
               strokeDasharray="0"
               dot={false}
-              activeDot={{ r: 4, fill: '#fb3748', strokeWidth: 0 }}
+              activeDot={ACTIVE_DOT(CHART_TOKENS.negative)}
             />
           </ComposedChart>
         </ResponsiveContainer>

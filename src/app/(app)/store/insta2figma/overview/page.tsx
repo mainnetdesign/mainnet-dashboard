@@ -1,20 +1,22 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import PageHeader from '@/components/shell/PageHeader'
 import DateRangePicker from '@/components/DateRangePicker'
 import { OverviewMetricsGrid } from '@/components/store/MetricAreaCard'
+import ImportsTableSection from '@/components/store/ImportsTableSection'
+import StoreDrawerStack from '@/components/store/StoreDrawerStack'
+import { useStoreDrawers } from '@/components/store/useStoreDrawers'
+import type { OverviewData, ImportsJobsList } from '@/types/insta2figma'
+import { I2F_MIN_DATE } from '@/lib/insta2figma/constants'
 import {
-  Avatar,
-  DataTable,
-  DataTableTextCell,
-  DataTableUserCell,
-  Badge,
-} from '@/components/ds'
-import type { OverviewData } from '@/types/insta2figma'
-import { fmtDateTime, I2F_MIN_DATE } from '@/lib/insta2figma/constants'
-import { jobStatusLabel, platformLabel } from '@/lib/insta2figma/labels'
-import { pseudonymInitials } from '@/lib/insta2figma/pseudonym'
+  useChartBuilder,
+  ChartToolbar,
+  ChartGrid,
+} from '@/components/charts/ChartsSection'
+import { PAGE_PRESETS } from '@/lib/charts/presets'
+
+const JOBS_POLL_MS = 3 * 1000
 
 const DEFAULT_END = new Date().toISOString().split('T')[0]
 const DEFAULT_START = (() => {
@@ -29,6 +31,19 @@ export default function OverviewPage() {
   const [data, setData] = useState<OverviewData | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const charts = useChartBuilder('overview', PAGE_PRESETS.overview)
+
+  const [jobsData, setJobsData] = useState<ImportsJobsList | null>(null)
+  const [jobsError, setJobsError] = useState<string | null>(null)
+  const [platform, setPlatform] = useState('all')
+  const [plan, setPlan] = useState('all')
+  const [status, setStatus] = useState('all')
+  const [origin, setOrigin] = useState('all')
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(15)
+  const hasJobsRef = useRef(false)
+  const drawers = useStoreDrawers()
 
   const load = useCallback((rangeStart: string, rangeEnd: string) => {
     setLoading(true)
@@ -48,80 +63,72 @@ export default function OverviewPage() {
     load(start, end)
   }, [load, start, end])
 
-  const jobColumns = useMemo(
-    () => [
-      {
-        id: 'user',
-        header: 'Usuário',
-        width: 'flex' as const,
-        cell: (j: OverviewData['recentJobs'][0]) => (
-          <DataTableUserCell
-            avatar={<Avatar initials={pseudonymInitials(j.displayName)} size={32} />}
-            label={j.displayName}
-          />
-        ),
-      },
-      {
-        id: 'when',
-        header: 'Horário',
-        width: 140,
-        cell: (j: OverviewData['recentJobs'][0]) => (
-          <DataTableTextCell>{fmtDateTime(j.createdAt)}</DataTableTextCell>
-        ),
-      },
-      {
-        id: 'platform',
-        header: 'Plataforma',
-        width: 100,
-        cell: (j: OverviewData['recentJobs'][0]) => (
-          <DataTableTextCell>{platformLabel(j.platform)}</DataTableTextCell>
-        ),
-      },
-      {
-        id: 'profile',
-        header: 'Perfil buscado',
-        width: 140,
-        cell: (j: OverviewData['recentJobs'][0]) => (
-          <DataTableTextCell strong>@{j.profileUsername ?? '—'}</DataTableTextCell>
-        ),
-      },
-      {
-        id: 'images',
-        header: 'Imagens',
-        width: 90,
-        align: 'right' as const,
-        cell: (j: OverviewData['recentJobs'][0]) => (
-          <DataTableTextCell>{j.imageCount}</DataTableTextCell>
-        ),
-      },
-      {
-        id: 'status',
-        header: 'Status',
-        width: 100,
-        cell: (j: OverviewData['recentJobs'][0]) => (
-          <Badge variant={j.status === 'succeeded' ? 'success' : j.status === 'failed' ? 'error' : 'neutral'}>
-            {jobStatusLabel(j.status)}
-          </Badge>
-        ),
-      },
-    ],
-    [],
+  const loadJobs = useCallback(
+    (silent = false) => {
+      if (!silent) setJobsError(null)
+
+      const params = new URLSearchParams({
+        start,
+        end,
+        platform,
+        plan,
+        status,
+        origin,
+        page: String(page),
+        pageSize: String(pageSize),
+      })
+      if (search.trim()) params.set('search', search.trim())
+
+      fetch(`/api/store/insta2figma/imports/jobs?${params}`, { cache: 'no-store' })
+        .then((r) => r.json())
+        .then((d) => {
+          if (d.error) throw new Error(d.error)
+          setJobsData(d)
+          hasJobsRef.current = true
+        })
+        .catch((e) => {
+          if (!silent) setJobsError(e.message)
+        })
+    },
+    [start, end, platform, plan, status, origin, search, page, pageSize],
   )
+
+  useEffect(() => {
+    loadJobs(hasJobsRef.current)
+  }, [loadJobs])
+
+  // Jobs em (quase) tempo real: buscas e trocas de status aparecem em até 3s.
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      if (document.visibilityState === 'visible') loadJobs(true)
+    }, JOBS_POLL_MS)
+    return () => window.clearInterval(id)
+  }, [loadJobs])
+
+  function openImportFromRow(row: { id: string; userId: string; displayName: string }) {
+    // Linhas de busca (pré-job) não têm detalhe para abrir.
+    if (row.id.startsWith('search-')) return
+    drawers.openImport(row.id, { userId: row.userId, displayName: row.displayName })
+  }
 
   return (
     <>
       <PageHeader
         title="Visão geral"
         actions={
-          <DateRangePicker
-            start={start}
-            end={end}
-            minDate={I2F_MIN_DATE}
-            onChange={(s, e) => {
-              setStart(s)
-              setEnd(e)
-            }}
-          />
+          <div className="flex items-center gap-2">
+            <DateRangePicker
+              start={start}
+              end={end}
+              minDate={I2F_MIN_DATE}
+              onChange={(s, e) => {
+                setStart(s)
+                setEnd(e)
+                setPage(1)
+              }}
+            />
+            <ChartToolbar builder={charts} />
+          </div>
         }
       />
       <main className="flex flex-col gap-6 p-5">
@@ -129,7 +136,10 @@ export default function OverviewPage() {
 
         {loading && !data && !error && (
           <div className="flex flex-col gap-4">
-            <div className="h-64 animate-pulse rounded-2xl bg-bg-weak-50" />
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div className="h-64 animate-pulse rounded-2xl bg-bg-weak-50 md:col-span-2" />
+              <div className="h-64 animate-pulse rounded-2xl bg-bg-weak-50" />
+            </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="h-44 animate-pulse rounded-2xl bg-bg-weak-50" />
@@ -139,24 +149,68 @@ export default function OverviewPage() {
         )}
 
         {data && (
-          <>
-            <OverviewMetricsGrid
-              kpis={data.kpis}
-              className={loading ? 'pointer-events-none opacity-60' : undefined}
-            />
+          <OverviewMetricsGrid
+            kpis={data.kpis}
+            attentionPoints={data.attentionPoints}
+            className={loading ? 'pointer-events-none opacity-60' : undefined}
+          />
+        )}
 
-            <div className={loading ? 'opacity-60' : ''}>
-              <h2 className="mb-3 text-label-md text-text-strong-950">Importações no período</h2>
-              <DataTable
-                columns={jobColumns}
-                data={data.recentJobs}
-                keyExtractor={(j) => j.id}
-                emptyMessage="Nenhuma importação no período selecionado"
-              />
-            </div>
-          </>
+        {jobsError && <p className="text-paragraph-sm text-error-base">{jobsError}</p>}
+
+        {!jobsData && !jobsError && (
+          <div className="h-96 animate-pulse rounded-2xl bg-bg-weak-50" />
+        )}
+
+        {jobsData && (
+          <ImportsTableSection
+            jobs={jobsData.jobs}
+            total={jobsData.total}
+            page={page}
+            pageSize={pageSize}
+            platform={platform}
+            plan={plan}
+            status={status}
+            origin={origin}
+            search={search}
+            onPlatformChange={(v) => {
+              setPlatform(v)
+              setPage(1)
+            }}
+            onPlanChange={(v) => {
+              setPlan(v)
+              setPage(1)
+            }}
+            onStatusChange={(v) => {
+              setStatus(v)
+              setPage(1)
+            }}
+            onOriginChange={(v) => {
+              setOrigin(v)
+              setPage(1)
+            }}
+            onSearchChange={(v) => {
+              setSearch(v)
+              setPage(1)
+            }}
+            onPageChange={setPage}
+            onPageSizeChange={(s) => {
+              setPageSize(s)
+              setPage(1)
+            }}
+            onRowClick={openImportFromRow}
+          />
+        )}
+
+        {data && (
+          <div>
+            <h2 className="mb-3 text-label-md text-text-strong-950">Gráficos</h2>
+            <ChartGrid builder={charts} start={start} end={end} />
+          </div>
         )}
       </main>
+
+      <StoreDrawerStack {...drawers} />
     </>
   )
 }

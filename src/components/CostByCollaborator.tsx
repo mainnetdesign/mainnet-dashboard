@@ -2,6 +2,9 @@
 import { useState, useEffect } from 'react'
 import { DashboardData, CollaboratorSummary } from '@/types'
 import RatesEditor from './RatesEditor'
+import WidgetCard from '@/components/ds/WidgetCard'
+import * as Button from '@/components/ui/button'
+import { RiSettings3Line } from '@remixicon/react'
 
 function fmtBRL(v: number) {
   return new Intl.NumberFormat('pt-BR', {
@@ -430,22 +433,23 @@ export default function CostByCollaborator({ data, onRatesChanged }: Props & { o
 
   return (
     <>
-      <div className="bg-bg-white-0 p-6 border border-stroke-soft-200">
-        <div className="flex items-start justify-between mb-1">
-          <h2 className="text-label-md">Custo por colaborador</h2>
-          <button
+      <WidgetCard className="flex flex-col gap-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className="text-label-md text-text-strong-950">Custo por colaborador</h2>
+            <p className="mt-0.5 text-paragraph-sm text-text-sub-600">Total no período de {totalMonths} meses</p>
+          </div>
+          <Button.Root
+            variant="neutral"
+            mode="ghost"
+            size="xsmall"
             onClick={() => setEditingRates(true)}
-            className="flex items-center gap-1.5 text-xs text-text-soft-400 hover:text-text-strong-950 transition-colors"
             title="Editar taxas e salários"
           >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
+            <Button.Icon as={RiSettings3Line} />
             Editar taxas
-          </button>
+          </Button.Root>
         </div>
-        <p className="text-paragraph-sm mb-6">Total no período de {totalMonths} meses</p>
 
         <div className="space-y-5">
           {data.collaborators.map((c) => (
@@ -465,8 +469,8 @@ export default function CostByCollaborator({ data, onRatesChanged }: Props & { o
                   <span className="text-label-xs ml-2">{c.percentOfTotal.toFixed(1)}%</span>
                 </div>
               </div>
-              <div className="relative h-1.5 bg-stroke-soft-200 mb-1">
-                <div className="absolute left-0 top-0 h-full transition-all"
+              <div className="relative h-1.5 rounded-full bg-stroke-soft-200">
+                <div className="absolute left-0 top-0 h-full rounded-full transition-all"
                   style={{ width: `${c.percentOfTotal}%`, background: c.color }} />
               </div>
               <p className="text-paragraph-xs" style={{ color: '#335cff' }}>{fmtRate(c.effectiveHourlyRate)}</p>
@@ -478,7 +482,7 @@ export default function CostByCollaborator({ data, onRatesChanged }: Props & { o
             <span className="text-label-sm">{fmtBRL(data.totalCostAllCollaborators)}</span>
           </div>
         </div>
-      </div>
+      </WidgetCard>
 
       {selected && (
         <CollaboratorDrawer collab={selected} data={data} onClose={() => setSelected(null)} />

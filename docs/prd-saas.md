@@ -174,7 +174,56 @@ rankeados embaixo.
 
 ---
 
-## 8. Pré-requisitos e fase 2
+## 8. Chart Builder (todas as páginas)
+
+Cada página (Overview, Users, Earnings, Analytics) tem uma **área de gráficos
+configuráveis** abaixo dos KPIs fixos. Construído sobre **shadcn charts**
+(Recharts): https://ui.shadcn.com/docs/components/radix/chart.
+
+### Montagem (catálogo de métricas)
+Sem SQL livre. O usuário monta um gráfico escolhendo de um **catálogo**:
+- **Medida** (o valor): nº de users, nº de jobs, soma de imagens, nº de assets,
+  nº de eventos, revenue.
+- **Dimensão** (agrupar por): tempo (`created_at`), plano, plataforma
+  (figma/framer), status do job, `event_name`, verificado.
+- **Período:** filtro de data.
+- **Séries (N variáveis):** pode empilhar várias medidas **da mesma unidade** no
+  mesmo gráfico (ex: imports iniciados vs concluídos). Validação impede misturar
+  unidades (não deixa "pessoas" + "US$" no mesmo gráfico).
+
+Cada página expõe só as métricas do seu contexto (o catálogo é filtrado por página).
+
+### Tipos de gráfico
+Padrão: **pie (%)**, **bar**, **line** — todos os tipos do shadcn charts
+disponíveis. O tipo é trocável por gráfico.
+
+### Grid e tiles (estilo iOS)
+- **Grid fixo em 4 colunas** (responsivo em telas menores).
+- **Tiles de tamanho fixo:** `1x1` (KPI/pie pequeno), `2x1` (largo, temporal),
+  `2x2` (destaque), `1x2` (alto, ranking/lista).
+- **Drag & swap:** arrastar um card **troca de posição** com outro, igual ícones
+  de app no iOS (não é resize-livre). Lib sugerida: **dnd-kit** (leve, sem
+  dependência pesada). Sortable com swap strategy.
+
+### Cores / séries
+Cor **manual por série** (o usuário escolhe), usando tokens do DS como paleta base.
+
+### Presets e persistência
+- **Presets editáveis:** cada página abre já com os gráficos que **já existem
+  hoje** (reaproveitar os componentes atuais como config inicial do builder).
+  O usuário edita / remove / adiciona.
+- **Persistência em localStorage** (painel admin de um único dono — zero backend,
+  zero tabela nova). Chave por página+SaaS. Botão "resetar para o padrão".
+
+### Fases
+- **Fase 1:** catálogo + pie/bar/line + grid 4-col com tiles fixos + drag-swap
+  (dnd-kit) + presets + localStorage.
+- **Fase 2:** mais tipos de gráfico, e — se necessário — migrar persistência pro
+  banco (dashboards por usuário) e/ou query builder livre.
+
+---
+
+## 9. Pré-requisitos e fase 2
 
 ### Geolocalização (globo 3D + painel de países)
 Hoje **nada guarda IP/país**. Antes do globo e do breakdown de países:
@@ -192,7 +241,7 @@ só dá agregados de 1–3 dias (sem gravações/heatmaps). Padrão correto seri
 
 ---
 
-## 9. Resumo de prioridades
+## 10. Resumo de prioridades
 
 | Página | Fase 1 | Fase 2+ |
 |---|---|---|

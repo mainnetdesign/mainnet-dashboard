@@ -35,7 +35,7 @@ export default function FilterBar({
         <SegmentedControl.Root
           value={segmentValue}
           onValueChange={onSegmentChange}
-          className="w-full max-w-xs"
+          className="w-fit"
         >
           <SegmentedControl.List>
             {segments.map((seg) => (

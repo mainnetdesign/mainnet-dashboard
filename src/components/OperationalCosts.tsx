@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { SUBSCRIPTIONS, SUBSCRIPTION_CATEGORIES, totalMonthlySubscriptions } from '@/config/subscriptions'
+import WidgetCard from '@/components/ds/WidgetCard'
 
 const CATEGORY_COLORS: Record<string, string> = {
   'SaaS IA':     '#7d52f4',
@@ -19,9 +20,9 @@ export default function OperationalCosts({ months = 1 }: { months?: number }) {
   const totalPeriod = total * months
 
   return (
-    <div className="bg-bg-white-0 border border-stroke-soft-200 p-6">
+    <WidgetCard className="flex flex-col gap-5">
       {/* Header */}
-      <div className="flex items-start justify-between mb-5">
+      <div className="flex items-start justify-between">
         <div>
           <h2 className="text-label-sm">Custos Operacionais</h2>
           <p className="text-[2rem] mt-1">
@@ -46,7 +47,7 @@ export default function OperationalCosts({ months = 1 }: { months?: number }) {
       </div>
 
       {/* Progress bar */}
-      <div className="flex h-1.5 rounded-full overflow-hidden mb-5 gap-px">
+      <div className="flex h-2 overflow-hidden rounded-full">
         {SUBSCRIPTION_CATEGORIES.map((cat) => {
           const catTotal = SUBSCRIPTIONS.filter((s) => s.category === cat).reduce((a, s) => a + s.monthlyBRL, 0)
           return (
@@ -66,10 +67,10 @@ export default function OperationalCosts({ months = 1 }: { months?: number }) {
           const isOpen = expanded === cat
 
           return (
-            <div key={cat} className="border border-stroke-soft-200 overflow-hidden">
+            <div key={cat} className="overflow-hidden rounded-xl border border-stroke-soft-200">
               <button
                 onClick={() => setExpanded(isOpen ? null : cat)}
-                className="w-full flex items-center justify-between px-4 py-3 hover:bg-bg-weak-50 transition-colors"
+                className="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-bg-weak-50"
               >
                 <div className="flex items-center gap-2.5">
                   <div className="w-2 h-2 rounded-full" style={{ background: CATEGORY_COLORS[cat] }} />
@@ -89,9 +90,9 @@ export default function OperationalCosts({ months = 1 }: { months?: number }) {
               </button>
 
               {isOpen && (
-                <div className="border-t border-stroke-soft-200 divide-y divide-[var(--color-stroke-soft-200)]">
+                <div className="flex flex-col gap-1 border-t border-stroke-soft-200 p-2">
                   {items.map((sub) => (
-                    <div key={sub.id} className="flex items-center justify-between px-4 py-2.5 bg-bg-weak-50">
+                    <div key={sub.id} className="flex items-center justify-between rounded-lg bg-bg-weak-50 px-3 py-2.5">
                       <span className="text-paragraph-sm">{sub.name}</span>
                       <span className="text-label-sm">{fmtBRL(sub.monthlyBRL)}</span>
                     </div>
@@ -102,6 +103,6 @@ export default function OperationalCosts({ months = 1 }: { months?: number }) {
           )
         })}
       </div>
-    </div>
+    </WidgetCard>
   )
 }

@@ -16,7 +16,6 @@ import { useTheme } from 'next-themes'
 import Image from 'next/image'
 import SidebarSection from '@/components/shell/SidebarSection'
 import SidebarNavItem from '@/components/shell/SidebarNavItem'
-import UserProfile from '@/components/shell/UserProfile'
 import IconRail from '@/components/shell/IconRail'
 
 const NAV = {
@@ -125,13 +124,10 @@ export default function StudioSidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="relative hidden h-screen w-[272px] shrink-0 flex-col border-r border-stroke-soft-200 bg-bg-white-0 lg:flex">
+      <aside className="sticky top-0 hidden h-screen w-[272px] shrink-0 flex-col self-start border-r border-stroke-soft-200 bg-bg-white-0 lg:flex">
         <StudioSidebarHeader />
         <div className="flex flex-1 flex-col overflow-y-auto">
           <StudioNav />
-        </div>
-        <div className="border-t border-stroke-soft-200 px-3.5 pb-3.5 pt-5">
-          <UserProfile />
         </div>
         <span className="pointer-events-none absolute -left-px top-[63px] z-10 size-1.5 -translate-x-1/2 border border-stroke-soft-200 bg-bg-white-0" />
       </aside>
@@ -178,9 +174,6 @@ export default function StudioSidebar() {
           >
             <div className="flex flex-1 flex-col overflow-y-auto">
               <StudioNav onNavigate={() => setMobileOpen(false)} />
-            </div>
-            <div className="border-t border-stroke-soft-200 px-3.5 pb-3.5 pt-5">
-              <UserProfile />
             </div>
           </aside>
         </div>
