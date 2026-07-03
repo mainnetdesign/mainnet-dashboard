@@ -37,6 +37,7 @@ import type {
   FlowJourneyData,
   FlowNodeDetail,
   FlowNodeOccurrence,
+  FarmData,
 } from '@/types/insta2figma'
 
 function pctDelta(current: number, previous: number): number {
@@ -2061,4 +2062,38 @@ export async function getFlowNodeDetail(opts: {
   })
 
   return { kind: 'occurrences', occurrences }
+}
+
+export async function getFarmData(): Promise<FarmData> {
+  const { rows } = await i2fQuery<{
+    id: string
+    plan_tier: string
+    platform: string | null
+    created_at: Date
+    images_used: string
+    last_import_at: Date | null
+  }>(
+    `SELECT u.id, u.plan_tier, u.created_at,
+            CASE WHEN u.figma_user_id IS NOT NULL THEN 'figma'
+                 WHEN u.framer_user_id IS NOT NULL THEN 'framer'
+                 ELSE NULL END AS platform,
+            COALESCE((SELECT SUM(uc.images_used) FROM usage_counters uc WHERE uc.user_id = u.id), 0)::text AS images_used,
+            (SELECT MAX(j.created_at) FROM jobs j WHERE j.user_id = u.id AND j.status = 'succeeded') AS last_import_at
+     FROM users u
+     ORDER BY u.created_at ASC`,
+  )
+
+  return {
+    users: rows.map((u) => ({
+      id: u.id,
+      displayName: pseudonym(u.id),
+      planTier: u.plan_tier as FarmData['users'][0]['planTier'],
+      platform: u.platform as FarmData['users'][0]['platform'],
+      imagesUsed: Number(u.images_used),
+      createdAt: u.created_at.toISOString(),
+      lastImportAt: u.last_import_at?.toISOString() ?? null,
+    })),
+    // ponytail: quota free não está registrada no banco; 100 ≈ máximo observado
+    growthCap: 100,
+  }
 }

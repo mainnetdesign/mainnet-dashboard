@@ -365,6 +365,22 @@ export type FlowJourneyData = {
   failedByCode: { code: string; count: number }[]
 }
 
+export type FarmUser = {
+  id: string
+  displayName: string
+  planTier: PlanTier
+  platform: Platform | null
+  imagesUsed: number
+  createdAt: string
+  lastImportAt: string | null
+}
+
+export type FarmData = {
+  users: FarmUser[]
+  /** Normalização do crescimento da grama (imagens p/ considerar "cheio"). */
+  growthCap: number
+}
+
 export type FlowNodeOccurrence = {
   id: string
   when: string

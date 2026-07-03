@@ -12,6 +12,7 @@ import {
   RiDownload2Line,
   RiFlowChart,
   RiGroupLine,
+  RiPlantLine,
   RiMoonLine,
   RiPaletteLine,
   RiSunLine,
@@ -141,6 +142,13 @@ function Insta2FigmaNav({ onNavigate }: { onNavigate?: () => void }) {
           active={pathname.startsWith(`${I2F_BASE}/fluxo`)}
           onNavigate={onNavigate}
           icon={<RiFlowChart className="size-5" />}
+        />
+        <SidebarNavItem
+          href={`${I2F_BASE}/farm`}
+          label="Farm"
+          active={pathname.startsWith(`${I2F_BASE}/farm`)}
+          onNavigate={onNavigate}
+          icon={<RiPlantLine className="size-5" />}
         />
       </SidebarSection>
       <SidebarSection title="Análises" className="border-b-0">
