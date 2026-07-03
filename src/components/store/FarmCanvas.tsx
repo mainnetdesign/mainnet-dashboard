@@ -12,6 +12,7 @@ import { cn } from '@/utils/cn'
 const TW = 64 // tile width (px)
 const TH = 32 // tile height (px)
 const MARGIN = 7 // ground tiles around the plantation
+const ISLAND_DEPTH = 120 // dirt wall height below the grass top
 
 function iso(x: number, y: number) {
   return { sx: ((x - y) * TW) / 2, sy: ((x + y) * TH) / 2 }
@@ -36,41 +37,55 @@ function mulberry32(seed: number) {
   }
 }
 
+/* Stateless hash for jagged island edges. */
+function jag(i: number) {
+  const f = Math.sin(i * 12.9898) * 43758.5453
+  return f - Math.floor(f)
+}
+
 /* ── Palette (game art — intentionally not DS tokens) ────────────── */
 
 const P = {
-  grass: '#8fce6e',
-  grassLine: '#7ab85c',
+  grass: '#7fc462',
+  grassLine: '#6fb254',
+  grassLip: '#5a9c46',
+  dirt: '#8a5f3c',
+  dirtDark: '#6f4a2d',
+  dirtLine: '#7b5334',
   soil: '#c98a4b',
-  soilDark: '#a96f38',
-  soilLine: '#b57a3f',
+  soilLine: '#b0773d',
   sprout: '#4c9b3c',
   growing: '#5fae3f',
+  growingDark: '#478c2f',
   wheat: '#f4b23c',
-  wheatDark: '#d99527',
-  wheatTile: '#f6c159',
-  water: '#5aa7e8',
-  waterLight: '#8cc3f0',
+  wheatDark: '#c78a1f',
+  wheatTile: '#eaa945',
+  water: '#4d9fe0',
+  waterDeep: '#3c8bcc',
+  waterLight: '#a8d4f2',
   wood: '#8a5a33',
-  woodDark: '#6e4526',
-  trunk: '#7a4f2b',
-  leaf1: '#3f9646',
-  leaf2: '#57ab4b',
-  leaf3: '#2f7f3c',
-  siloBody: '#d9dee3',
-  siloShade: '#aeb6bd',
+  woodDark: '#66421f',
+  trunk: '#6f4a2b',
+  siloBody: '#dde2e6',
+  siloShade: '#a8b1b9',
   siloTop: '#3aa05c',
   turbine: '#f4f6f8',
-  turbineShade: '#c9cfd4',
-  panel: '#2b3f66',
-  panelLight: '#3d5挂80',
-  rock: '#9aa1a8',
+  turbineShade: '#c2c9cf',
+  panel: '#22375c',
+  rock: '#98a0a7',
+  rockDark: '#7c848c',
 }
+
+const TREE_TONES: [string, string, string][] = [
+  ['#2e7d3a', '#419a4b', '#57b45c'],
+  ['#276f36', '#3a8f46', '#4fae55'],
+  ['#356e2c', '#4a9440', '#63b054'],
+]
 
 /* ── Scenery generation ──────────────────────────────────────────── */
 
 type Deco =
-  | { kind: 'tree'; x: number; y: number; s: number }
+  | { kind: 'tree'; x: number; y: number; s: number; tone: number }
   | { kind: 'rock'; x: number; y: number }
   | { kind: 'turbine'; x: number; y: number; delay: number }
   | { kind: 'panels'; x: number; y: number }
@@ -86,7 +101,7 @@ function buildScenery(side: number): Scenery {
   const inPlantation = (x: number, y: number) =>
     x >= -1 && x <= side && y >= -1 && y <= side // +1 buffer for the fence
 
-  // River: a drifting band crossing the top-left corner of the map.
+  // River: a drifting band crossing the top-left corner of the island.
   const river = new Set<string>()
   let ry = lo + Math.floor(MARGIN / 2)
   for (let x = lo; x < hi; x++) {
@@ -105,12 +120,10 @@ function buildScenery(side: number): Scenery {
     return true
   }
 
-  // Silo: fixed spot by the top-right edge of the plantation.
   const siloX = side + 2
   const siloY = -3
   if (take(siloX, siloY)) decos.push({ kind: 'silo', x: siloX, y: siloY })
 
-  // Wind turbines scattered on the far ring.
   let placed = 0
   for (let tries = 0; tries < 200 && placed < 5; tries++) {
     const x = lo + Math.floor(rand() * (hi - lo))
@@ -122,7 +135,6 @@ function buildScenery(side: number): Scenery {
     }
   }
 
-  // Solar panel clusters (2×3 cells each).
   let clusters = 0
   for (let tries = 0; tries < 200 && clusters < 4; tries++) {
     const x = lo + 1 + Math.floor(rand() * (hi - lo - 4))
@@ -141,14 +153,13 @@ function buildScenery(side: number): Scenery {
     }
   }
 
-  // Trees everywhere on the outskirts, rocks sparsely.
   for (let x = lo; x < hi; x++) {
     for (let y = lo; y < hi; y++) {
       if (inPlantation(x, y) || used.has(key(x, y))) continue
       const r = rand()
       if (r < 0.14) {
         used.add(key(x, y))
-        decos.push({ kind: 'tree', x, y, s: 0.7 + rand() * 0.6 })
+        decos.push({ kind: 'tree', x, y, s: 0.7 + rand() * 0.6, tone: Math.floor(rand() * 3) })
       } else if (r < 0.16) {
         used.add(key(x, y))
         decos.push({ kind: 'rock', x, y })
@@ -159,17 +170,72 @@ function buildScenery(side: number): Scenery {
   return { river, decos }
 }
 
+/* ── Island walls (grass lip + thick dirt, jagged bottom) ────────── */
+
+function IslandSides({ lo, hi }: { lo: number; hi: number }) {
+  const W = iso(lo, hi)
+  const S = iso(hi, hi)
+  const E = iso(hi, lo)
+
+  // Jagged bottom outline for one face, from corner a to corner b.
+  const jaggedFace = (a: { sx: number; sy: number }, b: { sx: number; sy: number }, seed: number) => {
+    const steps = 9
+    const pts: string[] = [`${a.sx},${a.sy}`, `${b.sx},${b.sy}`]
+    for (let i = steps; i >= 0; i--) {
+      const t = i / steps
+      const x = a.sx + (b.sx - a.sx) * t
+      const y = a.sy + (b.sy - a.sy) * t
+      const depth = ISLAND_DEPTH - 14 - jag(seed + i) * 34 - Math.sin(t * Math.PI) * -8
+      pts.push(`${x},${y + depth}`)
+    }
+    return pts.join(' ')
+  }
+
+  return (
+    <g>
+      {/* dirt walls */}
+      <polygon points={jaggedFace(W, S, 7)} fill={P.dirt} />
+      <polygon points={jaggedFace(S, E, 31)} fill={P.dirtDark} />
+      {/* strata lines for texture */}
+      {[26, 52, 80].map((d, i) => (
+        <g key={d} opacity={0.5 - i * 0.12}>
+          <line x1={W.sx} y1={W.sy + d} x2={S.sx} y2={S.sy + d} stroke={P.dirtLine} strokeWidth={1.4} />
+          <line x1={S.sx} y1={S.sy + d} x2={E.sx} y2={E.sy + d} stroke={P.dirtLine} strokeWidth={1.4} />
+        </g>
+      ))}
+      {/* embedded rocks on the walls */}
+      {[0.18, 0.42, 0.66, 0.88].map((t, i) => {
+        const x = W.sx + (S.sx - W.sx) * t
+        const y = W.sy + (S.sy - W.sy) * t + 30 + jag(i + 3) * 40
+        return <ellipse key={`wl${i}`} cx={x} cy={y} rx={5 + jag(i) * 4} ry={3.5} fill={P.dirtDark} opacity={0.7} />
+      })}
+      {[0.22, 0.5, 0.78].map((t, i) => {
+        const x = S.sx + (E.sx - S.sx) * t
+        const y = S.sy + (E.sy - S.sy) * t + 34 + jag(i + 11) * 36
+        return <ellipse key={`wr${i}`} cx={x} cy={y} rx={5 + jag(i + 5) * 4} ry={3.5} fill="#5c3d24" opacity={0.7} />
+      })}
+      {/* grass lip hanging over the edge */}
+      <polygon points={`${W.sx},${W.sy} ${S.sx},${S.sy} ${S.sx},${S.sy + 12} ${W.sx},${W.sy + 12}`} fill={P.grassLip} />
+      <polygon points={`${S.sx},${S.sy} ${E.sx},${E.sy} ${E.sx},${E.sy + 12} ${S.sx},${S.sy + 12}`} fill="#4c8a3b" />
+    </g>
+  )
+}
+
 /* ── Sprites ─────────────────────────────────────────────────────── */
 
-function Tree({ x, y, s }: { x: number; y: number; s: number }) {
+function Tree({ x, y, s, tone }: { x: number; y: number; s: number; tone: number }) {
   const c = iso(x + 0.5, y + 0.5)
+  const [dark, mid, light] = TREE_TONES[tone % TREE_TONES.length]
   return (
     <g transform={`translate(${c.sx}, ${c.sy})`}>
-      <ellipse cx={0} cy={2} rx={10 * s} ry={4 * s} fill="rgba(0,0,0,0.12)" />
-      <rect x={-1.5 * s} y={-8 * s} width={3 * s} height={10 * s} fill={P.trunk} />
-      <circle cx={0} cy={-14 * s} r={8.5 * s} fill={P.leaf1} />
-      <circle cx={-5 * s} cy={-9 * s} r={6 * s} fill={P.leaf2} />
-      <circle cx={5 * s} cy={-10 * s} r={6.5 * s} fill={P.leaf3} />
+      <ellipse cx={0} cy={3} rx={11 * s} ry={4.5 * s} fill="rgba(30,60,20,0.22)" />
+      <path d={`M ${-2 * s} 0 L ${-1.2 * s} ${-9 * s} L ${1.2 * s} ${-9 * s} L ${2 * s} 0 Z`} fill={P.trunk} />
+      {/* canopy: dark base, mid body, light top + highlight */}
+      <circle cx={0} cy={-13 * s} r={9.5 * s} fill={dark} />
+      <circle cx={-4.5 * s} cy={-16 * s} r={7 * s} fill={mid} />
+      <circle cx={4 * s} cy={-16 * s} r={6.5 * s} fill={mid} />
+      <circle cx={0} cy={-20 * s} r={6.5 * s} fill={light} />
+      <circle cx={-2.5 * s} cy={-21.5 * s} r={2.6 * s} fill="rgba(255,255,255,0.28)" />
     </g>
   )
 }
@@ -178,8 +244,9 @@ function Rock({ x, y }: { x: number; y: number }) {
   const c = iso(x + 0.5, y + 0.5)
   return (
     <g transform={`translate(${c.sx}, ${c.sy})`}>
-      <ellipse cx={0} cy={2} rx={7} ry={3} fill="rgba(0,0,0,0.1)" />
-      <path d="M -6 1 L -3 -5 L 3 -6 L 7 0 L 3 3 L -3 3 Z" fill={P.rock} stroke="#7d848b" strokeWidth={1} />
+      <ellipse cx={0} cy={2.5} rx={8} ry={3.2} fill="rgba(30,60,20,0.2)" />
+      <path d="M -6 1 L -4 -4 L 0 -6 L 5 -4 L 7 0 L 3 3 L -3 3 Z" fill={P.rock} />
+      <path d="M 0 -6 L 5 -4 L 7 0 L 3 3 L 1 3 Z" fill={P.rockDark} />
     </g>
   )
 }
@@ -188,22 +255,31 @@ function Turbine({ x, y, delay }: { x: number; y: number; delay: number }) {
   const c = iso(x + 0.5, y + 0.5)
   return (
     <g transform={`translate(${c.sx}, ${c.sy})`}>
-      <ellipse cx={0} cy={2} rx={8} ry={3.5} fill="rgba(0,0,0,0.12)" />
-      <path d="M -2.5 0 L -1 -34 L 1 -34 L 2.5 0 Z" fill={P.turbine} stroke={P.turbineShade} strokeWidth={0.8} />
-      <g transform="translate(0, -36)">
-        <g className="farm-spin" style={{ animationDelay: `${-delay}s` }}>
-          {[0, 120, 240].map((deg) => (
-            <path
-              key={deg}
-              d="M 0 0 L -2 -4 L 0 -20 L 2 -4 Z"
-              fill={P.turbine}
-              stroke={P.turbineShade}
-              strokeWidth={0.8}
-              transform={`rotate(${deg})`}
+      <ellipse cx={0} cy={2} rx={9} ry={3.5} fill="rgba(30,60,20,0.2)" />
+      <path d="M -3 0 L -1.2 -40 L 1.2 -40 L 3 0 Z" fill={P.turbine} stroke={P.turbineShade} strokeWidth={0.8} />
+      {/* nacelle + rotor; rotor plane slightly squashed for perspective */}
+      <g transform="translate(0, -42)">
+        <ellipse cx={0} cy={2} rx={3.4} ry={2.4} fill={P.turbineShade} />
+        <g transform="scale(0.88 1)">
+          {/* SMIL rotate spins around the local origin = the hub itself */}
+          <g>
+            <animateTransform
+              attributeName="transform"
+              type="rotate"
+              from="0 0 0"
+              to="360 0 0"
+              dur="4.5s"
+              begin={`${-delay}s`}
+              repeatCount="indefinite"
             />
-          ))}
+            {[0, 120, 240].map((deg) => (
+              <g key={deg} transform={`rotate(${deg})`}>
+                <path d="M 0 0 L -2.4 -5 L -0.8 -24 L 1.6 -24 L 2.4 -5 Z" fill={P.turbine} stroke={P.turbineShade} strokeWidth={0.7} />
+              </g>
+            ))}
+          </g>
         </g>
-        <circle r={2.4} fill={P.turbineShade} />
+        <circle r={2.6} fill="#eef1f4" stroke={P.turbineShade} strokeWidth={0.8} />
       </g>
     </g>
   )
@@ -213,10 +289,14 @@ function Panels({ x, y }: { x: number; y: number }) {
   const c = iso(x + 0.5, y + 0.5)
   return (
     <g transform={`translate(${c.sx}, ${c.sy})`}>
-      <polygon points={diamond(-0.5, -0.5, 0.25)} fill={P.panel} stroke="#1e2e4d" strokeWidth={1} transform="translate(0,-3)" />
-      <polygon points={diamond(-0.5, -0.5, 0.25)} fill="none" stroke="#4d6da0" strokeWidth={0.7} transform="translate(0,-4.5)" />
-      <line x1={-8} y1={3} x2={-8} y2={-1} stroke="#6b7280" strokeWidth={1.5} />
-      <line x1={8} y1={3} x2={8} y2={-1} stroke="#6b7280" strokeWidth={1.5} />
+      <ellipse cx={0} cy={3} rx={13} ry={4} fill="rgba(30,60,20,0.16)" />
+      <line x1={-9} y1={3} x2={-9} y2={-2} stroke="#5d666e" strokeWidth={1.6} />
+      <line x1={9} y1={3} x2={9} y2={-2} stroke="#5d666e" strokeWidth={1.6} />
+      <polygon points={diamond(-0.5, -0.5, 0.22)} fill={P.panel} stroke="#16233d" strokeWidth={1} transform="translate(0,-4)" />
+      {/* cell grid + glare */}
+      <polygon points={diamond(-0.5, -0.5, 0.36)} fill="none" stroke="#41598a" strokeWidth={0.8} transform="translate(0,-4)" />
+      <line x1={-12} y1={-4} x2={12} y2={-4} stroke="#41598a" strokeWidth={0.7} />
+      <line x1={-5} y1={-9} x2={4} y2={-6} stroke="rgba(255,255,255,0.5)" strokeWidth={1.4} strokeLinecap="round" />
     </g>
   )
 }
@@ -225,21 +305,22 @@ function Silo({ x, y }: { x: number; y: number }) {
   const c = iso(x + 0.5, y + 0.5)
   return (
     <g transform={`translate(${c.sx}, ${c.sy})`}>
-      <ellipse cx={0} cy={4} rx={16} ry={7} fill="rgba(0,0,0,0.14)" />
-      <path d="M -13 0 A 13 6 0 0 0 13 0 L 13 -42 L -13 -42 Z" fill={P.siloBody} />
-      <path d="M 2 3.5 A 13 6 0 0 0 13 0 L 13 -42 L 2 -42 Z" fill={P.siloShade} opacity={0.55} />
-      <ellipse cx={0} cy={-42} rx={13} ry={6} fill={P.siloShade} />
-      <path d="M -13 -42 A 13 6 0 0 1 13 -42 A 13 13 0 0 0 0 -54 A 13 13 0 0 0 -13 -42 Z" fill={P.siloTop} />
-      {[-30, -18, -6].map((yy) => (
-        <path key={yy} d={`M -13 ${yy} A 13 6 0 0 0 13 ${yy}`} fill="none" stroke="#98a1a8" strokeWidth={1} />
+      <ellipse cx={0} cy={4} rx={17} ry={7} fill="rgba(30,60,20,0.22)" />
+      <path d="M -13 0 A 13 6 0 0 0 13 0 L 13 -44 L -13 -44 Z" fill={P.siloBody} />
+      <path d="M 1 3.8 A 13 6 0 0 0 13 0 L 13 -44 L 1 -44 Z" fill={P.siloShade} opacity={0.5} />
+      <path d="M -13 0 L -13 -44 L -9 -44 L -9 -1.5 Z" fill="#ffffff" opacity={0.45} />
+      <ellipse cx={0} cy={-44} rx={13} ry={6} fill={P.siloShade} />
+      <path d="M -13 -44 A 13 6 0 0 1 13 -44 A 13 13 0 0 0 0 -57 A 13 13 0 0 0 -13 -44 Z" fill={P.siloTop} />
+      <path d="M -13 -44 A 13 13 0 0 1 -4 -56 L -4 -49 A 13 6 0 0 0 -13 -44 Z" fill="#5cbf7c" opacity={0.8} />
+      {[-32, -20, -8].map((yy) => (
+        <path key={yy} d={`M -13 ${yy} A 13 6 0 0 0 13 ${yy}`} fill="none" stroke="#949ea6" strokeWidth={1} />
       ))}
+      <rect x={-2.5} y={-12} width={5} height={12} rx={1} fill="#7d8790" />
     </g>
   )
 }
 
-/* Wood fence segment along one plantation edge tile. */
 function FenceEdge({ x, y, edge }: { x: number; y: number; edge: 'N' | 'S' | 'W' | 'E' }) {
-  // corners of tile (x,y): N=(x,y) top corner in grid terms
   const corners = {
     NW: iso(x, y),
     NE: iso(x + 1, y),
@@ -251,19 +332,23 @@ function FenceEdge({ x, y, edge }: { x: number; y: number; edge: 'N' | 'S' | 'W'
     : edge === 'S' ? [corners.SW, corners.SE]
     : edge === 'W' ? [corners.NW, corners.SW]
     : [corners.NE, corners.SE]
-  const H = 10
+  const H = 11
   return (
     <g>
       {[a, b].map((p, i) => (
-        <line key={i} x1={p.sx} y1={p.sy} x2={p.sx} y2={p.sy - H} stroke={P.woodDark} strokeWidth={2.5} strokeLinecap="round" />
+        <g key={i}>
+          <line x1={p.sx} y1={p.sy} x2={p.sx} y2={p.sy - H} stroke={P.woodDark} strokeWidth={3} strokeLinecap="round" />
+          <line x1={p.sx - 0.8} y1={p.sy - 1} x2={p.sx - 0.8} y2={p.sy - H + 1} stroke={P.wood} strokeWidth={1} strokeLinecap="round" />
+        </g>
       ))}
-      <line x1={a.sx} y1={a.sy - H + 2} x2={b.sx} y2={b.sy - H + 2} stroke={P.wood} strokeWidth={2} />
-      <line x1={a.sx} y1={a.sy - H + 6} x2={b.sx} y2={b.sy - H + 6} stroke={P.wood} strokeWidth={2} />
+      <line x1={a.sx} y1={a.sy - H + 2.5} x2={b.sx} y2={b.sy - H + 2.5} stroke={P.wood} strokeWidth={2.2} />
+      <line x1={a.sx} y1={a.sy - H + 6.5} x2={b.sx} y2={b.sy - H + 6.5} stroke={P.woodDark} strokeWidth={2.2} />
     </g>
   )
 }
 
-/* Crop tile for a user (or bare soil for empty slots). */
+/* Crop tile: bare soil for empty slots AND never-exported users;
+   grass grows only after the first import; golden wheat = subscriber. */
 function CropTile({
   x,
   y,
@@ -282,23 +367,22 @@ function CropTile({
   onClick: () => void
 }) {
   const paid = user != null && user.planTier !== 'free'
+  const exported = user != null && user.imagesUsed > 0
   const growth = user ? Math.min(1, user.imagesUsed / growthCap) : 0
 
-  const base = !user ? P.soil : paid ? P.wheatTile : P.soilDark
-  const line = !user ? P.soilLine : paid ? P.wheatDark : P.soilLine
+  const base = paid ? P.wheatTile : P.soil
+  const line = paid ? P.wheatDark : P.soilLine
 
-  // Stalk positions inside the tile (sub-grid).
-  const stalks: { sx: number; sy: number }[] = []
-  if (user) {
+  const stalks: { sx: number; sy: number; v: number }[] = []
+  if (paid || exported) {
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
-        const p = iso(x + 0.22 + i * 0.28, y + 0.22 + j * 0.28)
-        stalks.push({ sx: p.sx, sy: p.sy })
+        const p = iso(x + 0.2 + i * 0.3, y + 0.2 + j * 0.3)
+        stalks.push({ sx: p.sx, sy: p.sy, v: jag(x * 31 + y * 17 + i * 3 + j) })
       }
     }
   }
-  const h = paid ? 14 : 2 + growth * 12
-  const stalkColor = paid ? P.wheat : growth === 0 ? P.sprout : P.growing
+  const h = paid ? 15 : 3 + growth * 11
 
   return (
     <g
@@ -308,22 +392,30 @@ function CropTile({
       style={{ cursor: user ? 'pointer' : 'default' }}
     >
       <polygon points={diamond(x, y, 0.04)} fill={base} stroke={line} strokeWidth={1} />
-      {/* furrow texture */}
       {[0.3, 0.55, 0.8].map((t) => {
         const a = iso(x + t, y + 0.08)
         const b = iso(x + t, y + 0.92)
-        return <line key={t} x1={a.sx} y1={a.sy} x2={b.sx} y2={b.sy} stroke={line} strokeWidth={0.8} opacity={0.6} />
+        return <line key={t} x1={a.sx} y1={a.sy} x2={b.sx} y2={b.sy} stroke={line} strokeWidth={0.8} opacity={0.55} />
       })}
-      {stalks.map((s, i) => (
-        <g key={i}>
-          <line x1={s.sx} y1={s.sy} x2={s.sx} y2={s.sy - h} stroke={stalkColor} strokeWidth={1.6} strokeLinecap="round" />
-          {paid && (
-            <ellipse cx={s.sx} cy={s.sy - h - 2} rx={1.8} ry={3.4} fill={P.wheat} stroke={P.wheatDark} strokeWidth={0.5} />
-          )}
-        </g>
-      ))}
+      {stalks.map((s, i) => {
+        const hh = h * (0.85 + s.v * 0.3)
+        const lean = (s.v - 0.5) * 2.4
+        const color = paid ? (s.v > 0.5 ? P.wheat : P.wheatDark) : s.v > 0.5 ? P.growing : P.growingDark
+        return (
+          <g key={i}>
+            <line x1={s.sx} y1={s.sy} x2={s.sx + lean} y2={s.sy - hh} stroke={color} strokeWidth={1.6} strokeLinecap="round" />
+            {paid && (
+              <g transform={`translate(${s.sx + lean}, ${s.sy - hh - 2})`}>
+                <ellipse rx={1.9} ry={3.6} fill={P.wheat} stroke={P.wheatDark} strokeWidth={0.6} />
+                <line x1={0} y1={-3} x2={1.6} y2={-5.5} stroke={P.wheatDark} strokeWidth={0.6} />
+                <line x1={0} y1={-3} x2={-1.6} y2={-5.5} stroke={P.wheatDark} strokeWidth={0.6} />
+              </g>
+            )}
+          </g>
+        )
+      })}
       {hovered && user && (
-        <polygon points={diamond(x, y, 0.02)} fill="rgba(255,255,255,0.18)" stroke="#fff" strokeWidth={1.5} />
+        <polygon points={diamond(x, y, 0.02)} fill="rgba(255,255,255,0.2)" stroke="#fff" strokeWidth={1.5} />
       )}
     </g>
   )
@@ -358,9 +450,8 @@ export default function FarmCanvas({
 
   const lo = -MARGIN
   const hi = side + MARGIN
-  const originX = (hi - lo) * (TW / 2) // shift so all sx ≥ 0
+  const originX = (hi - lo) * (TW / 2)
 
-  // Center the farm on mount.
   useEffect(() => {
     const el = containerRef.current
     if (!el) return
@@ -406,7 +497,6 @@ export default function FarmCanvas({
     setView({ x: el.clientWidth / 2 - (center.sx + originX), y: el.clientHeight / 2 - center.sy - 40, k: 1 })
   }
 
-  /* Depth-sorted render list: plantation tiles, fence, decorations. */
   const items = useMemo(() => {
     const list: { depth: number; el: React.ReactNode }[] = []
 
@@ -451,21 +541,40 @@ export default function FarmCanvas({
     return list.sort((a, b) => a.depth - b.depth).map((i) => i.el)
   }, [side, users, data.growthCap, hoverId, scenery])
 
-  /* Ground cells (grass + river) — flat, always behind everything. */
   const ground = useMemo(() => {
     const cells: React.ReactNode[] = []
     for (let x = lo; x < hi; x++) {
       for (let y = lo; y < hi; y++) {
         const isRiver = scenery.river.has(`${x},${y}`)
-        cells.push(
-          <polygon
-            key={`g${x},${y}`}
-            points={diamond(x, y)}
-            fill={isRiver ? P.water : P.grass}
-            stroke={isRiver ? P.waterLight : P.grassLine}
-            strokeWidth={0.6}
-          />,
-        )
+        if (isRiver) {
+          const c = iso(x + 0.5, y + 0.5)
+          cells.push(
+            <g key={`g${x},${y}`}>
+              <polygon points={diamond(x, y)} fill={P.waterDeep} />
+              <polygon points={diamond(x, y, 0.12)} fill={P.water} />
+              <line
+                x1={c.sx - 12}
+                y1={c.sy}
+                x2={c.sx + 12}
+                y2={c.sy}
+                stroke={P.waterLight}
+                strokeWidth={1.4}
+                strokeLinecap="round"
+                className="farm-wave"
+              />
+            </g>,
+          )
+        } else {
+          cells.push(
+            <polygon
+              key={`g${x},${y}`}
+              points={diamond(x, y)}
+              fill={P.grass}
+              stroke={P.grassLine}
+              strokeWidth={0.5}
+            />,
+          )
+        }
       }
     }
     return cells
@@ -484,8 +593,12 @@ export default function FarmCanvas({
   return (
     <div className={cn('relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-stroke-soft-200', className)}>
       <style>{`
-        @keyframes farm-spin { to { transform: rotate(360deg); } }
-        .farm-spin { animation: farm-spin 5s linear infinite; transform-box: fill-box; transform-origin: 0px 0px; }
+        @keyframes farm-bob { from { transform: translateY(0); } to { transform: translateY(7px); } }
+        .farm-island { animation: farm-bob 5.5s ease-in-out infinite alternate; }
+        @keyframes farm-wave { to { stroke-dashoffset: -18; } }
+        .farm-wave { stroke-dasharray: 5 4; animation: farm-wave 2.4s linear infinite; opacity: 0.85; }
+        @keyframes farm-cloud { from { transform: translateX(-8%); } to { transform: translateX(8%); } }
+        .farm-cloud { animation: farm-cloud 24s ease-in-out infinite alternate; }
       `}</style>
 
       <div className="flex items-center justify-between border-b border-stroke-soft-200 bg-bg-white-0 px-5 py-3">
@@ -511,7 +624,7 @@ export default function FarmCanvas({
       <div
         ref={containerRef}
         className="relative min-h-0 flex-1 cursor-grab touch-none select-none active:cursor-grabbing"
-        style={{ background: '#a5d98a' }}
+        style={{ background: 'linear-gradient(180deg, #8ec8ec 0%, #b6ddf4 55%, #d4ecf9 100%)' }}
         onPointerDown={(ev) => {
           drag.current = { px: ev.clientX, py: ev.clientY, ox: view.x, oy: view.y, moved: false }
         }}
@@ -524,14 +637,41 @@ export default function FarmCanvas({
         onPointerUp={() => (drag.current = null)}
         onPointerLeave={() => (drag.current = null)}
       >
-        <svg
-          className="absolute left-0 top-0 h-full w-full"
-          style={{ overflow: 'visible' }}
-        >
+        {/* clouds drifting behind the island */}
+        {[
+          { top: '12%', left: '8%', s: 1, o: 0.9, d: '0s' },
+          { top: '28%', left: '68%', s: 1.4, o: 0.75, d: '-8s' },
+          { top: '62%', left: '18%', s: 0.8, o: 0.6, d: '-15s' },
+          { top: '70%', left: '75%', s: 1.1, o: 0.7, d: '-4s' },
+        ].map((cl, i) => (
+          <div
+            key={i}
+            className="farm-cloud pointer-events-none absolute"
+            style={{ top: cl.top, left: cl.left, opacity: cl.o, animationDelay: cl.d, transform: `scale(${cl.s})` }}
+          >
+            <div className="relative h-8 w-28 rounded-full bg-white/90 blur-[1px]">
+              <div className="absolute -top-4 left-5 size-10 rounded-full bg-white/90" />
+              <div className="absolute -top-2 left-14 size-8 rounded-full bg-white/85" />
+            </div>
+          </div>
+        ))}
+
+        <svg className="absolute left-0 top-0 h-full w-full" style={{ overflow: 'visible' }}>
           <g transform={`translate(${view.x}, ${view.y}) scale(${view.k})`}>
-            <g transform={`translate(${originX}, 0)`}>
-              {ground}
-              {items}
+            <g className="farm-island">
+              <g transform={`translate(${originX}, 0)`}>
+                {/* shadow far below the floating island */}
+                <ellipse
+                  cx={iso(side / 2, side / 2).sx}
+                  cy={iso(side / 2, side / 2).sy + ISLAND_DEPTH + 110}
+                  rx={(hi - lo) * 16}
+                  ry={26}
+                  fill="rgba(40,70,110,0.18)"
+                />
+                <IslandSides lo={lo} hi={hi} />
+                {ground}
+                {items}
+              </g>
             </g>
           </g>
         </svg>
@@ -583,7 +723,7 @@ export default function FarmCanvas({
       </div>
 
       <p className="border-t border-stroke-soft-200 bg-bg-white-0 px-5 py-2 text-paragraph-xs text-text-soft-400">
-        Cada lote é um usuário · terra = slot vazio · 🌱 grama cresce com as imagens importadas · 🌾 trigo dourado = assinante · arraste para navegar, scroll para zoom
+        Cada lote é um usuário · solo nu = vazio ou sem imports · 🌱 grama cresce com as imagens importadas · 🌾 trigo dourado = assinante · arraste para navegar, scroll para zoom
       </p>
     </div>
   )
