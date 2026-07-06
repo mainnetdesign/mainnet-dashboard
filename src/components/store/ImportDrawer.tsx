@@ -175,9 +175,13 @@ export default function ImportDrawer({
             <WidgetCard>
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant={STATUS_VARIANT[job.status] ?? 'neutral'}>
-                    {jobStatusLabel(job.status)}
-                  </Badge>
+                  {job.status === 'failed' && /private/i.test(job.errorMessage ?? '') ? (
+                    <Badge variant="neutral">Privado</Badge>
+                  ) : (
+                    <Badge variant={STATUS_VARIANT[job.status] ?? 'neutral'}>
+                      {jobStatusLabel(job.status)}
+                    </Badge>
+                  )}
                   <Badge variant={PLAN_VARIANT[job.planTier]}>{planLabel(job.planTier)}</Badge>
                   <PlatformTableCell platform={job.platform} />
                   <ScrapeSourceBadge source={job.scrapeSource} />

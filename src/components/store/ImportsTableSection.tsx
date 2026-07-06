@@ -44,8 +44,19 @@ const JOB_STAGE: Record<
   canceled: { label: 'Cancelado', status: 'disabled' },
 }
 
-export function JobStatusBadge({ status }: { status: ImportJobRow['status'] }) {
-  const stage = JOB_STAGE[status] ?? { label: jobStatusLabel(status), status: 'disabled' as const }
+export function JobStatusBadge({
+  status,
+  errorMessage,
+}: {
+  status: ImportJobRow['status']
+  errorMessage?: string | null
+}) {
+  // Perfil privado não é falha do sistema — badge neutro "Privado".
+  const isPrivateProfile =
+    status === 'failed' && /private/i.test(errorMessage ?? '')
+  const stage = isPrivateProfile
+    ? { label: 'Privado', status: 'disabled' as const }
+    : (JOB_STAGE[status] ?? { label: jobStatusLabel(status), status: 'disabled' as const })
   return (
     <StatusBadge.Root status={stage.status} variant="stroke">
       {stage.spin ? (
@@ -184,7 +195,9 @@ export default function ImportsTableSection({
         id: 'status',
         header: 'Status',
         width: 116,
-        cell: (row: ImportJobRow) => <JobStatusBadge status={row.status} />,
+        cell: (row: ImportJobRow) => (
+          <JobStatusBadge status={row.status} errorMessage={row.errorMessage} />
+        ),
       },
     ],
     [],
