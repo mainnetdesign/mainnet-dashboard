@@ -14,12 +14,14 @@ export const PLAN_LABELS: Record<PlanTier, string> = {
   max: 'Max',
 }
 
-export const JOB_STATUS_LABELS: Record<JobStatus, string> = {
+export const JOB_STATUS_LABELS: Record<JobStatus | 'searching' | 'searched', string> = {
   succeeded: 'Concluído',
   failed: 'Falhou',
   running: 'Em execução',
   queued: 'Na fila',
   canceled: 'Cancelado',
+  searching: 'Buscando',
+  searched: 'Buscado',
 }
 
 export const PLATFORM_LABELS: Record<Platform, string> = {
@@ -49,6 +51,13 @@ export const FEATURE_LABELS: Record<string, string> = {
   selection_mode_changed: 'Modo de seleção',
   post_count_adjusted: 'Ajuste de posts',
   load_more_clicked: 'Carregar mais',
+}
+
+/** 'BR' → 🇧🇷 (regional indicator symbols). Null-safe. */
+export function countryFlag(code: string | null | undefined): string | null {
+  const cc = code?.trim().toUpperCase()
+  if (!cc || !/^[A-Z]{2}$/.test(cc)) return null
+  return String.fromCodePoint(...[...cc].map((c) => 127397 + c.charCodeAt(0)))
 }
 
 export function planLabel(tier: PlanTier): string {
@@ -143,6 +152,8 @@ export function jobTypeLabel(type: string): string {
   switch (type) {
     case 'SCRAPE_PROFILE':
       return 'Scrape de perfil'
+    case 'search':
+      return 'Busca'
     default:
       return type.replace(/_/g, ' ')
   }

@@ -16,6 +16,7 @@ import FilterSelect from '@/components/ds/FilterSelect'
 import type { ImportJobRow } from '@/types/insta2figma'
 import { fmtDateTime, fmtDuration } from '@/lib/insta2figma/constants'
 import {
+  countryFlag,
   jobStatusLabel,
   ORIGIN_FILTER_OPTIONS,
   PLAN_FILTER_OPTIONS,
@@ -150,6 +151,16 @@ export default function ImportsTableSection({
         header: 'Plataforma',
         width: 110,
         cell: (row: ImportJobRow) => <PlatformTableCell platform={row.platform} />,
+      },
+      {
+        id: 'country',
+        header: 'País',
+        width: 60,
+        cell: (row: ImportJobRow) => (
+          <DataTableTextCell>
+            {countryFlag(row.countryCode) ?? '—'}
+          </DataTableTextCell>
+        ),
       },
       {
         id: 'origin',

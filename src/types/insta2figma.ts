@@ -409,6 +409,7 @@ export type ImportJobRow = {
   scrapeSource: ImportScrapeSource
   errorCode: string | null
   errorMessage: string | null
+  countryCode: string | null
 }
 
 export type ImportsJobsList = {
@@ -429,13 +430,14 @@ export type ImportJobDetail = {
   profileUsername: string | null
   imageCount: number
   postsRequested: number | null
-  status: JobStatus
+  status: ImportActivityStatus
   jobType: string
   scrapeSource: ImportScrapeSource
   resultSummarySource: string | null
   input: ImportJobInput
   errorCode: string | null
   errorMessage: string | null
+  countryCode: string | null
   flow: ImportFlowSummary | null
   igProfile: IgProfileSnapshot | null
   scrapeTelemetry: ScrapeTelemetryEntry[]

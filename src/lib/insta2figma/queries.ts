@@ -1180,9 +1180,10 @@ export async function getImportsJobs(opts: {
     error_message: string | null
     image_count: string
     scrape_source_raw: string | null
+    country_code: string | null
   }
 
-  const selectClause = `SELECT j.id, j.user_id, u.plan_tier, j.created_at, j.started_at, j.finished_at,
+  const selectClause = `SELECT j.id, j.user_id, u.plan_tier, u.country_code, j.created_at, j.started_at, j.finished_at,
             j.platform, j.type AS job_type, j.input,
             j.input->>'username' AS username,
             j.status::text AS status,
@@ -1225,6 +1226,7 @@ export async function getImportsJobs(opts: {
       scrapeSource: resolveImportScrapeSource(j.scrape_source_raw, j.error_message, j.error_code),
       errorCode: j.error_code,
       errorMessage: j.error_message,
+      countryCode: j.country_code,
     }
   })
 
@@ -1261,8 +1263,9 @@ export async function getImportsJobs(opts: {
       username: string
       created_at: Date
       last_scrape: Date | null
+      country_code: string | null
     }>(
-      `SELECT x.id, x.user_id, x.plan_tier, x.username, x.created_at,
+      `SELECT x.id, x.user_id, x.plan_tier, x.country_code, x.username, x.created_at,
               -- telemetria não tem usuário confiável: o scrape mais recente só
               -- "renova" a busca do buscador mais recente daquele perfil (rn=1)
               CASE WHEN x.rn = 1 THEN (
@@ -1272,7 +1275,7 @@ export async function getImportsJobs(opts: {
               ) END AS last_scrape
        FROM (
          SELECT DISTINCT ON (l.user_id, LOWER(l.username))
-                l.id, l.user_id, u.plan_tier, l.username, l.created_at,
+                l.id, l.user_id, u.plan_tier, u.country_code, l.username, l.created_at,
                 ROW_NUMBER() OVER (PARTITION BY LOWER(l.username) ORDER BY l.created_at DESC) AS rn
          FROM profile_search_logs l
          JOIN users u ON u.id = l.user_id
@@ -1324,6 +1327,7 @@ export async function getImportsJobs(opts: {
         scrapeSource: 'unknown',
         errorCode: null,
         errorMessage: null,
+        countryCode: r.country_code,
       }
     })
 
@@ -1493,6 +1497,8 @@ function synthesizeImportFlow(opts: {
   startedAt: Date | null
   finishedAt: Date | null
   telemetry: ScrapeTelemetryEntry[]
+  /** Fluxo só de busca (profile_search_logs) — sem etapa de importação. */
+  searchOnly?: boolean
 }): ImportFlowSummary {
   const toAttempts = (entries: ScrapeTelemetryEntry[]): ImportFlowStepAttempt[] =>
     entries.map((t, i) => ({
@@ -1550,6 +1556,19 @@ function synthesizeImportFlow(opts: {
 
   phaseStep('search', preview)
   phaseStep('load_more', pagination)
+
+  if (opts.searchOnly) {
+    const searchFailed = steps.some((s) => s.stepType === 'search' && s.status === 'failed')
+    return {
+      id: `synth-${opts.jobId}`,
+      status: searchFailed ? 'search_failed' : 'completed',
+      totalCostUsd: 0,
+      totalDurationMs: steps.reduce((sum, s) => sum + s.durationMs, 0),
+      finishedAt: null,
+      steps,
+      synthesized: true,
+    }
+  }
 
   const jobRunning = opts.jobStatus === 'running' || opts.jobStatus === 'queued'
   const importOk = opts.jobStatus === 'succeeded'
@@ -1757,8 +1776,9 @@ export async function getImportJobDetail(jobId: string): Promise<ImportJobDetail
     error_message: string | null
     scrape_source_raw: string | null
     image_count: string
+    country_code: string | null
   }>(
-    `SELECT j.id, j.user_id, u.plan_tier, j.created_at, j.started_at, j.finished_at, j.platform,
+    `SELECT j.id, j.user_id, u.plan_tier, u.country_code, j.created_at, j.started_at, j.finished_at, j.platform,
             j.type AS job_type, j.input,
             j.input->>'username' AS username,
             j.status::text AS status,
@@ -1827,6 +1847,85 @@ export async function getImportJobDetail(jobId: string): Promise<ImportJobDetail
     input,
     errorCode: job.error_code,
     errorMessage: job.error_message,
+    countryCode: job.country_code,
+    flow,
+    igProfile,
+    scrapeTelemetry,
+  }
+}
+
+/**
+ * Detalhe de uma linha de busca (profile_search_logs) no mesmo shape do detalhe
+ * de job — o ImportDrawer renderiza sem mudanças. `id` chega como o UUID do log
+ * (sem o prefixo `search-` usado nas linhas da tabela).
+ */
+export async function getProfileSearchDetail(
+  searchLogId: string,
+): Promise<ImportJobDetail | null> {
+  const { rows } = await i2fQuery<{
+    id: string
+    user_id: string
+    plan_tier: string
+    username: string
+    created_at: Date
+    country_code: string | null
+  }>(
+    `SELECT l.id, l.user_id, u.plan_tier, u.country_code, l.username, l.created_at
+     FROM profile_search_logs l
+     JOIN users u ON u.id = l.user_id
+     WHERE l.id = $1`,
+    [searchLogId],
+  )
+
+  const log = rows[0]
+  if (!log) return null
+
+  const [igProfile, scrapeTelemetry] = await Promise.all([
+    getIgProfileSnapshot(log.username),
+    getJobScrapeTelemetry({
+      userId: log.user_id,
+      username: log.username,
+      startedAt: null,
+      createdAt: log.created_at,
+      finishedAt: null,
+    }),
+  ])
+
+  const flow = synthesizeImportFlow({
+    jobId: `search-${log.id}`,
+    jobStatus: 'searched',
+    errorCode: null,
+    errorMessage: null,
+    resultSummarySource: null,
+    imageCount: 0,
+    createdAt: log.created_at,
+    startedAt: null,
+    finishedAt: null,
+    telemetry: scrapeTelemetry,
+    searchOnly: true,
+  })
+
+  return {
+    id: `search-${log.id}`,
+    userId: log.user_id,
+    displayName: pseudonym(log.user_id),
+    planTier: log.plan_tier as ImportJobDetail['planTier'],
+    createdAt: log.created_at.toISOString(),
+    startedAt: null,
+    finishedAt: null,
+    durationMs: null,
+    platform: '',
+    profileUsername: log.username,
+    imageCount: 0,
+    postsRequested: null,
+    status: 'searched',
+    jobType: 'search',
+    scrapeSource: 'unknown',
+    resultSummarySource: null,
+    input: { username: log.username },
+    errorCode: null,
+    errorMessage: null,
+    countryCode: log.country_code,
     flow,
     igProfile,
     scrapeTelemetry,

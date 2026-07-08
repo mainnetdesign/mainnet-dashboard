@@ -106,8 +106,6 @@ export default function OverviewPage() {
   }, [loadJobs])
 
   function openImportFromRow(row: { id: string; userId: string; displayName: string }) {
-    // Linhas de busca (pré-job) não têm detalhe para abrir.
-    if (row.id.startsWith('search-')) return
     drawers.openImport(row.id, { userId: row.userId, displayName: row.displayName })
   }
 

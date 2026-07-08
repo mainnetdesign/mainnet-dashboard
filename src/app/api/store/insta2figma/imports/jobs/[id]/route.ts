@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getImportJobDetail } from '@/lib/insta2figma/queries'
+import { getImportJobDetail, getProfileSearchDetail } from '@/lib/insta2figma/queries'
 
 export async function GET(
   _req: Request,
@@ -7,7 +7,10 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    const data = await getImportJobDetail(id)
+    // Linhas de busca (pré-job) usam o prefixo `search-<profile_search_logs.id>`.
+    const data = id.startsWith('search-')
+      ? await getProfileSearchDetail(id.slice('search-'.length))
+      : await getImportJobDetail(id)
     if (!data) {
       return NextResponse.json({ error: 'Importação não encontrada' }, { status: 404 })
     }

@@ -8,7 +8,7 @@ import ScrapeSourceBadge from '@/components/store/ScrapeSourceBadge'
 import { PlatformTableCell } from '@/components/store/PlatformIcon'
 import type { ImportJobDetail, ScrapeTelemetryEntry } from '@/types/insta2figma'
 import { fmtDateTime, fmtDuration } from '@/lib/insta2figma/constants'
-import {
+import { countryFlag,
   formatJobError,
   jobStatusLabel,
   jobTypeLabel,
@@ -178,7 +178,11 @@ export default function ImportDrawer({
                   {job.status === 'failed' && /private/i.test(job.errorMessage ?? '') ? (
                     <Badge variant="neutral">Privado</Badge>
                   ) : (
-                    <Badge variant={STATUS_VARIANT[job.status] ?? 'neutral'}>
+                    <Badge
+                      variant={
+                        STATUS_VARIANT[job.status as keyof typeof STATUS_VARIANT] ?? 'neutral'
+                      }
+                    >
                       {jobStatusLabel(job.status)}
                     </Badge>
                   )}
@@ -200,6 +204,14 @@ export default function ImportDrawer({
                 </div>
 
                 <dl className="grid grid-cols-2 gap-3 text-paragraph-xs sm:grid-cols-4">
+                  <DetailField
+                    label="País"
+                    value={
+                      job.countryCode
+                        ? `${countryFlag(job.countryCode) ?? ''} ${job.countryCode}`.trim()
+                        : '—'
+                    }
+                  />
                   <DetailField label="Criado" value={fmtDateTime(job.createdAt)} />
                   <DetailField label="Duração" value={fmtDuration(job.durationMs)} />
                   <DetailField label="Início" value={job.startedAt ? fmtDateTime(job.startedAt) : '—'} />
