@@ -38,6 +38,8 @@ import type {
   FlowNodeDetail,
   FlowNodeOccurrence,
   FarmData,
+  GlobeData,
+  GlobeLivePoint,
 } from '@/types/insta2figma'
 
 function pctDelta(current: number, previous: number): number {
@@ -2194,5 +2196,77 @@ export async function getFarmData(): Promise<FarmData> {
     })),
     // ponytail: quota free não está registrada no banco; 100 ≈ máximo observado
     growthCap: 100,
+  }
+}
+
+/**
+ * Dados do globo: modo "ao vivo" (atividade por país nos últimos minutos) e
+ * modo "análise" (imagens importadas por país, all-time). País vem de
+ * users.country_code — utilizadores sem país resolvido ficam de fora.
+ * "online" aproxima presença via users.updated_at (o /v1/me de cada arranque
+ * de sessão toca o utilizador). ponytail: sem heartbeat real; se precisar de
+ * precisão, adicionar last_seen_at dedicado na API.
+ */
+export async function getGlobeData(): Promise<GlobeData> {
+  const [onlineRes, searchingRes, importingRes, imagesRes] = await Promise.all([
+    i2fQuery<{ country_code: string; count: string }>(
+      `SELECT country_code, COUNT(*)::text AS count
+       FROM users
+       WHERE country_code IS NOT NULL
+         AND updated_at > now() - interval '5 minutes'
+       GROUP BY country_code`,
+    ),
+    i2fQuery<{ country_code: string; count: string }>(
+      `SELECT u.country_code, COUNT(DISTINCT l.user_id)::text AS count
+       FROM profile_search_logs l
+       JOIN users u ON u.id = l.user_id
+       WHERE u.country_code IS NOT NULL
+         AND l.created_at > now() - interval '2 minutes'
+       GROUP BY u.country_code`,
+    ),
+    i2fQuery<{ country_code: string; count: string }>(
+      `SELECT u.country_code, COUNT(DISTINCT j.user_id)::text AS count
+       FROM jobs j
+       JOIN users u ON u.id = j.user_id
+       WHERE u.country_code IS NOT NULL
+         AND j.status IN ('queued', 'running')
+       GROUP BY u.country_code`,
+    ),
+    i2fQuery<{ country_code: string; count: string }>(
+      `SELECT u.country_code, COUNT(a.id)::text AS count
+       FROM assets a
+       JOIN jobs j ON j.id = a.job_id
+       JOIN users u ON u.id = j.user_id
+       WHERE u.country_code IS NOT NULL
+       GROUP BY u.country_code`,
+    ),
+  ])
+
+  const live = new Map<string, GlobeLivePoint>()
+  const bump = (
+    rows: { country_code: string; count: string }[],
+    key: 'online' | 'searching' | 'importing',
+  ) => {
+    for (const r of rows) {
+      const entry = live.get(r.country_code) ?? {
+        country: r.country_code,
+        online: 0,
+        searching: 0,
+        importing: 0,
+      }
+      entry[key] = Number(r.count)
+      live.set(r.country_code, entry)
+    }
+  }
+  bump(onlineRes.rows, 'online')
+  bump(searchingRes.rows, 'searching')
+  bump(importingRes.rows, 'importing')
+
+  return {
+    live: Array.from(live.values()),
+    analytics: imagesRes.rows.map((r) => ({
+      country: r.country_code,
+      images: Number(r.count),
+    })),
   }
 }

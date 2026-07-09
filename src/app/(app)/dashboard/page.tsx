@@ -62,7 +62,7 @@ function InternalProjectsSection({ pl, costByProject }: { pl: ProjectPL[]; costB
             <span className="text-error-base">{fmtBRL(totalCost)} em custo</span>
           </span>
         </div>
-        <RiArrowRightSLine className={cn('size-5 text-text-soft-400 transition-transform', open && 'rotate-90')} />
+        <RiArrowRightSLine className="mn-chevron-right size-5 text-text-soft-400" data-open={open} />
       </button>
       {open && <PLTable pl={pl} costByProject={costByProject} embedded />}
     </WidgetCard>
@@ -286,7 +286,7 @@ export default function Dashboard() {
         )}
 
         {data && filteredData && (
-          <div className={cn('flex flex-col gap-6', loading && 'pointer-events-none opacity-60')}>
+          <div className={cn('flex flex-col gap-6 mn-page-stagger', loading && 'pointer-events-none opacity-60')}>
             <KPICards data={data} />
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">

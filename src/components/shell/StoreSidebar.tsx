@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import {
+  RiEarthLine,
   RiApps2Line,
   RiArrowDownSLine,
   RiBarChartLine,
@@ -149,6 +150,13 @@ function Insta2FigmaNav({ onNavigate }: { onNavigate?: () => void }) {
           active={pathname.startsWith(`${I2F_BASE}/farm`)}
           onNavigate={onNavigate}
           icon={<RiPlantLine className="size-5" />}
+        />
+        <SidebarNavItem
+          href={`${I2F_BASE}/globo`}
+          label="Globo"
+          active={pathname.startsWith(`${I2F_BASE}/globo`)}
+          onNavigate={onNavigate}
+          icon={<RiEarthLine className="size-5" />}
         />
       </SidebarSection>
       <SidebarSection title="Análises" className="border-b-0">

@@ -1,7 +1,9 @@
 'use client'
 
+import { cn } from '@/utils/cn'
+
 function Bone({ className }: { className?: string }) {
-  return <div className={`animate-pulse rounded-2xl bg-bg-weak-50 ${className ?? ''}`} />
+  return <div className={cn('mn-shimmer rounded-2xl', className)} />
 }
 
 export default function DashboardSkeleton() {

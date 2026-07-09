@@ -442,3 +442,20 @@ export type ImportJobDetail = {
   igProfile: IgProfileSnapshot | null
   scrapeTelemetry: ScrapeTelemetryEntry[]
 }
+
+export type GlobeLivePoint = {
+  country: string
+  online: number
+  searching: number
+  importing: number
+}
+
+export type GlobeAnalyticsPoint = {
+  country: string
+  images: number
+}
+
+export type GlobeData = {
+  live: GlobeLivePoint[]
+  analytics: GlobeAnalyticsPoint[]
+}

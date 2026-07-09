@@ -926,6 +926,154 @@ body {
 .mn-vertex--bl { left: -4px; bottom: -4px; }
 .mn-vertex--br { right: -4px; bottom: -4px; }
 
+/* ── Motion system (animations.dev principles) ───────────────── */
+:root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --duration-fast: 150ms;
+  --duration-ui: 200ms;
+  --duration-panel: 320ms;
+}
+
+/* Press feedback — instant tactile response */
+.mn-pressable {
+  transition: transform 160ms var(--ease-out);
+}
+.mn-pressable:active {
+  transform: scale(0.97);
+}
+
+/* Drawer backdrop + panel */
+.mn-drawer-backdrop {
+  opacity: 1;
+  transition: opacity var(--duration-ui) var(--ease-out);
+  @starting-style {
+    opacity: 0;
+  }
+}
+
+.mn-drawer-panel {
+  transform: translateX(0);
+  transition: transform var(--duration-panel) var(--ease-drawer);
+  @starting-style {
+    transform: translateX(100%);
+  }
+}
+
+.mn-drawer-panel--left {
+  transform: translateX(0);
+  @starting-style {
+    transform: translateX(-100%);
+  }
+}
+
+/* Origin-aware tooltip (Radix) */
+.mn-tooltip {
+  transform-origin: var(--radix-tooltip-content-transform-origin);
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+.mn-tooltip[data-state='closed'] {
+  opacity: 0;
+  transform: scale(0.97);
+}
+.mn-tooltip[data-state='open'] {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Accordion / collapse chevrons */
+.mn-chevron {
+  transition: transform var(--duration-ui) var(--ease-out);
+}
+.mn-chevron-right {
+  transition: transform var(--duration-ui) var(--ease-out);
+}
+.mn-chevron[data-open='true'] {
+  transform: rotate(180deg);
+}
+
+.mn-chevron-right[data-open='true'] {
+  transform: rotate(90deg);
+}
+
+/* Page load stagger — decorative, direct children only */
+@keyframes mn-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mn-page-stagger > * {
+  opacity: 0;
+  animation: mn-fade-up 280ms var(--ease-out) forwards;
+}
+.mn-page-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.mn-page-stagger > *:nth-child(2) { animation-delay: 40ms; }
+.mn-page-stagger > *:nth-child(3) { animation-delay: 80ms; }
+.mn-page-stagger > *:nth-child(4) { animation-delay: 120ms; }
+.mn-page-stagger > *:nth-child(5) { animation-delay: 160ms; }
+.mn-page-stagger > *:nth-child(6) { animation-delay: 200ms; }
+.mn-page-stagger > *:nth-child(n + 7) { animation-delay: 220ms; }
+
+/* Skeleton shimmer */
+@keyframes mn-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.mn-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-weak-50) 0%,
+    var(--color-bg-soft-200) 50%,
+    var(--color-bg-weak-50) 100%
+  );
+  background-size: 200% 100%;
+  animation: mn-shimmer 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mn-page-stagger > * {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .mn-drawer-panel,
+  .mn-drawer-panel--left {
+    transition: opacity var(--duration-ui) ease;
+    @starting-style {
+      transform: none;
+      opacity: 0;
+    }
+  }
+
+  .mn-pressable:active {
+    transform: none;
+  }
+
+  .mn-shimmer {
+    animation: none;
+    background: var(--color-bg-weak-50);
+  }
+
+  .mn-tooltip[data-state='closed'] {
+    transform: none;
+  }
+}
+
 /* ── Print / PDF styles ── */
 @media print {
   .no-print {

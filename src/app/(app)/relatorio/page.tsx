@@ -133,7 +133,7 @@ function RelatorioContent() {
         )}
 
         {!loading && !error && data && (
-          <div className="mx-auto max-w-4xl print:max-w-none print:px-0">
+          <div className="mx-auto max-w-4xl mn-page-stagger print:max-w-none print:px-0">
           {/* ── REPORT HEADER ── */}
           <div className="flex items-start justify-between mb-10 pb-8 border-b border-stroke-soft-200">
             <div>

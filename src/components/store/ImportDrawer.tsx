@@ -138,7 +138,7 @@ export default function ImportDrawer({
   return (
     <aside
       className={cn(
-        'fixed inset-y-0 right-0 z-[60] flex w-full max-w-2xl flex-col border-l border-stroke-soft-200 bg-bg-white-0 shadow-xl',
+        'mn-drawer-panel fixed inset-y-0 right-0 z-[60] flex w-full max-w-2xl flex-col border-l border-stroke-soft-200 bg-bg-white-0 shadow-xl',
       )}
     >
       <div className="border-b border-stroke-soft-200 px-6 py-4">
@@ -161,7 +161,7 @@ export default function ImportDrawer({
             )}
             <h2 className="text-label-lg text-text-strong-950">Detalhes da importação</h2>
           </div>
-          <button type="button" onClick={onClose} className="shrink-0 rounded-lg p-1 hover:bg-bg-weak-50">
+          <button type="button" onClick={onClose} className="mn-pressable shrink-0 rounded-lg p-1 hover:bg-bg-weak-50">
             <RiCloseLine className="size-5" />
           </button>
         </div>

@@ -39,7 +39,7 @@ export default function RatesEditor({ onClose, onSaved }: Props) {
 
   function handleClose() {
     setVisible(false)
-    setTimeout(onClose, 280)
+    setTimeout(onClose, 320)
   }
 
   function getValue(id: string, field: 'monthlySalary' | 'hourlyRate', defaultVal: number | undefined) {
@@ -77,14 +77,17 @@ export default function RatesEditor({ onClose, onSaved }: Props) {
   return (
     <>
       <div
-        className="fixed inset-0 z-40 transition-opacity duration-300"
+        className="fixed inset-0 z-40 transition-opacity duration-[var(--duration-ui)] ease-[var(--ease-out)]"
         style={{ background: 'rgba(0,0,0,0.5)', opacity: visible ? 1 : 0, backdropFilter: 'blur(3px)' }}
         onClick={handleClose}
       />
 
       <aside
-        className="fixed top-0 right-0 z-50 h-full w-full max-w-[420px] bg-bg-white-0 shadow-2xl overflow-y-auto flex flex-col transition-transform duration-300 ease-out"
-        style={{ transform: visible ? 'translateX(0)' : 'translateX(100%)', borderLeft: '1px solid var(--color-stroke-soft-200)' }}
+        className="fixed top-0 right-0 z-50 flex h-full w-full max-w-[420px] flex-col overflow-y-auto bg-bg-white-0 shadow-2xl transition-transform duration-[var(--duration-panel)] ease-[var(--ease-drawer)]"
+        style={{
+          transform: visible ? 'translateX(0)' : 'translateX(100%)',
+          borderLeft: '1px solid var(--color-stroke-soft-200)',
+        }}
       >
         {/* Accent strip */}
         <div className="h-[3px] shrink-0 bg-feature-base" />

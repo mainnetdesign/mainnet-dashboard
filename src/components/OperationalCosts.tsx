@@ -80,8 +80,8 @@ export default function OperationalCosts({ months = 1 }: { months?: number }) {
                 <div className="flex items-center gap-3">
                   <span className="text-label-sm">{fmtBRL(catTotal)}</span>
                   <svg
-                    className="w-3.5 h-3.5 transition-transform"
-                    style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                    className="mn-chevron size-3.5 text-text-soft-400"
+                    data-open={isOpen}
                     fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />

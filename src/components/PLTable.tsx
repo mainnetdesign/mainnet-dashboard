@@ -77,8 +77,8 @@ function ProjectDrawer({
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/40 no-print backdrop-blur-[2px]" onClick={onClose} />
-      <div className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col rounded-l-2xl border-l border-stroke-soft-200 bg-bg-white-0 shadow-[0_8px_40px_rgba(10,13,20,0.12)] no-print">
+      <div className="mn-drawer-backdrop fixed inset-0 z-40 bg-black/40 no-print backdrop-blur-[2px]" onClick={onClose} />
+      <div className="mn-drawer-panel fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col rounded-l-2xl border-l border-stroke-soft-200 bg-bg-white-0 shadow-[0_8px_40px_rgba(10,13,20,0.12)] no-print">
         <div className="flex items-start justify-between border-b border-stroke-soft-200 p-5">
           <div>
             <h3 className="text-title-h6 text-text-strong-950">

@@ -43,7 +43,7 @@ export default function StoreDrawerStack({
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/40" onClick={handleBackdropClick} />
+      <div className="mn-drawer-backdrop fixed inset-0 z-40 bg-black/40" onClick={handleBackdropClick} />
 
       {userOpen && (
         <UserDrawer

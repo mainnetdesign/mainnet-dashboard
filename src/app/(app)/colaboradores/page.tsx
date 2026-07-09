@@ -362,7 +362,7 @@ export default function ColaboradoresPage() {
         )}
 
         {!loading && !error && data && (
-          <>
+          <div className="flex flex-col gap-6 mn-page-stagger">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <StatWidget
                 label="Utilização média"
@@ -415,7 +415,7 @@ export default function ColaboradoresPage() {
                 ))}
               </div>
             )}
-          </>
+          </div>
         )}
       </main>
 

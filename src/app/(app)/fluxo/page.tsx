@@ -104,7 +104,7 @@ const ChartTooltip = ({
 // ─── Skeleton ────────────────────────────────────────────────────────────────
 
 function Skeleton({ className }: { className?: string }) {
-  return <div className={`animate-pulse bg-stroke-soft-200 rounded ${className}`} />
+  return <div className={`mn-shimmer rounded ${className ?? ''}`} />
 }
 
 // ─── Page ────────────────────────────────────────────────────────────────────
@@ -207,7 +207,7 @@ export default function FluxoPage() {
         }
       />
 
-      <main className="flex flex-col gap-6 p-5">
+      <main className="flex flex-col gap-6 p-5 mn-page-stagger">
         {error && (
           <WidgetCard className="border-error-light/40 bg-error-lighter/20">
             <p className="text-label-sm text-error-base">{error}</p>

@@ -39,13 +39,13 @@ export default function UserDrawer({
   return (
     <aside
       className={cn(
-        'fixed inset-y-0 z-50 flex w-full max-w-lg flex-col border-l border-stroke-soft-200 bg-bg-white-0 shadow-xl transition-[right] duration-200',
+        'mn-drawer-panel fixed inset-y-0 z-50 flex w-full max-w-lg flex-col border-l border-stroke-soft-200 bg-bg-white-0 shadow-xl transition-[right,transform] duration-[var(--duration-panel)] ease-[var(--ease-drawer)]',
         stacked ? 'right-[42rem] max-md:hidden' : 'right-0',
       )}
     >
       <div className="flex items-center justify-between border-b border-stroke-soft-200 px-5 py-4">
         <h2 className="text-label-lg text-text-strong-950">Detalhes do usuário</h2>
-        <button type="button" onClick={onClose} className="rounded-lg p-1 hover:bg-bg-weak-50">
+        <button type="button" onClick={onClose} className="mn-pressable rounded-lg p-1 hover:bg-bg-weak-50">
           <RiCloseLine className="size-5" />
         </button>
       </div>

@@ -288,10 +288,10 @@ export default function AuditoriaPage() {
         {loading && (
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {[...Array(4)].map((_, i) => <div key={i} className="h-36 animate-pulse rounded-2xl bg-bg-weak-50" />)}
+              {[...Array(4)].map((_, i) => <div key={i} className="mn-shimmer h-36 rounded-2xl" />)}
             </div>
-            <div className="h-64 animate-pulse rounded-2xl bg-bg-weak-50" />
-            <div className="h-96 animate-pulse rounded-2xl bg-bg-weak-50" />
+            <div className="mn-shimmer h-64 rounded-2xl" />
+            <div className="mn-shimmer h-96 rounded-2xl" />
           </div>
         )}
 
@@ -306,7 +306,7 @@ export default function AuditoriaPage() {
         )}
 
         {!loading && !error && data && (
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-6 mn-page-stagger">
 
             {/* ── 1. Action summary ── */}
             {actions.length > 0 && (

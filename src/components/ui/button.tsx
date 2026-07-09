@@ -14,7 +14,8 @@ export const buttonVariants = tv({
   slots: {
     root: [
       'group relative inline-flex items-center justify-center whitespace-nowrap outline-none',
-      'transition duration-200 ease-out',
+      'transition-[transform,opacity,background-color,box-shadow,color] duration-150 ease-[var(--ease-out)]',
+      'active:scale-[0.97]',
       'focus:outline-none',
       'disabled:pointer-events-none disabled:bg-bg-weak-50 disabled:text-text-disabled-300 disabled:ring-transparent',
     ],
