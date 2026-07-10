@@ -224,7 +224,8 @@ function StepBox({
               {importFlowStepStatusLabel(step.status)}
             </Badge>
             <RiArrowDownSLine
-              className={cn('size-4 text-text-soft-400 transition-transform', open && 'rotate-180')}
+              className="mn-chevron size-4 text-text-soft-400"
+              data-open={open}
               aria-hidden
             />
           </div>

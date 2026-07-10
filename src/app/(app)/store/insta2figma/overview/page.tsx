@@ -135,33 +135,35 @@ export default function OverviewPage() {
         {loading && !data && !error && (
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div className="h-64 animate-pulse rounded-2xl bg-bg-weak-50 md:col-span-2" />
-              <div className="h-64 animate-pulse rounded-2xl bg-bg-weak-50" />
+              <div className="mn-shimmer h-64 rounded-2xl md:col-span-2" />
+              <div className="mn-shimmer h-64 rounded-2xl" />
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-44 animate-pulse rounded-2xl bg-bg-weak-50" />
+                <div key={i} className="mn-shimmer h-44 rounded-2xl" />
               ))}
             </div>
           </div>
         )}
 
-        {data && (
-          <OverviewMetricsGrid
-            kpis={data.kpis}
-            attentionPoints={data.attentionPoints}
-            className={loading ? 'pointer-events-none opacity-60' : undefined}
-          />
-        )}
+        {(data || jobsData) && (
+          <div className="mn-page-stagger flex flex-col gap-6">
+            {data && (
+              <OverviewMetricsGrid
+                kpis={data.kpis}
+                attentionPoints={data.attentionPoints}
+                className={loading ? 'pointer-events-none opacity-60' : undefined}
+              />
+            )}
 
-        {jobsError && <p className="text-paragraph-sm text-error-base">{jobsError}</p>}
+            {jobsError && <p className="text-paragraph-sm text-error-base">{jobsError}</p>}
 
-        {!jobsData && !jobsError && (
-          <div className="h-96 animate-pulse rounded-2xl bg-bg-weak-50" />
-        )}
+            {!jobsData && !jobsError && (
+              <div className="mn-shimmer h-96 rounded-2xl" />
+            )}
 
-        {jobsData && (
-          <ImportsTableSection
+            {jobsData && (
+              <ImportsTableSection
             jobs={jobsData.jobs}
             total={jobsData.total}
             page={page}
@@ -198,12 +200,14 @@ export default function OverviewPage() {
             }}
             onRowClick={openImportFromRow}
           />
-        )}
+            )}
 
-        {data && (
-          <div>
-            <h2 className="mb-3 text-label-md text-text-strong-950">Gráficos</h2>
-            <ChartGrid builder={charts} start={start} end={end} />
+            {data && (
+              <div>
+                <h2 className="mb-3 text-label-md text-text-strong-950">Gráficos</h2>
+                <ChartGrid builder={charts} start={start} end={end} />
+              </div>
+            )}
           </div>
         )}
       </main>

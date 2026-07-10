@@ -28,6 +28,7 @@ import { subscriptionStatusLabel, txTypeLabel } from '@/lib/insta2figma/labels'
 export default function EarningsPage() {
   const [data, setData] = useState<EarningsData | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetch('/api/store/insta2figma/earnings')
@@ -37,6 +38,7 @@ export default function EarningsPage() {
         setData(d)
       })
       .catch((e) => setError(e.message))
+      .finally(() => setLoading(false))
   }, [])
 
   const txColumns = useMemo(
@@ -101,8 +103,20 @@ export default function EarningsPage() {
       <main className="flex flex-col gap-6 p-5">
         {error && <p className="text-paragraph-sm text-error-base">{error}</p>}
 
+        {loading && !data && !error && (
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="mn-shimmer h-36 rounded-2xl" />
+              ))}
+            </div>
+            <div className="mn-shimmer h-64 rounded-2xl" />
+            <div className="mn-shimmer h-96 rounded-2xl" />
+          </div>
+        )}
+
         {data && (
-          <>
+          <div className="mn-page-stagger flex flex-col gap-6">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <StatWidget label="Receita" value={fmtUSD(data.revenueUSD)} delta="+5%" />
               <StatWidget label="Custos" value={fmtUSD(data.costsUSD)} deltaVariant="error" />
@@ -165,7 +179,7 @@ export default function EarningsPage() {
                 />
               </div>
             </div>
-          </>
+          </div>
         )}
       </main>
     </>

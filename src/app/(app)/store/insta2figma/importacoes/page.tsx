@@ -138,25 +138,27 @@ export default function ImportacoesPage() {
 
         {initialSummaryLoading && !data && !error && (
           <div className="flex flex-col gap-4">
-            <div className="h-64 animate-pulse rounded-2xl bg-bg-weak-50" />
+            <div className="mn-shimmer h-64 rounded-2xl" />
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-44 animate-pulse rounded-2xl bg-bg-weak-50" />
+                <div key={i} className="mn-shimmer h-44 rounded-2xl" />
               ))}
             </div>
           </div>
         )}
 
-        {data && <ImportsMetricsGrid kpis={data.kpis} />}
+        {(data || jobsData) && (
+          <div className="mn-page-stagger flex flex-col gap-6">
+            {data && <ImportsMetricsGrid kpis={data.kpis} />}
 
-        {jobsError && <p className="text-paragraph-sm text-error-base">{jobsError}</p>}
+            {jobsError && <p className="text-paragraph-sm text-error-base">{jobsError}</p>}
 
-        {initialJobsLoading && !jobsData && !jobsError && (
-          <div className="h-96 animate-pulse rounded-2xl bg-bg-weak-50" />
-        )}
+            {initialJobsLoading && !jobsData && !jobsError && (
+              <div className="mn-shimmer h-96 rounded-2xl" />
+            )}
 
-        {jobsData && (
-          <ImportsTableSection
+            {jobsData && (
+              <ImportsTableSection
             jobs={jobsData.jobs}
             total={jobsData.total}
             page={page}
@@ -193,17 +195,19 @@ export default function ImportacoesPage() {
             }}
             onRowClick={openImportFromRow}
           />
-        )}
+            )}
 
-        {data && (
-          <>
-            <FailedImportsSection
-              failedImports={data.failedImports}
-              errorSummary={data.errorSummary}
-              onRowClick={openImportFromRow}
-            />
-            <ProfileRankingChart profiles={data.topProfiles} />
-          </>
+            {data && (
+              <>
+                <FailedImportsSection
+                  failedImports={data.failedImports}
+                  errorSummary={data.errorSummary}
+                  onRowClick={openImportFromRow}
+                />
+                <ProfileRankingChart profiles={data.topProfiles} />
+              </>
+            )}
+          </div>
         )}
       </main>
 

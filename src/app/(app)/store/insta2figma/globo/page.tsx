@@ -54,7 +54,7 @@ export default function GloboPage() {
                 type="button"
                 onClick={() => setMode(m.value)}
                 className={cn(
-                  'rounded-md px-3 py-1 text-label-sm transition-colors',
+                  'mn-pressable rounded-md px-3 py-1 text-label-sm transition-colors',
                   mode === m.value
                     ? 'bg-bg-strong-950 text-text-white-0'
                     : 'text-text-sub-600 hover:text-text-strong-950',
@@ -67,12 +67,16 @@ export default function GloboPage() {
         }
       />
 
-      <div className="flex min-h-[70vh] items-center justify-center">
+      <div className="flex min-h-[70vh] items-center justify-center p-5">
         {error && <p className="text-paragraph-sm text-error-base">{error}</p>}
         {!error && !data && (
-          <p className="text-paragraph-sm text-text-soft-400">Carregando globo...</p>
+          <div className="mn-shimmer h-[60vh] w-full max-w-4xl rounded-2xl" />
         )}
-        {!error && data && <GlobeView data={data} mode={mode} />}
+        {!error && data && (
+          <div className="mn-page-stagger flex w-full items-center justify-center">
+            <GlobeView data={data} mode={mode} />
+          </div>
+        )}
       </div>
     </>
   )

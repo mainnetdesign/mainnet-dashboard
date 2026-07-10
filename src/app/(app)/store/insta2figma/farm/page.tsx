@@ -30,15 +30,17 @@ export default function FarmPage() {
         {error && <p className="mb-4 shrink-0 text-paragraph-sm text-error-base">{error}</p>}
 
         {!data && !error && (
-          <div className="min-h-0 flex-1 animate-pulse rounded-2xl bg-bg-weak-50" />
+          <div className="mn-shimmer min-h-0 flex-1 rounded-2xl" />
         )}
 
         {data && (
-          <FarmCanvas
+          <div className="mn-page-stagger min-h-0 flex-1">
+            <FarmCanvas
             data={data}
             onOpenUser={(id) => drawers.openUser(id)}
             className="min-h-0 flex-1"
-          />
+            />
+          </div>
         )}
       </main>
 

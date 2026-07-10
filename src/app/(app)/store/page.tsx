@@ -34,7 +34,7 @@ export default function StorePage() {
         {!data && !error && (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-36 animate-pulse rounded-2xl bg-bg-weak-50" />
+              <div key={i} className="mn-shimmer h-36 rounded-2xl" />
             ))}
           </div>
         )}

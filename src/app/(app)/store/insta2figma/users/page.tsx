@@ -179,7 +179,7 @@ export default function UsersPage() {
               type="button"
               onClick={exportCSV}
               disabled={!data?.users.length}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-stroke-soft-200 px-3 py-1.5 text-label-sm text-text-sub-600 hover:bg-bg-weak-50 disabled:opacity-50"
+              className="mn-pressable inline-flex items-center gap-1.5 rounded-lg border border-stroke-soft-200 px-3 py-1.5 text-label-sm text-text-sub-600 hover:bg-bg-weak-50 disabled:opacity-50"
             >
               <RiDownloadLine className="size-4" />
               Exportar CSV
@@ -192,39 +192,37 @@ export default function UsersPage() {
 
         {loading && !data && !error && (
           <div className="flex flex-col gap-4">
-            <div className="h-64 animate-pulse rounded-2xl bg-bg-weak-50" />
+            <div className="mn-shimmer h-64 rounded-2xl" />
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-44 animate-pulse rounded-2xl bg-bg-weak-50" />
+                <div key={i} className="mn-shimmer h-44 rounded-2xl" />
               ))}
             </div>
           </div>
         )}
 
         {data && (
-          <UsersMetricsGrid
-            kpis={data.kpis}
-            className={loading ? 'pointer-events-none opacity-60' : undefined}
-          />
-        )}
+          <div className="mn-page-stagger flex flex-col gap-6">
+            <UsersMetricsGrid
+              kpis={data.kpis}
+              className={loading ? 'pointer-events-none opacity-60' : undefined}
+            />
 
-        <FilterBar
-          segments={PLAN_FILTER_OPTIONS.map(({ value, label }) => ({ value, label }))}
-          segmentValue={plan}
-          onSegmentChange={(v) => {
-            setPlan(v)
-            setPage(1)
-          }}
-          searchValue={search}
-          onSearchChange={(v) => {
-            setSearch(v)
-            setPage(1)
-          }}
-          searchPlaceholder="Buscar por nome..."
-        />
+            <FilterBar
+              segments={PLAN_FILTER_OPTIONS.map(({ value, label }) => ({ value, label }))}
+              segmentValue={plan}
+              onSegmentChange={(v) => {
+                setPlan(v)
+                setPage(1)
+              }}
+              searchValue={search}
+              onSearchChange={(v) => {
+                setSearch(v)
+                setPage(1)
+              }}
+              searchPlaceholder="Buscar por nome..."
+            />
 
-        {data && (
-          <>
             <DataTable columns={columns} data={data.users} keyExtractor={(u) => u.id} />
             <DataPagination
               page={page}
@@ -236,7 +234,7 @@ export default function UsersPage() {
                 setPage(1)
               }}
             />
-          </>
+          </div>
         )}
       </main>
 

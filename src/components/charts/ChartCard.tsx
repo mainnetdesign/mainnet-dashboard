@@ -106,7 +106,7 @@ export default function ChartCard({
 
       <div className="min-h-0 flex-1">
         {loading ? (
-          <div className="h-full min-h-32 animate-pulse rounded-xl bg-bg-weak-50" />
+          <div className="mn-shimmer h-full min-h-32 rounded-xl" />
         ) : rows.length === 0 ? (
           <div className="flex h-full min-h-32 items-center justify-center text-paragraph-sm text-text-sub-600">
             Sem dados no período

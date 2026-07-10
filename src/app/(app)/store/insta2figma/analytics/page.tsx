@@ -89,13 +89,13 @@ export default function AnalyticsPage() {
         {loading && !data && !error && (
           <div className="flex flex-col gap-4">
             {[1, 2].map((i) => (
-              <div key={i} className="h-72 animate-pulse rounded-2xl bg-bg-weak-50" />
+              <div key={i} className="mn-shimmer h-72 rounded-2xl" />
             ))}
           </div>
         )}
 
         {data && (
-          <>
+          <div className="mn-page-stagger flex flex-col gap-6">
             <div className={loading ? 'pointer-events-none flex flex-col gap-4 opacity-60' : 'flex flex-col gap-4'}>
               <HorizontalFunnel
                 title="Funil de uso"
@@ -175,7 +175,7 @@ export default function AnalyticsPage() {
                 </ul>
               </WidgetCard>
             </div>
-          </>
+          </div>
         )}
       </main>
     </>

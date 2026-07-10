@@ -75,11 +75,12 @@ export default function FluxoPage() {
         {error && <p className="mb-4 shrink-0 text-paragraph-sm text-error-base">{error}</p>}
 
         {!flow && !error && (
-          <div className="min-h-0 flex-1 animate-pulse rounded-2xl bg-bg-weak-50" />
+          <div className="mn-shimmer min-h-0 flex-1 rounded-2xl" />
         )}
 
         {flow && (
-          <ImportJourneyMap
+          <div className="mn-page-stagger min-h-0 flex-1">
+            <ImportJourneyMap
             data={flow}
             start={start}
             end={end}
@@ -87,7 +88,8 @@ export default function FluxoPage() {
               drawers.openImport(job.id, { userId: job.userId, displayName: job.displayName })
             }
             className="min-h-0 flex-1"
-          />
+            />
+          </div>
         )}
       </main>
 
