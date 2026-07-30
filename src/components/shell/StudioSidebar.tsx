@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import {
   RiBarChartLine,
+  RiBankCardLine,
   RiCashLine,
   RiDashboard3Line,
   RiFileTextLine,
@@ -24,6 +25,7 @@ const NAV = {
   ],
   financeiro: [
     { href: '/fluxo', label: 'Fluxo de Caixa', icon: RiCashLine },
+    { href: '/financeiro', label: 'Financeiro', icon: RiBankCardLine },
     { href: '/relatorio', label: 'Relatório', icon: RiFileTextLine },
   ],
   operacoes: [
