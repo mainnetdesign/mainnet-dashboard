@@ -1,6 +1,33 @@
 'use client'
 import { useEffect, useState } from 'react'
 
+// ── Payment status types ──────────────────────────────────────────────────────
+interface PaymentMatch {
+  date: string
+  amount: number
+  label: string
+  category: string
+}
+
+interface PaymentEntry {
+  id: string
+  name: string
+  value: number
+  paymentDate: string | null
+  realized: boolean
+  linkedProjectNames: string[]
+  status: 'confirmado' | 'nao_encontrado' | 'sem_data'
+  match: PaymentMatch | null
+}
+
+interface PaymentData {
+  total: number
+  confirmados: number
+  pendentes: number
+  semData: number
+  entries: PaymentEntry[]
+}
+
 interface Transaction {
   id: string
   date: string
@@ -241,6 +268,134 @@ function AccountCard({ account, activePeriod }: { account: Account; activePeriod
   )
 }
 
+// ── Payment status section ────────────────────────────────────────────────────
+function PaymentStatusSection({ selectedPeriod }: { selectedPeriod: string }) {
+  const [data, setData]       = useState<PaymentData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [showAll, setShowAll] = useState(false)
+
+  useEffect(() => {
+    setLoading(true)
+    fetch('/api/financeiro/pagamentos')
+      .then((r) => r.json())
+      .then((d: PaymentData) => { setData(d); setLoading(false) })
+      .catch(() => setLoading(false))
+  }, [])
+
+  // Filter to entries whose paymentDate falls in selected period month
+  // e.g. selectedPeriod = "Jul/2026" → filter 2026-07-xx
+  const periodMonthISO = (() => {
+    if (!selectedPeriod) return null
+    const [mon, year] = selectedPeriod.split('/')
+    const monthMap: Record<string, string> = {
+      Jan:'01', Fev:'02', Mar:'03', Abr:'04', Mai:'05', Jun:'06',
+      Jul:'07', Ago:'08', Set:'09', Out:'10', Nov:'11', Dez:'12',
+    }
+    return `${year}-${monthMap[mon] ?? '07'}`
+  })()
+
+  const periodEntries = data?.entries.filter((e) =>
+    e.paymentDate ? e.paymentDate.startsWith(periodMonthISO ?? '') : false
+  ) ?? []
+
+  const displayed = showAll ? periodEntries : periodEntries.slice(0, 8)
+
+  if (loading) {
+    return (
+      <div className="bg-[var(--bg3)] border border-[var(--bd)] p-6 mb-6">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--tx3)]">Status de Pagamentos · {selectedPeriod}</p>
+        <p className="text-xs text-[var(--tx3)] mt-4">Cruzando Notion com extrato Nubank...</p>
+      </div>
+    )
+  }
+
+  if (!data || periodEntries.length === 0) {
+    return (
+      <div className="bg-[var(--bg3)] border border-[var(--bd)] p-6 mb-6">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--tx3)]">Status de Pagamentos · {selectedPeriod}</p>
+        <p className="text-xs text-[var(--tx3)] mt-4">Nenhum lançamento com data de pagamento em {selectedPeriod} no Notion.</p>
+      </div>
+    )
+  }
+
+  const confirmed    = periodEntries.filter((e) => e.status === 'confirmado').length
+  const notFound     = periodEntries.filter((e) => e.status === 'nao_encontrado').length
+
+  return (
+    <div className="bg-[var(--bg3)] border border-[var(--bd)] mb-6">
+      {/* Header */}
+      <div className="px-6 py-4 border-b border-[var(--bd)] flex items-center justify-between">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--tx3)]">
+            Status de Pagamentos · {selectedPeriod}
+          </p>
+          <p className="text-xs text-[var(--tx3)] mt-0.5">Cruzamento Notion × Extrato Nubank</p>
+        </div>
+        <div className="flex items-center gap-4 text-xs">
+          <span className="flex items-center gap-1.5 text-[#10B981] font-semibold">
+            <span className="w-2 h-2 rounded-full bg-[#10B981]" />
+            {confirmed} confirmado{confirmed !== 1 ? 's' : ''}
+          </span>
+          <span className="flex items-center gap-1.5 text-[var(--tx3)]">
+            <span className="w-2 h-2 rounded-full bg-[var(--bd)]" />
+            {notFound} pendente{notFound !== 1 ? 's' : ''}
+          </span>
+        </div>
+      </div>
+
+      {/* Entries */}
+      <div className="divide-y divide-[var(--bd)]">
+        {displayed.map((entry) => (
+          <div key={entry.id} className="flex items-start justify-between px-6 py-3 hover:bg-[var(--bg4)] transition-colors gap-4">
+            <div className="flex items-start gap-3 min-w-0">
+              {/* Status dot */}
+              <div className="mt-1 shrink-0">
+                {entry.status === 'confirmado' ? (
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#10B981]/15 text-[#10B981] text-[10px] font-bold">✓</span>
+                ) : (
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[var(--bg4)] border border-[var(--bd)] text-[var(--tx3)] text-[10px]">?</span>
+                )}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm text-[var(--tx)] font-medium truncate">{entry.name}</p>
+                {entry.linkedProjectNames.length > 0 && (
+                  <p className="text-[10px] text-[var(--tx3)] truncate">{entry.linkedProjectNames.join(', ')}</p>
+                )}
+                {entry.status === 'confirmado' && entry.match && (
+                  <p className="text-[10px] text-[#10B981] mt-0.5">
+                    Encontrado em {entry.match.date.split('-').reverse().join('/')} via {entry.match.label}
+                  </p>
+                )}
+                {entry.status === 'nao_encontrado' && (
+                  <p className="text-[10px] text-[var(--tx3)] mt-0.5">
+                    Esperado em {entry.paymentDate ? entry.paymentDate.split('-').reverse().join('/') : '—'} · sem correspondência no extrato
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="text-right shrink-0">
+              <p className="text-sm font-semibold" style={{ color: entry.status === 'confirmado' ? '#10B981' : 'var(--tx2)' }}>
+                {fmtBRL(entry.value)}
+              </p>
+              {entry.status === 'confirmado' && entry.match && Math.abs(entry.match.amount - entry.value) > 0.01 && (
+                <p className="text-[10px] text-[var(--tx3)]">recebido {fmtBRL(entry.match.amount)}</p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {periodEntries.length > 8 && (
+        <div className="px-6 py-3 border-t border-[var(--bd)]">
+          <button onClick={() => setShowAll((v) => !v)} className="text-xs text-[var(--tx3)] hover:text-[var(--tx)] transition-colors">
+            {showAll ? 'Mostrar menos' : `Ver mais ${periodEntries.length - 8} lançamentos`}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function FinanceiroPage() {
   const [data, setData] = useState<Cache | null>(null)
@@ -365,6 +520,9 @@ export default function FinanceiroPage() {
           </div>
         </div>
       )}
+
+      {/* Payment status — Notion × Nubank cross-reference */}
+      <PaymentStatusSection selectedPeriod={selectedPeriod} />
 
       {/* Account cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-px border border-[var(--bd)]">
