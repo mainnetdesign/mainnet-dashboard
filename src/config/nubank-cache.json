@@ -2,6 +2,24 @@
   "lastUpdated": "2026-07-30T00:00:00Z",
   "monthly": [
     {
+      "month": "Jan/26",
+      "credits": 32174.71,
+      "debits": 21755.08,
+      "net": 10419.63
+    },
+    {
+      "month": "Fev/26",
+      "credits": 26897.2,
+      "debits": 28925.04,
+      "net": -2027.84
+    },
+    {
+      "month": "Mar/26",
+      "credits": 46047.11,
+      "debits": 33353.06,
+      "net": 12694.05
+    },
+    {
       "month": "Abr/26",
       "credits": 24506.48,
       "debits": 33013.49,
@@ -33,6 +51,1326 @@
       "bank": "Nu Pagamentos S.A.",
       "cnpj": "62.169.789/0001-66",
       "periods": [
+        {
+          "period": "Jan/2026",
+          "totalCredits": 32174.71,
+          "totalDebits": 21755.08,
+          "net": 10419.63,
+          "transactions": [
+            {
+              "id": "695822af-3948-4c43-bfd9-5039c8f34b7c",
+              "date": "2026-01-02",
+              "label": "AMIL ASSISTENCIA ME",
+              "category": "Benefícios",
+              "type": "DEBITO",
+              "amount": 462.95
+            },
+            {
+              "id": "695823da-b35a-4e0b-9e76-26964f3e5fd5",
+              "date": "2026-01-02",
+              "label": "BANCO SANTANDER (BRASIL) S.A.",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 130.0
+            },
+            {
+              "id": "695d2ef2-0767-47f8-bf47-bf75eb0c5043",
+              "date": "2026-01-06",
+              "label": "MAINNET DESIGN LTDA",
+              "category": "Crédito em Conta",
+              "type": "CREDITO",
+              "amount": 7983.76
+            },
+            {
+              "id": "695d661c-b983-4f3c-a548-b558d3eca8ee",
+              "date": "2026-01-06",
+              "label": "ATACADAO 202 AS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 31.34
+            },
+            {
+              "id": "695da3f0-87b3-4860-92d7-d3801b894fad",
+              "date": "2026-01-06",
+              "label": "Benito Pedro Xavier Neto",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 450.0
+            },
+            {
+              "id": "695e517d-177c-4240-8622-d173a3816a3c",
+              "date": "2026-01-07",
+              "label": "PAYPAL DO BRASIL INSTITUICAO DE PAGAMENTO LTDA",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 1672.24
+            },
+            {
+              "id": "695ed383-62a0-41d7-8576-2c794cb631d3",
+              "date": "2026-01-07",
+              "label": "BANCO DAYCOVAL SA REMITTANCE",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 2696.4
+            },
+            {
+              "id": "695fa113-cefc-4266-85cb-e06e83806986",
+              "date": "2026-01-08",
+              "label": "Marcus Vinícius da Silva Dutra",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1800.0
+            },
+            {
+              "id": "695ff20a-97d9-430a-9d78-3805c21bcdb2",
+              "date": "2026-01-08",
+              "label": "Emanuelly Alentejo Borges dos Santos",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1652.4
+            },
+            {
+              "id": "695ff247-4a3b-41e7-99cf-eae51f638b57",
+              "date": "2026-01-08",
+              "label": "Raphael Alentejo Borges dos Santos",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1029.3
+            },
+            {
+              "id": "695ffeee-5855-446c-983d-b348f09953d6",
+              "date": "2026-01-08",
+              "label": "Arthur Dutra Baez",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1527.0
+            },
+            {
+              "id": "695fff13-4d01-4f02-8020-2cf611745455",
+              "date": "2026-01-08",
+              "label": "BUD COMERCIO DE ELETRODOMESTICOS LTDA",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 93.88
+            },
+            {
+              "id": "69600051-11b7-48df-9ea0-855c3ea3a557",
+              "date": "2026-01-08",
+              "label": "João Vitor da Silva Dutra",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1518.0
+            },
+            {
+              "id": "6960135c-ad82-4e03-8613-58f569cef9b8",
+              "date": "2026-01-08",
+              "label": "Victoria Maria dos Santos",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1747.2
+            },
+            {
+              "id": "6960f25e-35c0-401b-9d39-bc39995ee508",
+              "date": "2026-01-09",
+              "label": "PAYPAL DO BRASIL INSTITUICAO DE PAGAMENTO LTDA",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 1482.6
+            },
+            {
+              "id": "69611aac-548f-4f4d-a1c1-4370d71b2d9a",
+              "date": "2026-01-09",
+              "label": "DLOCAL BRASIL INSTITUICAO DE PAGAMENTO S.A.",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 1472.03
+            },
+            {
+              "id": "696131c2-6a27-47e6-9b40-bab1dab950de",
+              "date": "2026-01-09",
+              "label": "HS ALL SIZE",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 25.0
+            },
+            {
+              "id": "6961399d-4199-44a7-b631-c1363d12af37",
+              "date": "2026-01-09",
+              "label": "ATACADAO 202 AS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 70.78
+            },
+            {
+              "id": "69613ee7-d518-4920-85ee-8e1e1fc31a6e",
+              "date": "2026-01-09",
+              "label": "Victoria Maria dos Santos",
+              "category": "PIX Recebido",
+              "type": "CREDITO",
+              "amount": 3.0
+            },
+            {
+              "id": "6961a1f0-d63f-43f5-91cf-0114172fdc33",
+              "date": "2026-01-09",
+              "label": "Marcus Vinícius da Silva Dutra",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 6709.25
+            },
+            {
+              "id": "696548ce-aab1-46a3-8c60-ecc350bc1f9a",
+              "date": "2026-01-12",
+              "label": "ATACADAO 202 AS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 18.74
+            },
+            {
+              "id": "69678a55-e89f-4ca0-9639-db6cefb1cfc2",
+              "date": "2026-01-14",
+              "label": "PAYPAL DO BRASIL INSTITUICAO DE PAGAMENTO LTDA",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 536.84
+            },
+            {
+              "id": "6967eed6-6067-4444-952b-0916cd35e973",
+              "date": "2026-01-14",
+              "label": "ATACADAO 202 AS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 44.1
+            },
+            {
+              "id": "6968c77a-c121-41ba-b284-875fe3c30468",
+              "date": "2026-01-15",
+              "label": "MARCUS VINICIUS DA SILVA DUTRA",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 113.0
+            },
+            {
+              "id": "69691d5e-9e6a-4d76-bd6f-8062aa5ab1df",
+              "date": "2026-01-15",
+              "label": "SOLIDEZ CONTABILIDADE E ASSESSORIA EMPRESARIAL LTDA",
+              "category": "Contabilidade",
+              "type": "DEBITO",
+              "amount": 250.0
+            },
+            {
+              "id": "6969424a-3d08-4d30-93ab-86fe354c2334",
+              "date": "2026-01-15",
+              "label": "ATACADAO 202 AS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 37.06
+            },
+            {
+              "id": "696a624b-eef9-4025-9a90-8c9368bb3185",
+              "date": "2026-01-16",
+              "label": "MAINNET DESIGN LTDA",
+              "category": "Crédito em Conta",
+              "type": "CREDITO",
+              "amount": 9971.29
+            },
+            {
+              "id": "696a6424-da7b-4272-a4bb-0a348e026bc3",
+              "date": "2026-01-16",
+              "label": "NU PAGAMENTOS S/A",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1759.8
+            },
+            {
+              "id": "696a6481-f1ed-464e-b71b-c4b863b9493e",
+              "date": "2026-01-16",
+              "label": "CARTAO SANTANDER MEI",
+              "category": "Outros",
+              "type": "DEBITO",
+              "amount": 2.75
+            },
+            {
+              "id": "696fdb39-1963-40c9-bdef-1ea367ce1ab7",
+              "date": "2026-01-20",
+              "label": "ATACADAO 202 AS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 19.86
+            },
+            {
+              "id": "69712337-3899-4c67-91c5-e2ff7a079881",
+              "date": "2026-01-21",
+              "label": "IFOOD.COM AGENCIA DE RESTAURANTES ONLINE S.A.",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 28.3
+            },
+            {
+              "id": "697136e4-3005-437a-881c-f9515e461704",
+              "date": "2026-01-21",
+              "label": "DAS-SIMPLES NACIONAL",
+              "category": "Impostos",
+              "type": "DEBITO",
+              "amount": 613.75
+            },
+            {
+              "id": "697282f7-addf-46c6-8c25-ad38ec89e9e2",
+              "date": "2026-01-22",
+              "label": "JUSTO CAFE",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 82.6
+            },
+            {
+              "id": "697393d0-c430-4b2b-bcc8-5c21313f310e",
+              "date": "2026-01-23",
+              "label": "DLOCAL BRASIL INSTITUICAO DE PAGAMENTO S.A.",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 6356.55
+            },
+            {
+              "id": "6973cbb5-00bc-4fba-b314-44d7b1df8d48",
+              "date": "2026-01-23",
+              "label": "ATACADAO 202 AS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 43.49
+            },
+            {
+              "id": "6977ca24-bcf0-45a4-8cc7-b6ffca348212",
+              "date": "2026-01-26",
+              "label": "ATACADAO 202 AS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 38.4
+            },
+            {
+              "id": "69791842-010f-40b3-a403-a95cc453ad6b",
+              "date": "2026-01-27",
+              "label": "JUSTO CAFE",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 54.7
+            },
+            {
+              "id": "6979195c-1de0-42f7-a8c3-aa33c55598fd",
+              "date": "2026-01-27",
+              "label": "RAIA3421",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 17.48
+            },
+            {
+              "id": "6979d261-6040-47aa-8001-dcbfb461a0b5",
+              "date": "2026-01-28",
+              "label": "Jarciley dos Santos Batista",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1283.64
+            },
+            {
+              "id": "697a6a89-7820-4d87-89cb-49f4780a73f7",
+              "date": "2026-01-28",
+              "label": "99 FOOD",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 36.93
+            },
+            {
+              "id": "697a6b36-39a4-4427-8a97-c2e1d0f32abb",
+              "date": "2026-01-28",
+              "label": "ATACADAO 202 AS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 19.39
+            },
+            {
+              "id": "697bbc09-2462-4992-ba02-543cf18ef515",
+              "date": "2026-01-29",
+              "label": "IFOOD.COM AGENCIA DE RESTAURANTES ONLINE S.A.",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 33.99
+            },
+            {
+              "id": "697cd304-789f-4d98-b6b4-dbd4a32710e4",
+              "date": "2026-01-30",
+              "label": "ROBSON ALVES RUBI",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 10.0
+            }
+          ]
+        },
+        {
+          "period": "Fev/2026",
+          "totalCredits": 26897.2,
+          "totalDebits": 28925.04,
+          "net": -2027.84,
+          "transactions": [
+            {
+              "id": "696f8007-3344-4a5d-9d52-05c151514551",
+              "date": "2026-02-02",
+              "label": "AMIL ASSISTENCIA ME",
+              "category": "Benefícios",
+              "type": "DEBITO",
+              "amount": 462.95
+            },
+            {
+              "id": "698103b7-e359-43aa-93f3-814814ae7b6c",
+              "date": "2026-02-02",
+              "label": "ATACADAO 202 AS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 15.59
+            },
+            {
+              "id": "698263a5-2923-4180-8a9e-1b05eca812b7",
+              "date": "2026-02-03",
+              "label": "Abf",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 35.99
+            },
+            {
+              "id": "69836eb1-d47d-4a8a-98be-017e08cdf3d9",
+              "date": "2026-02-04",
+              "label": "Jarciley dos Santos Batista",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 133.93
+            },
+            {
+              "id": "69837d36-c48d-4d94-8f1b-6a069fde95e7",
+              "date": "2026-02-04",
+              "label": "MP *CLINICADETRANSTOEX",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 119.0
+            },
+            {
+              "id": "6983c25a-13a9-45b0-bd34-d71ec5837f2e",
+              "date": "2026-02-04",
+              "label": "RAIA3421",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 18.89
+            },
+            {
+              "id": "6983c488-6931-449f-8269-626a9509e25b",
+              "date": "2026-02-04",
+              "label": "Pedro Henrique Matos Correia Beu",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 0.01
+            },
+            {
+              "id": "6983c534-a534-49ce-b0c5-735ce1846363",
+              "date": "2026-02-04",
+              "label": "Pedro Henrique Matos Correia Beu",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 999.99
+            },
+            {
+              "id": "69849001-b814-4efb-a038-e47eb78b4380",
+              "date": "2026-02-05",
+              "label": "WAY SUPLEMENTOS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 9.99
+            },
+            {
+              "id": "6984b36c-e2ae-4cfc-9b3e-436d192c6fa3",
+              "date": "2026-02-05",
+              "label": "DLOCAL BRASIL INSTITUICAO DE PAGAMENTO S.A.",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 9152.62
+            },
+            {
+              "id": "6984e573-b221-43b9-834f-a0e724428bea",
+              "date": "2026-02-05",
+              "label": "ATACADAO 202 AS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 18.77
+            },
+            {
+              "id": "6985df33-fe17-47c8-9eb7-06a82737bc47",
+              "date": "2026-02-06",
+              "label": "PAULO CESAR RIBEIRO AR CONDICIONADO",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 380.0
+            },
+            {
+              "id": "69861a39-1a1a-4665-860a-81f0fafd16a1",
+              "date": "2026-02-06",
+              "label": "Emanuelly Alentejo Borges dos Santos",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 2052.4
+            },
+            {
+              "id": "69861a82-b03e-419d-a52a-d4f33503b658",
+              "date": "2026-02-06",
+              "label": "João Vitor da Silva Dutra",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1621.0
+            },
+            {
+              "id": "69861fb8-b983-4c3c-934c-f66a23ec40c3",
+              "date": "2026-02-06",
+              "label": "Marcus Vinícius da Silva Dutra",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 544.44
+            },
+            {
+              "id": "698620d7-c2e3-48b5-92e4-2ce7ebdd0184",
+              "date": "2026-02-06",
+              "label": "Marcus Vinícius da Silva Dutra",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 5500.0
+            },
+            {
+              "id": "6986239b-d7b6-44f0-83fb-b95ee4b50dd9",
+              "date": "2026-02-06",
+              "label": "Raphael Alentejo Borges dos Santos",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1562.0
+            },
+            {
+              "id": "698625ca-7958-4b5f-ab9e-302127e8a3f1",
+              "date": "2026-02-06",
+              "label": "Victoria Maria dos Santos",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1747.2
+            },
+            {
+              "id": "6986388e-991a-4a2f-8389-c7da4707809e",
+              "date": "2026-02-06",
+              "label": "Arthur Dutra Baez",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 2396.53
+            },
+            {
+              "id": "69864a9d-de68-4bfb-a9c0-e6534d7707c8",
+              "date": "2026-02-06",
+              "label": "ATACADAO 202 AS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 5.24
+            },
+            {
+              "id": "6988d3eb-2364-4518-a861-3c22a1b69d98",
+              "date": "2026-02-08",
+              "label": "Marcus Vinícius da Silva Dutra",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1909.1
+            },
+            {
+              "id": "6988e74d-42c7-4137-b77f-659a756636c4",
+              "date": "2026-02-08",
+              "label": "Marcus Vinícius da Silva Dutra",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 794.52
+            },
+            {
+              "id": "6989d4a1-ff0b-4aa5-a4df-c0d91957e7f7",
+              "date": "2026-02-09",
+              "label": "HIRO FILMS LTDA",
+              "category": "PIX Recebido",
+              "type": "CREDITO",
+              "amount": 918.26
+            },
+            {
+              "id": "6989f81b-0ef4-4f49-a36a-d02adc71088c",
+              "date": "2026-02-09",
+              "label": "PAYPAL DO BRASIL INSTITUICAO DE PAGAMENTO LTDA",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 1321.76
+            },
+            {
+              "id": "698a051b-9280-4c45-91f4-e3fcfa3bb58b",
+              "date": "2026-02-09",
+              "label": "DLOCAL BRASIL INSTITUICAO DE PAGAMENTO S.A.",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 860.85
+            },
+            {
+              "id": "698b526e-0005-4a9a-8420-852d9f0fefd5",
+              "date": "2026-02-10",
+              "label": "DLOCAL BRASIL INSTITUICAO DE PAGAMENTO S.A.",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 3309.76
+            },
+            {
+              "id": "698b6ff2-d10c-47fb-9221-a2a16044bfa7",
+              "date": "2026-02-10",
+              "label": "PREFEITURA MUNICIPAL DE SAO GONCALO",
+              "category": "Outros",
+              "type": "DEBITO",
+              "amount": 54.57
+            },
+            {
+              "id": "698cef3c-f61d-4f0d-bb0b-b46d8f9bea26",
+              "date": "2026-02-11",
+              "label": "ATACADAO 202 AS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 72.6
+            },
+            {
+              "id": "698cefad-a442-49c1-ac70-7e43418a7fa7",
+              "date": "2026-02-11",
+              "label": "ATACADAO 202 AS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 0.29
+            },
+            {
+              "id": "698e03ad-8435-4e8b-a094-fea0ecb3ec57",
+              "date": "2026-02-12",
+              "label": "Nathan Brasil Pitta",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 700.0
+            },
+            {
+              "id": "698e4828-7739-43f3-b205-9870067c1c64",
+              "date": "2026-02-12",
+              "label": "JUSTO CAFE",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 16.0
+            },
+            {
+              "id": "698f2a31-5bde-4fbd-8706-136ebb135201",
+              "date": "2026-02-13",
+              "label": "BANCO DAYCOVAL SA REMITTANCE",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 1854.2
+            },
+            {
+              "id": "698f7fcf-c719-40bc-8f9f-3a9e9613cc57",
+              "date": "2026-02-13",
+              "label": "JUSTO CAFE",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 56.7
+            },
+            {
+              "id": "698f82bd-4ed2-495e-8125-9517540b74e9",
+              "date": "2026-02-13",
+              "label": "RECEITA FEDERAL",
+              "category": "Impostos",
+              "type": "DEBITO",
+              "amount": 161.62
+            },
+            {
+              "id": "698fb419-f884-4f1f-98f2-fbb93b0178bd",
+              "date": "2026-02-13",
+              "label": "BANCO DAYCOVAL SA REMITTANCE",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 741.68
+            },
+            {
+              "id": "699198ad-4779-4404-b185-030c34547026",
+              "date": "2026-02-15",
+              "label": "MARCUS VINICIUS DA SILVA DUTRA",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 113.0
+            },
+            {
+              "id": "69930916-cff0-4fb4-a436-cd787e522630",
+              "date": "2026-02-16",
+              "label": "NU PAGAMENTOS S/A",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 2518.85
+            },
+            {
+              "id": "6994ddc5-d47e-439a-bae5-cdf2352e48d4",
+              "date": "2026-02-17",
+              "label": "ATACADAO 202 AS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 28.18
+            },
+            {
+              "id": "6995991c-e4c0-469a-bdfa-445fb6f7646f",
+              "date": "2026-02-18",
+              "label": "PAYPAL DO BRASIL INSTITUICAO DE PAGAMENTO LTDA",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 290.0
+            },
+            {
+              "id": "69959e71-3ddc-45cc-9eb6-ef55cee3c62e",
+              "date": "2026-02-18",
+              "label": "PAYPAL DO BRASIL INSTITUICAO DE PAGAMENTO LTDA",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 32.76
+            },
+            {
+              "id": "69974715-20f6-48fd-902b-ad428b9c67fb",
+              "date": "2026-02-19",
+              "label": "ATACADAO 202 AS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 27.73
+            },
+            {
+              "id": "6997bcb8-f512-4cf2-ad22-1493f789ae88",
+              "date": "2026-02-19",
+              "label": "Marcus Vinícius da Silva Dutra",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 248.51
+            },
+            {
+              "id": "699834f0-7aee-43a0-95fc-ad55c9b41f57",
+              "date": "2026-02-20",
+              "label": "LOCALIZA RENT A CAR SA",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1919.71
+            },
+            {
+              "id": "69987aec-7920-43b1-85dd-43608d49bfe1",
+              "date": "2026-02-20",
+              "label": "DLOCAL BRASIL INSTITUICAO DE PAGAMENTO S.A.",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 2556.46
+            },
+            {
+              "id": "69988b96-e1dc-4fcb-beae-050b0e4640ae",
+              "date": "2026-02-20",
+              "label": "Arthur Dutra Baez",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 750.0
+            },
+            {
+              "id": "69990b88-6bd2-4775-b839-00a3cde80ccb",
+              "date": "2026-02-20",
+              "label": "HELTON ARAUJO PROFETA",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 5.0
+            },
+            {
+              "id": "699c7f21-19eb-4a76-99ca-db8358503a1d",
+              "date": "2026-02-23",
+              "label": "DLOCAL BRASIL INSTITUICAO DE PAGAMENTO S.A.",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 5070.32
+            },
+            {
+              "id": "699c9eda-aee2-4e78-9992-0fef6bdc7834",
+              "date": "2026-02-23",
+              "label": "SOLIDEZ CONTABILIDADE E ASSESSORIA EMPRESARIAL LTDA",
+              "category": "Contabilidade",
+              "type": "DEBITO",
+              "amount": 271.0
+            },
+            {
+              "id": "699dc985-c053-42cd-ba41-7af118698e0c",
+              "date": "2026-02-24",
+              "label": "MARCUS VINICIUS DA SILVA DUTRA",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 30.0
+            },
+            {
+              "id": "69a15d19-f8c2-4f6e-895f-8bf3f1ff210c",
+              "date": "2026-02-27",
+              "label": "BANCO DAYCOVAL SA REMITTANCE",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 783.57
+            },
+            {
+              "id": "69a2bc81-ac06-4001-86c8-96c7eb4ed6b0",
+              "date": "2026-02-28",
+              "label": "Jarciley dos Santos Batista",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1283.64
+            },
+            {
+              "id": "69a2d14d-b613-4656-b1e5-04aca6b8340f",
+              "date": "2026-02-28",
+              "label": "CATUCA POSTO E SERVICO",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 63.6
+            },
+            {
+              "id": "69a2d4ff-4387-4254-a1bf-e63b2a442d9d",
+              "date": "2026-02-28",
+              "label": "OSORIOS POSTO E SERVIC",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 8.0
+            },
+            {
+              "id": "69a2db36-a73f-45f1-9bcd-558b911b469c",
+              "date": "2026-02-28",
+              "label": "LOCALIZA RENT A CAR SA",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 268.5
+            },
+            {
+              "id": "69a38d6a-b76e-4052-963e-8f3ce1f914b0",
+              "date": "2026-02-28",
+              "label": "IFOOD PAGO INSTITUICAO DE PAGAMENTO SA",
+              "category": "PIX Recebido",
+              "type": "CREDITO",
+              "amount": 4.96
+            }
+          ]
+        },
+        {
+          "period": "Mar/2026",
+          "totalCredits": 46047.11,
+          "totalDebits": 33353.06,
+          "net": 12694.05,
+          "transactions": [
+            {
+              "id": "69a440ed-e1df-40c5-abe2-9db344d5009c",
+              "date": "2026-03-01",
+              "label": "ASSAI ATACADISTA LJ293",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 42.62
+            },
+            {
+              "id": "69a4555f-15ae-44f4-b290-48b1c1ad36d2",
+              "date": "2026-03-01",
+              "label": "COMUNIDADE RHEMA",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 50.0
+            },
+            {
+              "id": "69a4eb14-8bc2-4585-bc1b-4367cc1d5a64",
+              "date": "2026-03-01",
+              "label": "AMAZON.COM.BR",
+              "category": "Recebimento Internacional",
+              "type": "DEBITO",
+              "amount": 2879.1
+            },
+            {
+              "id": "699c9ec2-dd1b-485b-87d9-f2ad94568c37",
+              "date": "2026-03-02",
+              "label": "AMIL ASSISTENCIA ME",
+              "category": "Benefícios",
+              "type": "DEBITO",
+              "amount": 462.95
+            },
+            {
+              "id": "69a5a48e-4e2c-4c2a-bc58-d66224fd790b",
+              "date": "2026-03-02",
+              "label": "ENEL DISTRIBUICAO RIO",
+              "category": "Utilidades",
+              "type": "DEBITO",
+              "amount": 160.94
+            },
+            {
+              "id": "69a5d522-2284-451a-b0e8-e056b89d04e1",
+              "date": "2026-03-02",
+              "label": "PAYPAL DO BRASIL INSTITUICAO DE PAGAMENTO LTDA",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 512.34
+            },
+            {
+              "id": "69a5e2cd-a327-4f23-a842-d8eb2609a063",
+              "date": "2026-03-02",
+              "label": "MEGA INFO",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 70.0
+            },
+            {
+              "id": "69a5e9ec-349f-4250-8dc5-5f5243ac1720",
+              "date": "2026-03-02",
+              "label": "ATACADAO 202 AS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 33.31
+            },
+            {
+              "id": "69a5ef2f-bd8d-4fc8-9b53-b2a707529575",
+              "date": "2026-03-02",
+              "label": "MundoDaAlicia",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 12.99
+            },
+            {
+              "id": "69a639f8-4a48-4ac3-94c1-f51129204528",
+              "date": "2026-03-02",
+              "label": "APJ ALCANTARA COMERCIO",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 30.0
+            },
+            {
+              "id": "69a6cf0e-9ea1-4d02-958f-f4b4cda6feab",
+              "date": "2026-03-03",
+              "label": "SUA ACADEMIA",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 163.1
+            },
+            {
+              "id": "69a87012-63a3-4a05-8a4c-3d300650b311",
+              "date": "2026-03-04",
+              "label": "BARBERSHOP MISTER LIMA",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 55.0
+            },
+            {
+              "id": "69a871d7-c416-4c18-87d3-3919f6f3ca0a",
+              "date": "2026-03-04",
+              "label": "MundoDaAlicia",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 8.99
+            },
+            {
+              "id": "69a9d4cd-4121-4151-b2fe-5ed90229a260",
+              "date": "2026-03-05",
+              "label": "HIRO FILMS",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 918.26
+            },
+            {
+              "id": "69aa177f-5deb-4e5a-91e3-0381dc172d12",
+              "date": "2026-03-05",
+              "label": "Marcus Vinícius da Silva Dutra",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 25.0
+            },
+            {
+              "id": "69aa285d-babd-421e-bd27-5f99d99e7c22",
+              "date": "2026-03-05",
+              "label": "ANA CAROLINA FONSECA DA SILVA",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 16.0
+            },
+            {
+              "id": "69aacf85-3347-4cb1-ba74-780c29660fb4",
+              "date": "2026-03-06",
+              "label": "RAIA3421",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 24.57
+            },
+            {
+              "id": "69ab193c-71da-47c2-a3e2-559c630a5ea5",
+              "date": "2026-03-06",
+              "label": "Depósito de empréstimo",
+              "category": "Crédito em Conta",
+              "type": "CREDITO",
+              "amount": 3500.0
+            },
+            {
+              "id": "69ab1a0e-417b-44c8-aa21-bf7ec6f1a1d0",
+              "date": "2026-03-06",
+              "label": "Victoria Maria dos Santos",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1922.2
+            },
+            {
+              "id": "69ab1a36-9379-4c13-b99c-c4a47d5bd5fc",
+              "date": "2026-03-06",
+              "label": "Raphael Alentejo Borges dos Santos",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1029.0
+            },
+            {
+              "id": "69ab1ab4-530f-4f30-90d3-e6a4498c2b86",
+              "date": "2026-03-06",
+              "label": "Emanuelly Alentejo Borges dos Santos",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1722.2
+            },
+            {
+              "id": "69ab1ad9-29cb-4518-a14f-33a77deb6b55",
+              "date": "2026-03-06",
+              "label": "João Vitor da Silva Dutra",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1621.0
+            },
+            {
+              "id": "69ab8d4b-680e-4110-95d3-c64a349854b5",
+              "date": "2026-03-06",
+              "label": "COMUNIDADE RHEMA",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 20.0
+            },
+            {
+              "id": "69acc36d-40fb-46a2-bf93-e799aae1164e",
+              "date": "2026-03-07",
+              "label": "COM EVANGELICA RHEMA",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 20.0
+            },
+            {
+              "id": "69ad9094-7067-4783-9926-72c4bf408ea1",
+              "date": "2026-03-08",
+              "label": "ASSAI ATACADISTA LJ293",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 106.23
+            },
+            {
+              "id": "69adf4db-2292-4957-9044-0fe24c70174f",
+              "date": "2026-03-08",
+              "label": "COM EVANGELICA RHEMA",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 50.0
+            },
+            {
+              "id": "69adf6fd-267f-4808-8ade-de21b56eed60",
+              "date": "2026-03-08",
+              "label": "MP *COMUNIDADERHEMARUA",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 12.0
+            },
+            {
+              "id": "69adf709-0d40-423e-be44-f37ba09c11c7",
+              "date": "2026-03-08",
+              "label": "COM EVANGELICA RHEMA",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 50.0
+            },
+            {
+              "id": "69ae1aa1-4f27-41e2-9df0-64b84addb1b7",
+              "date": "2026-03-08",
+              "label": "COM EVANGELICA RHEMA",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 15.0
+            },
+            {
+              "id": "69af1c89-b955-4354-a58c-e1ac0ff816a1",
+              "date": "2026-03-09",
+              "label": "Arthur Dutra Baez",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 3265.99
+            },
+            {
+              "id": "69b07ffa-2e51-48b5-b91c-0036ff301554",
+              "date": "2026-03-10",
+              "label": "MAINNET DESIGN LTDA",
+              "category": "Crédito em Conta",
+              "type": "CREDITO",
+              "amount": 1750.0
+            },
+            {
+              "id": "69b09849-bd6a-4c79-9705-822ae6b7fba9",
+              "date": "2026-03-10",
+              "label": "MARCUS VINICIUS DA SILVA DUTRA",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 1.0
+            },
+            {
+              "id": "69b09a96-c62d-4ffc-822c-9d67e6541e62",
+              "date": "2026-03-10",
+              "label": "MARCUS VINICIUS DA SILVA DUTRA",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 9999.0
+            },
+            {
+              "id": "69b09aa8-6d09-4996-a769-031cf310d986",
+              "date": "2026-03-10",
+              "label": "Resgate de empréstimo",
+              "category": "Empréstimo",
+              "type": "DEBITO",
+              "amount": 3558.34
+            },
+            {
+              "id": "69b0a65e-3db0-4f12-b98d-782e94851d3a",
+              "date": "2026-03-10",
+              "label": "Nathan Brasil Pitta",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 700.0
+            },
+            {
+              "id": "69b168ca-7b0a-42be-993b-9a1a3508d73f",
+              "date": "2026-03-11",
+              "label": "MARCUS VINICIUS DA SILVA DUTRA",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 10000.0
+            },
+            {
+              "id": "69b1a348-c4e3-4dc5-9b9c-0dc888b5538b",
+              "date": "2026-03-11",
+              "label": "Marcus Vinícius da Silva Dutra",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1700.0
+            },
+            {
+              "id": "69b1bfce-0c0b-47d0-b295-f3acdbecf397",
+              "date": "2026-03-11",
+              "label": "Bernardo da Silva Rohem",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 11.4
+            },
+            {
+              "id": "69b1e93b-c41a-4beb-86ec-16035e4661bb",
+              "date": "2026-03-11",
+              "label": "Marcus Vinícius da Silva Dutra",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1000.0
+            },
+            {
+              "id": "69b1ec7b-be8c-4ae6-885b-4188587a5736",
+              "date": "2026-03-11",
+              "label": "SOLIDEZ CONTABILIDADE E ASSESSORIA EMPRESARIAL LTDA",
+              "category": "Contabilidade",
+              "type": "DEBITO",
+              "amount": 266.98
+            },
+            {
+              "id": "69b30960-a787-4554-869d-4b860cee153b",
+              "date": "2026-03-12",
+              "label": "ATACADAO 202 AS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 70.74
+            },
+            {
+              "id": "69b30be9-46ab-4178-82ed-b39dc19c3077",
+              "date": "2026-03-12",
+              "label": "MARCUS VINICIUS DA SILVA DUTRA",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 4377.67
+            },
+            {
+              "id": "69b680c9-7cdc-4711-ba59-52d8be6d1052",
+              "date": "2026-03-15",
+              "label": "MARCUS VINICIUS DA SILVA DUTRA",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 113.0
+            },
+            {
+              "id": "69b7e7ad-605e-4c66-823d-10b60c058cc9",
+              "date": "2026-03-16",
+              "label": "PAYPAL DO BRASIL INSTITUICAO DE PAGAMENTO LTDA",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 343.28
+            },
+            {
+              "id": "69b80d04-f126-4295-93b0-91ebdd08abbe",
+              "date": "2026-03-16",
+              "label": "Bruno da Silva Reis",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 280.0
+            },
+            {
+              "id": "69b94e9a-f243-42e4-a05a-3f7f962e7d49",
+              "date": "2026-03-17",
+              "label": "PAULO CESAR RIBEIRO AR CONDICIONADO",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1000.0
+            },
+            {
+              "id": "69b9aca5-9052-470e-aa61-c76e040127cc",
+              "date": "2026-03-17",
+              "label": "ATACADAO 202 AS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 19.05
+            },
+            {
+              "id": "69b9d0c2-3ddc-4492-ae28-0792d249df65",
+              "date": "2026-03-17",
+              "label": "NU PAGAMENTOS S/A",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 2238.61
+            },
+            {
+              "id": "69b9d0ec-68b0-4ba5-b9a6-213a63ea2085",
+              "date": "2026-03-17",
+              "label": "NU PAGAMENTOS S/A",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 753.5
+            },
+            {
+              "id": "69bbef57-c8dc-4567-9656-6a0bfae8f99e",
+              "date": "2026-03-19",
+              "label": "BANCO DAYCOVAL SA REMITTANCE",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 6134.16
+            },
+            {
+              "id": "69bc4556-c8e3-461d-b08f-965856650389",
+              "date": "2026-03-19",
+              "label": "JESIEL DE MARINS SILVA JUNIOR",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 3000.0
+            },
+            {
+              "id": "69bd9891-c5b4-41ec-a9e6-3e5286296e3b",
+              "date": "2026-03-20",
+              "label": "Bernardo da Silva Rohem",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 26.0
+            },
+            {
+              "id": "69bfd6fd-6669-4fab-8069-bf04eb5cf02c",
+              "date": "2026-03-22",
+              "label": "Marcus Vinícius da Silva Dutra",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1000.0
+            },
+            {
+              "id": "69c2d276-7665-4fe2-86d8-eec323a10d34",
+              "date": "2026-03-24",
+              "label": "ATACADAO 202 AS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 33.49
+            },
+            {
+              "id": "69c3ec25-f24f-45df-a65a-4190e586e1b7",
+              "date": "2026-03-25",
+              "label": "Marcus Vinícius da Silva Dutra",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 900.0
+            },
+            {
+              "id": "69c43536-fb73-4870-99e2-ad53d928f068",
+              "date": "2026-03-25",
+              "label": "LAC SILVA COMERCIO DE REVESTIMENTOS LTDA",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 350.0
+            },
+            {
+              "id": "69c52f86-1911-4f7b-af01-e572e75557ba",
+              "date": "2026-03-26",
+              "label": "PES E PATAS COMERCIO D",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 61.98
+            },
+            {
+              "id": "69c55519-7b52-49a3-a9e8-d39c828c8dd3",
+              "date": "2026-03-26",
+              "label": "FROTA- ESTACIONAMENTO",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 90.0
+            },
+            {
+              "id": "69c58d57-37e1-470a-8928-71d470e55f5d",
+              "date": "2026-03-26",
+              "label": "ATACADAO 202 AS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 19.75
+            },
+            {
+              "id": "69c6c7b0-1c91-4614-866b-5869c68150f4",
+              "date": "2026-03-27",
+              "label": "ATACADAO 202 AS",
+              "category": "Compra",
+              "type": "DEBITO",
+              "amount": 65.49
+            },
+            {
+              "id": "69c7aab3-4a29-4d38-88fb-569119606909",
+              "date": "2026-03-28",
+              "label": "Jarciley dos Santos Batista",
+              "category": "PIX Enviado",
+              "type": "DEBITO",
+              "amount": 1283.64
+            },
+            {
+              "id": "69cac0ed-d58e-4593-b0f2-f00bb79fc306",
+              "date": "2026-03-30",
+              "label": "Remessa Online",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 1542.24
+            },
+            {
+              "id": "69caf36b-6d33-4108-bee7-33ce11175f26",
+              "date": "2026-03-30",
+              "label": "MARCUS VINICIUS DA SILVA DUTRA",
+              "category": "Recebimento Internacional",
+              "type": "CREDITO",
+              "amount": 7887.42
+            },
+            {
+              "id": "69cc1e3e-7aa0-44c4-9c5d-89ffa441e0a1",
+              "date": "2026-03-31",
+              "label": "DAS-SIMPLES NACIONAL",
+              "category": "Impostos",
+              "type": "DEBITO",
+              "amount": 24.64
+            }
+          ]
+        },
         {
           "period": "Abr/2026",
           "totalCredits": 24506.48,
