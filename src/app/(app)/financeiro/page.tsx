@@ -2,11 +2,21 @@
 import { useEffect, useState } from 'react'
 
 // ── Payment status types ──────────────────────────────────────────────────────
+type PaymentStatus =
+  | 'confirmado'           // found in bank + Notion marked paid  ✅
+  | 'recebido_desatualizado' // found in bank + Notion NOT marked  ⚠️
+  | 'divergente'           // Notion=paid + month covered + NOT in bank 🔍
+  | 'sem_extrato'          // Notion=paid + month not covered     ◯
+  | 'pendente'             // not found + month covered + not paid ⏳
+  | 'aguardando'           // future date or month not covered yet 🕐
+  | 'sem_data'             // no payment date set                  —
+
 interface PaymentMatch {
   date: string
   amount: number
   label: string
   category: string
+  valueDiffPct: number | null
 }
 
 interface PaymentEntry {
@@ -16,16 +26,87 @@ interface PaymentEntry {
   paymentDate: string | null
   realized: boolean
   linkedProjectNames: string[]
-  status: 'confirmado' | 'nao_encontrado' | 'sem_data'
+  monthCovered: boolean
+  status: PaymentStatus
   match: PaymentMatch | null
 }
 
 interface PaymentData {
   total: number
   confirmados: number
+  recebidoDesatualizado: number
+  divergentes: number
+  semExtrato: number
   pendentes: number
+  aguardando: number
   semData: number
   entries: PaymentEntry[]
+}
+
+const STATUS_CONFIG: Record<PaymentStatus, {
+  label: string
+  sublabel: string
+  icon: string
+  color: string
+  bg: string
+  border: string
+}> = {
+  confirmado: {
+    label: 'Confirmado',
+    sublabel: 'Pago · Notion atualizado',
+    icon: '✓',
+    color: '#10B981',
+    bg: 'rgba(16,185,129,0.08)',
+    border: 'rgba(16,185,129,0.25)',
+  },
+  recebido_desatualizado: {
+    label: 'Recebido',
+    sublabel: 'Pago no banco · Atualizar Notion',
+    icon: '!',
+    color: '#F59E0B',
+    bg: 'rgba(245,158,11,0.08)',
+    border: 'rgba(245,158,11,0.30)',
+  },
+  divergente: {
+    label: 'Divergência',
+    sublabel: 'Notion=pago · Não encontrado no extrato',
+    icon: '?',
+    color: '#6366F1',
+    bg: 'rgba(99,102,241,0.08)',
+    border: 'rgba(99,102,241,0.25)',
+  },
+  sem_extrato: {
+    label: 'Sem extrato',
+    sublabel: 'Notion=pago · Mês sem extrato carregado',
+    icon: '◯',
+    color: '#94A3B8',
+    bg: 'rgba(148,163,184,0.06)',
+    border: 'rgba(148,163,184,0.2)',
+  },
+  pendente: {
+    label: 'Pendente',
+    sublabel: 'Não recebido · Extrato disponível',
+    icon: '–',
+    color: '#EF4444',
+    bg: 'rgba(239,68,68,0.06)',
+    border: 'rgba(239,68,68,0.2)',
+  },
+  aguardando: {
+    label: 'Aguardando',
+    sublabel: 'Data futura ou mês ainda sem extrato',
+    icon: '…',
+    color: '#64748B',
+    bg: 'rgba(100,116,139,0.05)',
+    border: 'rgba(100,116,139,0.15)',
+  },
+  sem_data: {
+    label: 'Sem data',
+    sublabel: 'Data de pagamento não cadastrada',
+    icon: '—',
+    color: '#64748B',
+    bg: 'transparent',
+    border: 'rgba(100,116,139,0.15)',
+  },
 }
 
 interface Transaction {
@@ -295,10 +376,23 @@ function AccountCard({ account, activePeriod }: { account: Account; activePeriod
 }
 
 // ── Payment status section ────────────────────────────────────────────────────
+function StatusBadge({ status }: { status: PaymentStatus }) {
+  const cfg = STATUS_CONFIG[status]
+  return (
+    <span
+      className="shrink-0 flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold leading-none"
+      style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.color }}
+    >
+      {cfg.icon}
+    </span>
+  )
+}
+
 function PaymentStatusSection({ selectedPeriod }: { selectedPeriod: string }) {
   const [data, setData]       = useState<PaymentData | null>(null)
   const [loading, setLoading] = useState(true)
   const [showAll, setShowAll] = useState(false)
+  const [filterStatus, setFilterStatus] = useState<PaymentStatus | 'todos'>('todos')
 
   useEffect(() => {
     setLoading(true)
@@ -308,8 +402,6 @@ function PaymentStatusSection({ selectedPeriod }: { selectedPeriod: string }) {
       .catch(() => setLoading(false))
   }, [])
 
-  // Filter to entries whose paymentDate falls in selected period month
-  // e.g. selectedPeriod = "Jul/2026" → filter 2026-07-xx
   const periodMonthISO = (() => {
     if (!selectedPeriod) return null
     const [mon, year] = selectedPeriod.split('/')
@@ -320,17 +412,29 @@ function PaymentStatusSection({ selectedPeriod }: { selectedPeriod: string }) {
     return `${year}-${monthMap[mon] ?? '07'}`
   })()
 
-  const periodEntries = data?.entries.filter((e) =>
+  const periodEntries = (data?.entries ?? []).filter((e) =>
     e.paymentDate ? e.paymentDate.startsWith(periodMonthISO ?? '') : false
-  ) ?? []
+  )
 
-  const displayed = showAll ? periodEntries : periodEntries.slice(0, 8)
+  const filtered = filterStatus === 'todos'
+    ? periodEntries
+    : periodEntries.filter((e) => e.status === filterStatus)
+
+  const displayed = showAll ? filtered : filtered.slice(0, 8)
+
+  // Summary pills — only statuses that actually appear this period
+  const summaryStatuses: PaymentStatus[] = [
+    'confirmado', 'recebido_desatualizado', 'divergente', 'pendente', 'aguardando', 'sem_extrato',
+  ]
+  const summaryItems = summaryStatuses
+    .map((s) => ({ status: s, count: periodEntries.filter((e) => e.status === s).length }))
+    .filter((x) => x.count > 0)
 
   if (loading) {
     return (
       <div className="bg-[var(--bg3)] border border-[var(--bd)] p-6 mb-6">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--tx3)]">Status de Pagamentos · {selectedPeriod}</p>
-        <p className="text-xs text-[var(--tx3)] mt-4">Cruzando Notion com extrato Nubank...</p>
+        <p className="text-xs text-[var(--tx3)] mt-4 animate-pulse">Cruzando Notion × Extrato Nubank...</p>
       </div>
     )
   }
@@ -344,77 +448,131 @@ function PaymentStatusSection({ selectedPeriod }: { selectedPeriod: string }) {
     )
   }
 
-  const confirmed    = periodEntries.filter((e) => e.status === 'confirmado').length
-  const notFound     = periodEntries.filter((e) => e.status === 'nao_encontrado').length
-
   return (
     <div className="bg-[var(--bg3)] border border-[var(--bd)] mb-6">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-[var(--bd)] flex items-center justify-between">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--tx3)]">
-            Status de Pagamentos · {selectedPeriod}
-          </p>
-          <p className="text-xs text-[var(--tx3)] mt-0.5">Cruzamento Notion × Extrato Nubank</p>
-        </div>
-        <div className="flex items-center gap-4 text-xs">
-          <span className="flex items-center gap-1.5 text-[#10B981] font-semibold">
-            <span className="w-2 h-2 rounded-full bg-[#10B981]" />
-            {confirmed} confirmado{confirmed !== 1 ? 's' : ''}
-          </span>
-          <span className="flex items-center gap-1.5 text-[var(--tx3)]">
-            <span className="w-2 h-2 rounded-full bg-[var(--bd)]" />
-            {notFound} pendente{notFound !== 1 ? 's' : ''}
-          </span>
+      <div className="px-6 py-4 border-b border-[var(--bd)]">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--tx3)]">
+              Status de Pagamentos · {selectedPeriod}
+            </p>
+            <p className="text-[10px] text-[var(--tx3)] mt-0.5 opacity-70">Cruzamento automático Notion × Extrato Nubank</p>
+          </div>
+          {/* Summary pills */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {summaryItems.map(({ status, count }) => {
+              const cfg = STATUS_CONFIG[status]
+              const active = filterStatus === status
+              return (
+                <button
+                  key={status}
+                  onClick={() => { setFilterStatus(active ? 'todos' : status); setShowAll(false) }}
+                  className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-semibold rounded-full border transition-all"
+                  style={{
+                    background: active ? cfg.bg : 'transparent',
+                    borderColor: active ? cfg.color : 'var(--bd)',
+                    color: active ? cfg.color : 'var(--tx3)',
+                  }}
+                >
+                  <span style={{ color: cfg.color }}>{cfg.icon}</span>
+                  {count} {cfg.label.toLowerCase()}
+                </button>
+              )
+            })}
+            {filterStatus !== 'todos' && (
+              <button onClick={() => setFilterStatus('todos')}
+                className="text-[10px] text-[var(--tx3)] hover:text-[var(--tx)] px-1 transition-colors">
+                limpar
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Entries */}
       <div className="divide-y divide-[var(--bd)]">
-        {displayed.map((entry) => (
-          <div key={entry.id} className="flex items-start justify-between px-6 py-3 hover:bg-[var(--bg4)] transition-colors gap-4">
-            <div className="flex items-start gap-3 min-w-0">
-              {/* Status dot */}
-              <div className="mt-1 shrink-0">
-                {entry.status === 'confirmado' ? (
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#10B981]/15 text-[#10B981] text-[10px] font-bold">✓</span>
-                ) : (
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[var(--bg4)] border border-[var(--bd)] text-[var(--tx3)] text-[10px]">?</span>
-                )}
+        {displayed.map((entry) => {
+          const cfg = STATUS_CONFIG[entry.status]
+          const fmtDate = (d: string) => d.split('-').reverse().join('/')
+          return (
+            <div
+              key={entry.id}
+              className="flex items-start justify-between px-6 py-3 transition-colors gap-4"
+              style={{ background: 'transparent' }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg4)')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+            >
+              <div className="flex items-start gap-3 min-w-0">
+                <div className="mt-0.5 shrink-0">
+                  <StatusBadge status={entry.status} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm text-[var(--tx)] font-medium leading-snug truncate">{entry.name}</p>
+                  {entry.linkedProjectNames.length > 0 && (
+                    <p className="text-[10px] text-[var(--tx3)] truncate">{entry.linkedProjectNames.join(', ')}</p>
+                  )}
+
+                  {/* Status-specific subline */}
+                  {entry.status === 'confirmado' && entry.match && (
+                    <p className="text-[10px] mt-0.5" style={{ color: cfg.color }}>
+                      Recebido em {fmtDate(entry.match.date)} via {entry.match.label}
+                      {entry.match.valueDiffPct && entry.match.valueDiffPct > 0.5
+                        ? ` · diferença ${entry.match.valueDiffPct}%` : ''}
+                    </p>
+                  )}
+                  {entry.status === 'recebido_desatualizado' && entry.match && (
+                    <p className="text-[10px] mt-0.5 font-medium" style={{ color: cfg.color }}>
+                      ⚠ Pagamento chegou em {fmtDate(entry.match.date)} mas Notion ainda não foi atualizado
+                    </p>
+                  )}
+                  {entry.status === 'divergente' && (
+                    <p className="text-[10px] mt-0.5" style={{ color: cfg.color }}>
+                      Notion marcado como pago mas sem correspondência no extrato de {selectedPeriod}
+                    </p>
+                  )}
+                  {entry.status === 'pendente' && (
+                    <p className="text-[10px] mt-0.5" style={{ color: cfg.color }}>
+                      Esperado em {entry.paymentDate ? fmtDate(entry.paymentDate) : '—'} · extrato coberto, não encontrado
+                    </p>
+                  )}
+                  {entry.status === 'aguardando' && (
+                    <p className="text-[10px] mt-0.5" style={{ color: cfg.color }}>
+                      Previsto para {entry.paymentDate ? fmtDate(entry.paymentDate) : '—'}
+                    </p>
+                  )}
+                  {entry.status === 'sem_extrato' && (
+                    <p className="text-[10px] mt-0.5" style={{ color: cfg.color }}>
+                      Notion=pago · carregue o extrato deste mês para confirmar
+                    </p>
+                  )}
+                </div>
               </div>
-              <div className="min-w-0">
-                <p className="text-sm text-[var(--tx)] font-medium truncate">{entry.name}</p>
-                {entry.linkedProjectNames.length > 0 && (
-                  <p className="text-[10px] text-[var(--tx3)] truncate">{entry.linkedProjectNames.join(', ')}</p>
-                )}
-                {entry.status === 'confirmado' && entry.match && (
-                  <p className="text-[10px] text-[#10B981] mt-0.5">
-                    Encontrado em {entry.match.date.split('-').reverse().join('/')} via {entry.match.label}
-                  </p>
-                )}
-                {entry.status === 'nao_encontrado' && (
-                  <p className="text-[10px] text-[var(--tx3)] mt-0.5">
-                    Esperado em {entry.paymentDate ? entry.paymentDate.split('-').reverse().join('/') : '—'} · sem correspondência no extrato
-                  </p>
+
+              {/* Right: value */}
+              <div className="text-right shrink-0">
+                <p className="text-sm font-semibold" style={{ color: cfg.color }}>
+                  {fmtBRL(entry.value)}
+                </p>
+                {entry.match && Math.abs(entry.match.amount - entry.value) > 0.5 && (
+                  <p className="text-[10px] text-[var(--tx3)]">banco: {fmtBRL(entry.match.amount)}</p>
                 )}
               </div>
             </div>
-            <div className="text-right shrink-0">
-              <p className="text-sm font-semibold" style={{ color: entry.status === 'confirmado' ? '#10B981' : 'var(--tx2)' }}>
-                {fmtBRL(entry.value)}
-              </p>
-              {entry.status === 'confirmado' && entry.match && Math.abs(entry.match.amount - entry.value) > 0.01 && (
-                <p className="text-[10px] text-[var(--tx3)]">recebido {fmtBRL(entry.match.amount)}</p>
-              )}
-            </div>
+          )
+        })}
+        {displayed.length === 0 && (
+          <div className="px-6 py-8 text-center text-xs text-[var(--tx3)]">
+            Nenhum lançamento com esse status em {selectedPeriod}.
           </div>
-        ))}
+        )}
       </div>
 
-      {periodEntries.length > 8 && (
+      {filtered.length > 8 && (
         <div className="px-6 py-3 border-t border-[var(--bd)]">
-          <button onClick={() => setShowAll((v) => !v)} className="text-xs text-[var(--tx3)] hover:text-[var(--tx)] transition-colors">
-            {showAll ? 'Mostrar menos' : `Ver mais ${periodEntries.length - 8} lançamentos`}
+          <button onClick={() => setShowAll((v) => !v)}
+            className="text-xs text-[var(--tx3)] hover:text-[var(--tx)] transition-colors">
+            {showAll ? 'Mostrar menos' : `Ver todos os ${filtered.length} lançamentos`}
           </button>
         </div>
       )}
