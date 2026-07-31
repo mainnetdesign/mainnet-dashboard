@@ -92,76 +92,102 @@ const CATEGORY_COLORS: Record<string, string> = {
   'Outros':                    '#6B7280',
 }
 
-// ── Evolution chart (pure SVG, no deps) ──────────────────────────────────────
+// ── Smooth bezier path helper ─────────────────────────────────────────────────
+function smoothPath(pts: [number, number][]): string {
+  if (pts.length < 2) return ''
+  let d = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`
+  for (let i = 1; i < pts.length; i++) {
+    const [x0, y0] = pts[i - 1]
+    const [x1, y1] = pts[i]
+    const cx = (x0 + x1) / 2
+    d += ` C${cx.toFixed(1)},${y0.toFixed(1)} ${cx.toFixed(1)},${y1.toFixed(1)} ${x1.toFixed(1)},${y1.toFixed(1)}`
+  }
+  return d
+}
+
+// ── Evolution chart — premium redesign ───────────────────────────────────────
 function EvolutionChart({ data }: { data: MonthlyPoint[] }) {
   if (!data.length) return null
 
-  const W = 700, H = 160, PAD = { top: 16, bottom: 32, left: 64, right: 16 }
+  const W = 700, H = 110
+  const PAD = { top: 12, bottom: 24, left: 52, right: 16 }
   const inner = { w: W - PAD.left - PAD.right, h: H - PAD.top - PAD.bottom }
 
-  const allVals = data.flatMap((d) => [d.credits, d.debits, Math.abs(d.net)])
-  const maxVal  = Math.max(...allVals, 1)
+  const allVals = data.flatMap((d) => [d.credits, d.debits])
+  const maxVal  = Math.max(...allVals, 1) * 1.08
 
-  const x = (i: number) => PAD.left + (i / (data.length - 1 || 1)) * inner.w
-  const y = (v: number) => PAD.top + inner.h - (v / maxVal) * inner.h
+  const xp = (i: number) => PAD.left + (i / (data.length - 1 || 1)) * inner.w
+  const yp = (v: number) => PAD.top + inner.h - (v / maxVal) * inner.h
+  const baseline = PAD.top + inner.h
 
-  const line = (key: 'credits' | 'debits') =>
-    data.map((d, i) => `${i === 0 ? 'M' : 'L'}${x(i).toFixed(1)},${y(d[key]).toFixed(1)}`).join(' ')
+  const creditPts  = data.map((d, i): [number, number] => [xp(i), yp(d.credits)])
+  const debitPts   = data.map((d, i): [number, number] => [xp(i), yp(d.debits)])
+  const creditPath = smoothPath(creditPts)
+  const debitPath  = smoothPath(debitPts)
+
+  // Area fill paths (close to baseline)
+  const creditArea = creditPath + ` L${xp(data.length-1).toFixed(1)},${baseline} L${PAD.left},${baseline} Z`
+  const debitArea  = debitPath  + ` L${xp(data.length-1).toFixed(1)},${baseline} L${PAD.left},${baseline} Z`
+
+  const fmt = (v: number) =>
+    new Intl.NumberFormat('pt-BR', { notation: 'compact' }).format(v)
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full" preserveAspectRatio="xMidYMid meet">
-      {/* Grid lines */}
-      {[0.25, 0.5, 0.75, 1].map((f) => (
-        <line key={f} x1={PAD.left} x2={W - PAD.right} y1={PAD.top + inner.h * (1 - f)} y2={PAD.top + inner.h * (1 - f)}
-          stroke="var(--bd)" strokeWidth={0.5} strokeDasharray="3 3" />
+      <defs>
+        <linearGradient id="gc" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#10B981" stopOpacity="0.18" />
+          <stop offset="100%" stopColor="#10B981" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id="gd" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#F43F5E" stopOpacity="0.14" />
+          <stop offset="100%" stopColor="#F43F5E" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+
+      {/* Subtle grid */}
+      {[0.33, 0.66, 1].map((f) => (
+        <line key={f}
+          x1={PAD.left} x2={W - PAD.right}
+          y1={PAD.top + inner.h * (1 - f)} y2={PAD.top + inner.h * (1 - f)}
+          stroke="var(--bd)" strokeWidth={0.4} strokeDasharray="4 4" strokeOpacity={0.6} />
       ))}
 
       {/* Y labels */}
-      {[0, 0.5, 1].map((f) => (
-        <text key={f} x={PAD.left - 6} y={PAD.top + inner.h * (1 - f) + 4} textAnchor="end"
-          className="fill-[var(--tx3)]" fontSize={9}>
-          {new Intl.NumberFormat('pt-BR', { notation: 'compact', currency: 'BRL' }).format(maxVal * f)}
+      {[0.33, 0.66, 1].map((f) => (
+        <text key={f} x={PAD.left - 5} y={PAD.top + inner.h * (1 - f) + 3.5}
+          textAnchor="end" fill="var(--tx3)" fontSize={8} opacity={0.7}>
+          {fmt(maxVal * f)}
         </text>
       ))}
 
-      {/* Entradas line */}
-      <path d={line('credits')} fill="none" stroke="#10B981" strokeWidth={2} strokeLinejoin="round" />
-      {/* Saídas line */}
-      <path d={line('debits')} fill="none" stroke="#EF4444" strokeWidth={2} strokeLinejoin="round" />
+      {/* Area fills */}
+      <path d={debitArea}  fill="url(#gd)" />
+      <path d={creditArea} fill="url(#gc)" />
 
-      {/* Net bars */}
+      {/* Stroke lines */}
+      <path d={debitPath}  fill="none" stroke="#F43F5E" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+      <path d={creditPath} fill="none" stroke="#10B981" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+
+      {/* Dots + month labels */}
       {data.map((d, i) => {
-        const bw = inner.w / (data.length * 3)
-        const bx = x(i) - bw / 2
+        const cx = xp(i), cyCr = yp(d.credits), cyDb = yp(d.debits)
         const netPos = d.net >= 0
-        const bh = (Math.abs(d.net) / maxVal) * inner.h
-        const by = netPos ? y(d.net) : PAD.top + inner.h
         return (
-          <rect key={i} x={bx} y={by} width={bw} height={bh}
-            fill={netPos ? '#10B981' : '#EF4444'} fillOpacity={0.25} />
+          <g key={i}>
+            {/* month label */}
+            <text x={cx} y={H - 4} textAnchor="middle" fill="var(--tx3)" fontSize={8.5} opacity={0.75}>
+              {d.month}
+            </text>
+            {/* net indicator dot at baseline */}
+            <circle cx={cx} cy={baseline - 1} r={2.5}
+              fill={netPos ? '#10B981' : '#F43F5E'} opacity={0.6} />
+            {/* line dots */}
+            <circle cx={cx} cy={cyCr} r={2.5} fill="#10B981" stroke="var(--bg3)" strokeWidth={1} />
+            <circle cx={cx} cy={cyDb} r={2.5} fill="#F43F5E" stroke="var(--bg3)" strokeWidth={1} />
+          </g>
         )
       })}
-
-      {/* Dots + labels */}
-      {data.map((d, i) => (
-        <g key={i}>
-          <circle cx={x(i)} cy={y(d.credits)} r={3} fill="#10B981" />
-          <circle cx={x(i)} cy={y(d.debits)} r={3} fill="#EF4444" />
-          <text x={x(i)} y={H - 6} textAnchor="middle" className="fill-[var(--tx3)]" fontSize={10}>
-            {d.month}
-          </text>
-        </g>
-      ))}
-
-      {/* Legend */}
-      <g transform={`translate(${PAD.left}, ${PAD.top - 2})`}>
-        <circle cx={0} cy={0} r={3} fill="#10B981" />
-        <text x={6} y={4} className="fill-[var(--tx3)]" fontSize={8}>Entradas</text>
-        <circle cx={60} cy={0} r={3} fill="#EF4444" />
-        <text x={66} y={4} className="fill-[var(--tx3)]" fontSize={8}>Saídas</text>
-        <rect x={115} y={-4} width={8} height={8} fill="#10B981" fillOpacity={0.3} />
-        <text x={126} y={4} className="fill-[var(--tx3)]" fontSize={8}>Resultado</text>
-      </g>
     </svg>
   )
 }
@@ -478,8 +504,14 @@ export default function FinanceiroPage() {
 
       {/* Evolution chart */}
       {data.monthly && data.monthly.length > 1 && (
-        <div className="bg-[var(--bg3)] border border-[var(--bd)] mb-6 p-5">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--tx3)] mb-3">Evolução mensal · Conta Corrente</p>
+        <div className="bg-[var(--bg3)] border border-[var(--bd)] mb-6 px-5 pt-4 pb-2">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--tx3)]">Evolução mensal · Conta Corrente</p>
+            <div className="flex items-center gap-4 text-[10px] text-[var(--tx3)]">
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-px bg-[#10B981] inline-block rounded" />Entradas</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-px bg-[#F43F5E] inline-block rounded" />Saídas</span>
+            </div>
+          </div>
           <EvolutionChart data={data.monthly} />
         </div>
       )}
