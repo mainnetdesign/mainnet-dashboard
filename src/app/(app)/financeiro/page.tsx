@@ -109,8 +109,8 @@ function smoothPath(pts: [number, number][]): string {
 function EvolutionChart({ data }: { data: MonthlyPoint[] }) {
   if (!data.length) return null
 
-  const W = 700, H = 110
-  const PAD = { top: 12, bottom: 24, left: 52, right: 16 }
+  const W = 700, H = 72
+  const PAD = { top: 8, bottom: 18, left: 48, right: 12 }
   const inner = { w: W - PAD.left - PAD.right, h: H - PAD.top - PAD.bottom }
 
   const allVals = data.flatMap((d) => [d.credits, d.debits])
