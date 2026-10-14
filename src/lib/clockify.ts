@@ -49,10 +49,7 @@ async function fetchPage(
   return res.json()
 }
 
-export async function fetchAllTimeEntries(
-  startDate: string,
-  endDate: string
-): Promise<ClockifyEntry[]> {
+async function fetchRange(startDate: string, endDate: string): Promise<RawEntry[]> {
   const start = `${startDate}T00:00:00.000Z`
   const end = `${endDate}T23:59:59.999Z`
 
@@ -69,6 +66,33 @@ export async function fetchAllTimeEntries(
     const results = await Promise.all(pages.map((p) => fetchPage(start, end, p)))
     for (const r of results) rawEntries = rawEntries.concat(r.timeentries)
   }
+
+  return rawEntries
+}
+
+// Clockify's current plan rejects report ranges longer than 31 days,
+// so longer ranges are split into calendar-month chunks.
+function monthChunks(startDate: string, endDate: string): Array<[string, string]> {
+  const toISO = (d: Date) => d.toISOString().split('T')[0]
+  const last = new Date(`${endDate}T00:00:00.000Z`)
+  const chunks: Array<[string, string]> = []
+  let cur = new Date(`${startDate}T00:00:00.000Z`)
+  while (cur <= last) {
+    const monthEnd = new Date(Date.UTC(cur.getUTCFullYear(), cur.getUTCMonth() + 1, 0))
+    chunks.push([toISO(cur), toISO(monthEnd < last ? monthEnd : last)])
+    cur = new Date(Date.UTC(cur.getUTCFullYear(), cur.getUTCMonth() + 1, 1))
+  }
+  return chunks
+}
+
+export async function fetchAllTimeEntries(
+  startDate: string,
+  endDate: string
+): Promise<ClockifyEntry[]> {
+  const results = await Promise.all(
+    monthChunks(startDate, endDate).map(([s, e]) => fetchRange(s, e))
+  )
+  const rawEntries = results.flat()
 
   // Filter to our 6 collaborators and normalize
   return rawEntries
