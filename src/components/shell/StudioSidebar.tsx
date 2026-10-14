@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import {
+  RiArchiveLine,
+  RiArrowDownSLine,
   RiBarChartLine,
   RiCashLine,
   RiDashboard3Line,
@@ -11,6 +13,7 @@ import {
   RiGroupLine,
   RiMoonLine,
   RiSunLine,
+  RiWallet3Line,
 } from '@remixicon/react'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
@@ -18,19 +21,17 @@ import SidebarSection from '@/components/shell/SidebarSection'
 import SidebarNavItem from '@/components/shell/SidebarNavItem'
 import IconRail from '@/components/shell/IconRail'
 
-const NAV = {
-  principal: [
-    { href: '/dashboard', label: 'Dashboard', icon: RiDashboard3Line },
-  ],
-  financeiro: [
-    { href: '/fluxo', label: 'Fluxo de Caixa', icon: RiCashLine },
-    { href: '/relatorio', label: 'Relatório', icon: RiFileTextLine },
-  ],
-  operacoes: [
-    { href: '/colaboradores', label: 'Colaboradores', icon: RiGroupLine },
-    { href: '/auditoria', label: 'Auditoria', icon: RiBarChartLine },
-  ],
-}
+const NAV = [
+  { href: '/financeiro', label: 'Financeiro', icon: RiWallet3Line },
+  { href: '/relatorio', label: 'Relatório', icon: RiFileTextLine },
+]
+
+const ARCHIVE_NAV = [
+  { href: '/dashboard', label: 'Dashboard', icon: RiDashboard3Line },
+  { href: '/fluxo', label: 'Fluxo de Caixa', icon: RiCashLine },
+  { href: '/colaboradores', label: 'Colaboradores', icon: RiGroupLine },
+  { href: '/auditoria', label: 'Auditoria', icon: RiBarChartLine },
+]
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme()
@@ -55,23 +56,14 @@ function ThemeToggle() {
 
 function StudioNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname()
+  const [archiveOpen, setArchiveOpen] = useState(() =>
+    ARCHIVE_NAV.some((item) => pathname.startsWith(item.href))
+  )
 
   return (
     <>
-      <SidebarSection title="Principal">
-        {NAV.principal.map((item) => (
-          <SidebarNavItem
-            key={item.href}
-            href={item.href}
-            label={item.label}
-            active={pathname.startsWith(item.href)}
-            onNavigate={onNavigate}
-            icon={<item.icon className="size-5" />}
-          />
-        ))}
-      </SidebarSection>
       <SidebarSection title="Financeiro">
-        {NAV.financeiro.map((item) => (
+        {NAV.map((item) => (
           <SidebarNavItem
             key={item.href}
             href={item.href}
@@ -82,18 +74,32 @@ function StudioNav({ onNavigate }: { onNavigate?: () => void }) {
           />
         ))}
       </SidebarSection>
-      <SidebarSection title="Operações" className="border-b-0">
-        {NAV.operacoes.map((item) => (
-          <SidebarNavItem
-            key={item.href}
-            href={item.href}
-            label={item.label}
-            active={pathname.startsWith(item.href)}
-            onNavigate={onNavigate}
-            icon={<item.icon className="size-5" />}
-          />
-        ))}
-      </SidebarSection>
+      <div className="flex flex-col gap-0.5 px-3.5 pb-3.5 pt-3">
+        <button
+          type="button"
+          onClick={() => setArchiveOpen((v) => !v)}
+          aria-expanded={archiveOpen}
+          className="flex items-center gap-2 rounded-lg py-1.5 pl-1.5 pr-2 text-label-sm text-text-sub-600 transition-colors hover:bg-bg-weak-50 hover:text-text-strong-950"
+        >
+          <RiArchiveLine className="size-5 shrink-0" />
+          <span className="flex-1 text-left">Arquivo</span>
+          <RiArrowDownSLine className={`size-4 shrink-0 transition-transform ${archiveOpen ? 'rotate-180' : ''}`} />
+        </button>
+        {archiveOpen && (
+          <div className="ml-3.5 flex flex-col gap-0.5 border-l border-stroke-soft-200 pl-2">
+            {ARCHIVE_NAV.map((item) => (
+              <SidebarNavItem
+                key={item.href}
+                href={item.href}
+                label={item.label}
+                active={pathname.startsWith(item.href)}
+                onNavigate={onNavigate}
+                icon={<item.icon className="size-5" />}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </>
   )
 }
@@ -134,7 +140,7 @@ export default function StudioSidebar() {
 
       {/* Mobile top bar */}
       <div className="fixed left-0 right-0 top-0 z-20 flex items-center justify-between border-b border-stroke-soft-200 bg-bg-white-0 px-4 py-3 lg:hidden">
-        <Link href="/dashboard" className="flex flex-col gap-0.5">
+        <Link href="/financeiro" className="flex flex-col gap-0.5">
           <Image
             src="/mainnet-logo.svg"
             alt="Mainnet Design"

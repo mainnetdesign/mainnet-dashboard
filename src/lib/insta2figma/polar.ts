@@ -21,6 +21,7 @@ export type PolarSubscription = {
   customerId: string | null
   amountUSD: number
   status: string
+  interval: 'month' | 'year' | null
 }
 
 async function fetchAllPages<T>(
@@ -72,6 +73,7 @@ export async function fetchActivePolarSubscriptions(): Promise<PolarSubscription
     customer_id?: string | null
     amount?: number
     status: string
+    recurring_interval?: 'month' | 'year' | null
   }>(`/subscriptions?organization_id=${POLAR_ORG_ID}&active=true`, (j) => j.items ?? [])
 
   return raw.map((s) => ({
@@ -79,5 +81,6 @@ export async function fetchActivePolarSubscriptions(): Promise<PolarSubscription
     customerId: s.customer_id ?? null,
     amountUSD: (s.amount ?? 0) / 100,
     status: s.status,
+    interval: s.recurring_interval ?? null,
   }))
 }

@@ -2,7 +2,7 @@ export type AppMode = 'studio' | 'store'
 
 export const APP_MODE_STORAGE_KEY = 'mainnet-app-mode'
 
-export const STUDIO_HOME = '/dashboard'
+export const STUDIO_HOME = '/financeiro'
 export const STORE_HOME = '/store'
 
 export function modeFromPathname(pathname: string): AppMode {

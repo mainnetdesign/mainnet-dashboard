@@ -1,4 +1,4 @@
-import { NotionTransaction } from '@/types'
+import { LedgerEntry, NotionTransaction } from '@/types'
 
 const NOTION_KEY = process.env.NOTION_API_KEY!
 const DATABASE_ID = process.env.NOTION_DATABASE_ID!
@@ -20,6 +20,8 @@ interface NotionPage {
     Tipo: { select: { name: string } | null }
     Realizado: { checkbox: boolean }
     'Data Pagamento': { date: { start: string } | null }
+    'Data Vencimento'?: { date: { start: string } | null }
+    'Categoria padronizada'?: { select: { name: string } | null }
     Projetos: { relation: Array<{ id: string }> } | undefined
   }
 }
@@ -30,14 +32,9 @@ interface NotionQueryResponse {
   next_cursor: string | null
 }
 
-async function queryPage(cursor?: string): Promise<NotionQueryResponse> {
-  const body: Record<string, unknown> = {
-    page_size: 100,
-    filter: {
-      property: 'Tipo',
-      select: { equals: 'Entrada' },
-    },
-  }
+async function queryPage(cursor?: string, filter?: object): Promise<NotionQueryResponse> {
+  const body: Record<string, unknown> = { page_size: 100 }
+  if (filter) body.filter = filter
   if (cursor) body.start_cursor = cursor
 
   const res = await fetch(`${NOTION_BASE}/databases/${DATABASE_ID}/query`, {
@@ -51,6 +48,45 @@ async function queryPage(cursor?: string): Promise<NotionQueryResponse> {
   }
   return res.json()
 }
+
+async function queryAll(filter?: object): Promise<NotionPage[]> {
+  const allResults: NotionPage[] = []
+  let cursor: string | undefined = undefined
+  let hasMore = true
+
+  while (hasMore) {
+    const page = await queryPage(cursor, filter)
+    allResults.push(...page.results)
+    hasMore = page.has_more
+    cursor = page.next_cursor ?? undefined
+  }
+  return allResults
+}
+
+/** Todas as transações (entradas e saídas), com valores sempre positivos */
+export async function fetchLedger(): Promise<LedgerEntry[]> {
+  const allResults = await queryAll()
+
+  return allResults.flatMap((result): LedgerEntry[] => {
+    const p = result.properties
+    const type = p.Tipo.select?.name
+    if (type !== 'Entrada' && type !== 'Saída') return []
+    const value = p.Valor.number ?? 0
+    const predicted = p['Valor Previsto']?.formula?.number ?? value
+    const realized = p.Realizado.checkbox
+    return [{
+      id: result.id,
+      name: p.Nome.title[0]?.plain_text ?? '',
+      type,
+      amount: Math.abs(realized ? value : predicted),
+      realized,
+      date: p['Data Pagamento'].date?.start ?? p['Data Vencimento']?.date?.start ?? null,
+      category: p['Categoria padronizada']?.select?.name ?? null,
+    }]
+  })
+}
+
+// ── Telas arquivadas (Estúdio) ────────────────────────────────────────────────
 
 /** Fetch a single Notion page and return its title (Project name) */
 async function fetchProjectPageName(pageId: string): Promise<string | null> {
@@ -81,53 +117,31 @@ async function fetchProjectNames(ids: string[]): Promise<Record<string, string>>
   return Object.fromEntries(entries.filter(Boolean) as [string, string][])
 }
 
+/** Entradas com os nomes dos projetos vinculados (relação "Projetos") */
 export async function fetchAllTransactions(): Promise<NotionTransaction[]> {
-  // Step 1: collect all raw pages across pagination
-  const allResults: NotionPage[] = []
-  let cursor: string | undefined = undefined
-  let hasMore = true
+  const allResults = await queryAll({ property: 'Tipo', select: { equals: 'Entrada' } })
 
-  while (hasMore) {
-    const page = await queryPage(cursor)
-    allResults.push(...page.results)
-    hasMore = page.has_more
-    cursor = page.next_cursor ?? undefined
-  }
-
-  // Step 2: collect unique project page IDs from the "Projetos" relation
   const projectIdSet = new Set<string>()
   for (const result of allResults) {
     for (const rel of (result.properties.Projetos?.relation ?? [])) {
       projectIdSet.add(rel.id)
     }
   }
-
-  // Step 3: batch-fetch project names (parallel)
   const projectNames = await fetchProjectNames([...projectIdSet])
 
-  // Step 4: build transactions with linked project names
-  const transactions: NotionTransaction[] = []
-  for (const result of allResults) {
+  return allResults.map((result) => {
     const p = result.properties
-    const name = p.Nome.title[0]?.plain_text ?? ''
     const value = p.Valor.number ?? 0
-    const predictedValue = p['Valor Previsto']?.formula?.number ?? value
-    const realized = p.Realizado.checkbox
-    const paymentDate = p['Data Pagamento'].date?.start ?? null
-    const linkedProjectNames = (p.Projetos?.relation ?? [])
-      .map((rel) => projectNames[rel.id])
-      .filter((n): n is string => Boolean(n))
-
-    transactions.push({
+    return {
       id: result.id,
-      name,
+      name: p.Nome.title[0]?.plain_text ?? '',
       value,
-      predictedValue,
-      realized,
-      paymentDate,
-      linkedProjectNames,
-    })
-  }
-
-  return transactions
+      predictedValue: p['Valor Previsto']?.formula?.number ?? value,
+      realized: p.Realizado.checkbox,
+      paymentDate: p['Data Pagamento'].date?.start ?? null,
+      linkedProjectNames: (p.Projetos?.relation ?? [])
+        .map((rel) => projectNames[rel.id])
+        .filter((n): n is string => Boolean(n)),
+    }
+  })
 }

@@ -1,104 +1,104 @@
-export interface Collaborator {
+export * from './studio'
+
+export interface LedgerEntry {
   id: string
   name: string
-  color: string
-  monthlySalary?: number
-  hourlyRate?: number // fixed (Djturzin)
-}
-
-export interface ClockifyEntry {
-  _id: string
-  userId: string
-  userName: string
-  projectId: string | null
-  projectName: string | null
-  duration: number // seconds
-  start: string // ISO
-  month: string  // YYYY-MM
-}
-
-export interface ProjectCostData {
-  projectId: string
-  projectName: string
-  totalHours: number
-  totalCost: number
-  costByCollaborator: Record<string, { hours: number; cost: number; name: string; color: string }>
-}
-
-export interface CollaboratorSummary {
-  id: string
-  name: string
-  color: string
-  totalCost: number
-  totalHours: number
-  effectiveHourlyRate: number
-  percentOfTotal: number
-}
-
-export interface NotionTransaction {
-  id: string
-  name: string
-  value: number
-  predictedValue: number
+  type: 'Entrada' | 'Saída'
+  amount: number // BRL, sempre positivo
   realized: boolean
-  paymentDate: string | null
-  linkedProjectNames: string[]  // from Notion "Projetos" relation
+  date: string | null // Data Pagamento, senão Data Vencimento
+  category: string | null
 }
 
-export interface ProjectPL {
-  clockifyProjectName: string
-  clockifyProjectId: string
-  hours: number
+export interface FinanceMonth {
+  month: string // YYYY-MM
+  label: string
+  isCurrent: boolean
+  polarRevenue: number
+  notionRevenue: number
   revenue: number
+  tax: number
   cost: number
   result: number
-  margin: number | null
-  status: 'Lucro' | 'Prejuízo' | 'Margem baixa'
-  hasAttention: boolean
-  isInternal: boolean
 }
 
-export interface MonthlyData {
-  month: string   // YYYY-MM
-  label: string   // "Jan/25"
-  cost: number
-  revenue: number
-  predictedRevenue: number
-  result: number
-  collaboratorRates: Record<string, number> // userId → effective R$/h for that month
+export interface CircleData {
+  client: string
+  service: string
+  platform: string
+  annualUSD: number
+  monthlyUSD: number
+  invoiceUSD: number
+  taxRate: number
+  fxSpread: number
+  monthlyGrossBRL: number
+  monthlyTaxBRL: number
+  monthlySpreadBRL: number
+  monthlyNetBRL: number
+  receivedThisMonthBRL: number
+  receivedThisMonth: LedgerEntry[]
+  receivedYearBRL: number
+  nextInvoices: Array<{ date: string; amountUSD: number; amountBRL: number }>
 }
 
-export interface ComparisonKPIs {
-  totalCost: number
-  totalRevenue: number
-  netResult: number
-  overheadPercent: number
+export interface FinanceCostItem {
+  id: string
+  label: string
+  group: string
+  monthlyBRL: number
+  amountUSD?: number
 }
 
-export interface AlertItem {
-  projectName: string
-  type: 'loss' | 'low-margin' | 'no-revenue'
-  cost: number
-  revenue: number
-  result: number
-  hours: number
+export interface FinanceData {
+  currentMonth: string
+  rate: { value: number; source: 'awesomeapi' | 'fallback' }
+  fixedCosts: FinanceCostItem[]
+  fixedTotal: number
+  taxRate: number
+  circle: CircleData
+  variableThisMonth: LedgerEntry[]
+  monthly: FinanceMonth[]
+  payables: LedgerEntry[]
+  receivables: LedgerEntry[]
+  summary: {
+    mrrUSD: number
+    mrrBRL: number
+    activeSubscriptions: number
+    /** MRR do Insta2Figma já descontado o imposto */
+    mrrNetBRL: number
+    /** custo fixo mensal − receita recorrente líquida (Circle + MRR); ≤ 0 = a empresa sobra dinheiro */
+    netBurn: number
+  }
 }
 
-export interface DashboardData {
-  period: { start: string; end: string }
-  totalCost: number
-  overheadCost: number
-  overheadHours: number
-  overheadPercent: number
-  mostExpensiveProject: { name: string; cost: number }
-  highestCostPerHour: { name: string; rate: number; percentOfTotal: number }
-  costByProject: ProjectCostData[]
-  collaborators: CollaboratorSummary[]
-  totalCostAllCollaborators: number
-  /** userId → { month (YYYY-MM) → cost } — for per-collaborator sparklines */
-  collaboratorMonthlyCosts: Record<string, Record<string, number>>
-  pl: ProjectPL[]
-  monthly: MonthlyData[]
-  comparison: ComparisonKPIs | null
-  alerts: AlertItem[]
+export interface ReportLine {
+  id: string
+  label: string
+  /** Origem do valor: lançado no Notion, Polar, custo fixo da config ou estimativa */
+  source: 'notion' | 'polar' | 'fixo' | 'estimado'
+  amount: number
+  date: string | null
+  realized: boolean
+}
+
+export interface ReportData {
+  month: string // YYYY-MM
+  isCurrent: boolean
+  isFuture: boolean
+  rate: number
+  inflows: ReportLine[]
+  outflows: ReportLine[]
+  totals: {
+    inflow: number
+    outflow: number
+    result: number
+    /** resultado / entradas, em %; null quando não houve entrada */
+    margin: number | null
+  }
+  circle: {
+    client: string
+    expectedBRL: number
+    expectedUSD: number
+    receivedBRL: number
+  }
 }
