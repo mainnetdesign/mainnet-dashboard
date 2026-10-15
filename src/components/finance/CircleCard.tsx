@@ -19,9 +19,9 @@ function fmtDate(d: string) {
 
 function Row({ label, value, className }: { label: string; value: string; className?: string }) {
   return (
-    <div className="flex items-center justify-between py-1.5 text-paragraph-sm">
-      <span className="text-text-sub-600">{label}</span>
-      <span className={className ?? 'text-label-sm text-text-strong-950'}>{value}</span>
+    <div className="flex items-center justify-between gap-3 py-1.5 text-paragraph-sm">
+      <span className="min-w-0 text-text-sub-600">{label}</span>
+      <span className={`shrink-0 ${className ?? 'text-label-sm text-text-strong-950'}`}>{value}</span>
     </div>
   )
 }
@@ -31,7 +31,7 @@ export default function CircleCard({ circle, currentMonth }: { circle: CircleDat
   const next = circle.nextInvoices[0]
 
   return (
-    <WidgetCard className="flex min-w-0 flex-col gap-5">
+    <WidgetCard className="flex min-w-0 flex-col gap-5 p-4 sm:p-5">
       <div>
         <p className="text-label-sm text-text-strong-950">{circle.client}</p>
         <p className="text-paragraph-xs text-text-soft-400">{circle.service} · pago via {circle.platform}</p>

@@ -48,7 +48,7 @@ function LinesTable({ title, lines, total, tone }: {
   tone: 'success' | 'error'
 }) {
   return (
-    <WidgetCard className="flex flex-col gap-3">
+    <WidgetCard className="flex min-w-0 flex-col gap-3 p-4 sm:p-5">
       <p className="text-label-sm text-text-strong-950">{title}</p>
       {lines.length === 0 ? (
         <p className="py-4 text-paragraph-sm text-text-soft-400">Nenhum lançamento neste mês</p>
@@ -109,41 +109,45 @@ function RelatorioContent() {
   const generatedDate = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
   const t = data?.totals
 
+  const controls = (
+    <div className="flex items-center gap-2">
+      <input
+        type="month"
+        value={month}
+        onChange={(e) => handleMonthChange(e.target.value)}
+        className="min-w-0 flex-1 rounded-lg border border-stroke-soft-200 bg-bg-white-0 px-3 py-1.5 text-paragraph-sm text-text-strong-950 focus:border-stroke-sub-300 focus:outline-none sm:flex-none"
+      />
+      <Button.Root variant="neutral" mode="stroke" size="small" onClick={() => window.print()} disabled={loading}>
+        <Button.Icon as={RiPrinterLine} />
+        PDF
+      </Button.Root>
+    </div>
+  )
+
   return (
     <>
       <div className="no-print">
         <PageHeader
           title="Relatório"
           subtitle="fechamento financeiro do mês"
-          actions={
-            <div className="flex items-center gap-2">
-              <input
-                type="month"
-                value={month}
-                onChange={(e) => handleMonthChange(e.target.value)}
-                className="rounded-lg border border-stroke-soft-200 bg-bg-white-0 px-3 py-1.5 text-paragraph-sm text-text-strong-950 focus:border-stroke-sub-300 focus:outline-none"
-              />
-              <Button.Root variant="neutral" mode="stroke" size="small" onClick={() => window.print()} disabled={loading}>
-                <Button.Icon as={RiPrinterLine} />
-                PDF
-              </Button.Root>
-            </div>
-          }
+          actions={<div className="hidden sm:block">{controls}</div>}
         />
       </div>
 
-      <main className="flex flex-col gap-4 p-5 print:p-0">
+      <main className="flex flex-col gap-3 p-4 sm:gap-4 sm:p-5 print:p-0">
+        <div className="no-print sm:hidden">{controls}</div>
+
         {error && (
           <WidgetCard className="border-error-light/40 bg-error-lighter/20">
             <p className="text-label-sm text-error-base">{error}</p>
           </WidgetCard>
         )}
 
-        <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 mn-page-stagger">
-          <div className="flex items-end justify-between border-b border-stroke-soft-200 pb-5">
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-3 sm:gap-4 mn-page-stagger">
+          <div className="flex flex-col gap-2 border-b border-stroke-soft-200 pb-4 sm:flex-row sm:items-end sm:justify-between sm:pb-5 print:flex-row print:items-end print:justify-between">
             <div>
               <p className="text-paragraph-xs text-text-soft-400">Mainnet Design · Relatório financeiro</p>
-              <h1 className="mt-1 font-display text-title-h4 text-text-strong-950">{formatMonthLabel(month)}</h1>
+              <h1 className="mt-1 font-display text-title-h5 text-text-strong-950 sm:text-title-h4">{formatMonthLabel(month)}</h1>
             </div>
             <p className="text-paragraph-xs text-text-soft-400">
               {data?.isFuture ? 'projeção' : data?.isCurrent ? 'mês em andamento' : 'mês fechado'} · gerado em {generatedDate}
@@ -151,43 +155,52 @@ function RelatorioContent() {
           </div>
 
           {loading || !data || !t ? (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-28 animate-pulse rounded-2xl bg-stroke-soft-200" />
-              ))}
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+              <div className="h-24 animate-pulse rounded-2xl bg-stroke-soft-200 sm:h-28" />
+              <div className="h-24 animate-pulse rounded-2xl bg-stroke-soft-200 sm:h-28" />
+              <div className="col-span-2 h-24 animate-pulse rounded-2xl bg-stroke-soft-200 sm:col-span-1 sm:h-28" />
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 print:grid-cols-3">
-                <StatWidget label="Entrou" value={fmtBRL(t.inflow)} />
-                <StatWidget label="Saiu" value={fmtBRL(t.outflow)} />
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 print:grid-cols-3">
                 <StatWidget
+                  className="min-w-0 p-4 sm:p-5"
+                  label="Entrou"
+                  value={<span className="text-title-h6 sm:text-title-h5">{fmtBRL(t.inflow)}</span>}
+                />
+                <StatWidget
+                  className="min-w-0 p-4 sm:p-5"
+                  label="Saiu"
+                  value={<span className="text-title-h6 sm:text-title-h5">{fmtBRL(t.outflow)}</span>}
+                />
+                <StatWidget
+                  className="col-span-2 min-w-0 p-4 sm:col-span-1 sm:p-5 print:col-span-1"
                   label={t.margin !== null ? `Resultado · margem ${t.margin.toLocaleString('pt-BR')}%` : 'Resultado'}
                   value={<span className={t.result >= 0 ? 'text-success-base' : 'text-error-base'}>{fmtBRL(t.result)}</span>}
                 />
               </div>
 
-              <WidgetCard className="flex items-center justify-between gap-4">
-                <div>
+              <WidgetCard className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:p-5 print:flex-row print:items-center print:justify-between">
+                <div className="min-w-0">
                   <p className="text-label-sm text-text-strong-950">{data.circle.client}</p>
                   <p className="text-paragraph-xs text-text-soft-400">
                     esperado {fmtUSD(data.circle.expectedUSD)} ≈ {fmtBRL(data.circle.expectedBRL)} no mês
                   </p>
                 </div>
-                <p className="text-label-md text-text-strong-950">
+                <p className="shrink-0 text-label-md text-text-strong-950">
                   {fmtBRL(data.circle.receivedBRL)}
                   <span className="ml-1 text-paragraph-xs text-text-soft-400">recebido</span>
                 </p>
               </WidgetCard>
 
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 print:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 print:grid-cols-2">
                 <LinesTable title="Entradas" lines={data.inflows} total={t.inflow} tone="success" />
                 <LinesTable title="Saídas" lines={data.outflows} total={t.outflow} tone="error" />
               </div>
             </>
           )}
 
-          <WidgetCard className="flex flex-col gap-2">
+          <WidgetCard className="flex flex-col gap-2 p-4 sm:p-5">
             <p className="text-label-sm text-text-strong-950">Observações</p>
             <textarea
               rows={4}

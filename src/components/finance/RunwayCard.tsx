@@ -91,7 +91,7 @@ export default function RunwayCard({ netBurn }: { netBurn: number }) {
     : []
 
   return (
-    <WidgetCard className="flex min-w-0 flex-col gap-5">
+    <WidgetCard className="flex min-w-0 flex-col gap-5 p-4 sm:p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-label-sm text-text-strong-950">Caixa</p>

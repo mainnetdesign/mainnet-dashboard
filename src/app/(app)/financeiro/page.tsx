@@ -98,21 +98,36 @@ export default function FinanceiroPage() {
         actions={<StudioPageActions loading={loading} onRefresh={refresh} />}
       />
 
-      <main className="flex flex-col gap-4 p-5">
+      <main className="flex flex-col gap-3 p-4 sm:gap-4 sm:p-5">
         {error && (
           <WidgetCard className="border-error-light/40 bg-error-lighter/20">
             <p className="text-label-sm text-error-base">{error}</p>
           </WidgetCard>
         )}
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
           {!ready || !s || !data
-            ? Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-28" />)
+            ? (
+              <>
+                <Skeleton className="col-span-2 h-24 sm:col-span-1 sm:h-28" />
+                <Skeleton className="h-24 sm:h-28" />
+                <Skeleton className="h-24 sm:h-28" />
+              </>
+            )
             : (
               <>
-                <StatWidget label="Entra por mês" value={fmtBRL(data.circle.monthlyNetBRL + s.mrrNetBRL)} />
-                <StatWidget label="Sai por mês" value={fmtBRL(data.fixedTotal + variableTotal)} />
                 <StatWidget
+                  className="min-w-0 p-4 sm:p-5"
+                  label="Entra por mês"
+                  value={<span className="text-title-h6 sm:text-title-h5">{fmtBRL(data.circle.monthlyNetBRL + s.mrrNetBRL)}</span>}
+                />
+                <StatWidget
+                  className="min-w-0 p-4 sm:p-5"
+                  label="Sai por mês"
+                  value={<span className="text-title-h6 sm:text-title-h5">{fmtBRL(data.fixedTotal + variableTotal)}</span>}
+                />
+                <StatWidget
+                  className="order-first col-span-2 min-w-0 p-4 sm:order-none sm:col-span-1 sm:p-5"
                   label="Sobra por mês"
                   value={
                     <span className={s.netBurn <= 0 ? 'text-success-base' : 'text-error-base'}>
@@ -124,7 +139,7 @@ export default function FinanceiroPage() {
             )}
         </div>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
           {!ready || !data || !s ? (
             <>
               <Skeleton className="h-80" />
@@ -138,8 +153,8 @@ export default function FinanceiroPage() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <WidgetCard className="flex min-w-0 flex-col gap-4">
+        <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
+          <WidgetCard className="flex min-w-0 flex-col gap-4 p-4 sm:p-5">
             <p className="text-label-sm text-text-strong-950">Custos mensais</p>
             {!ready || !data ? (
               <Skeleton className="h-40" />
@@ -172,7 +187,7 @@ export default function FinanceiroPage() {
             )}
           </WidgetCard>
 
-          <WidgetCard className="flex min-w-0 flex-col gap-4">
+          <WidgetCard className="flex min-w-0 flex-col gap-4 p-4 sm:p-5">
             <div className="flex items-center justify-between">
               <p className="text-label-sm text-text-strong-950">Últimos meses</p>
               <div className="flex items-center gap-3 text-paragraph-xs text-text-sub-600">
@@ -193,6 +208,8 @@ export default function FinanceiroPage() {
                     dataKey="label"
                     tick={{ fontSize: 11, fill: 'var(--color-text-soft-400)' }}
                     axisLine={false} tickLine={false} tickMargin={6}
+                    interval={0}
+                    tickFormatter={(label: string) => label.split('/')[0]}
                   />
                   <Tooltip content={<ChartTooltip />} cursor={{ fill: 'var(--color-bg-weak-50)' }} />
                   <Bar dataKey="revenue" name="Entrou" fill={CHART_TOKENS.positive} radius={[4, 4, 0, 0]} maxBarSize={18} />
@@ -204,7 +221,7 @@ export default function FinanceiroPage() {
         </div>
 
         {ready && pending.length > 0 && (
-          <WidgetCard className="flex flex-col gap-2">
+          <WidgetCard className="flex flex-col gap-2 p-4 sm:p-5">
             <p className="text-label-sm text-text-strong-950">Pendências</p>
             <div className="divide-y divide-stroke-soft-200">
               {pending.map((e) => <PendingRow key={e.id} entry={e} />)}

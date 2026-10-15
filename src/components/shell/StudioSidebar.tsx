@@ -111,7 +111,7 @@ function StudioSidebarHeader() {
         <Image
           src="/mainnet-logo.svg"
           alt="Mainnet Design"
-          width={110}
+          width={42}
           height={30}
           unoptimized
           priority
@@ -144,7 +144,7 @@ export default function StudioSidebar() {
           <Image
             src="/mainnet-logo.svg"
             alt="Mainnet Design"
-            width={90}
+            width={35}
             height={25}
             unoptimized
             priority
